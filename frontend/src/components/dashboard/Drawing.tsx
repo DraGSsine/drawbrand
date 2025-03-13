@@ -14,6 +14,7 @@ import ShapeTool, { ShapeType } from "@/utils/drawing/ShapeTool";
 import IconTool, { IconType } from "@/utils/drawing/IconTool";
 import ImageTool from "@/utils/drawing/ImageTool";
 import ShapeSelector from "./ShapeSelector";
+import CustomIconPicker from "./IconPicker";
 
 type Tool = "pencil" | "select" | "eraser" | "line" | "shape" | "icon" | "image";
 
@@ -225,7 +226,9 @@ const Sketch: React.FC = () => {
           >
             <Eraser size={24} />
           </button>
-
+            <button>
+              <CustomIconPicker />
+            </button>
           {/* Line tool */}
           <button
             className={`p-2 rounded ${

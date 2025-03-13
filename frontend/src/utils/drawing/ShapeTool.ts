@@ -83,18 +83,21 @@ class ShapeTool {
     const fill = this.fillMode === 'regular' ? 'rgba(0,0,0,0)' : '#020617';
     const stroke = this.fillMode === 'regular' ? '#020617' : 'rgba(0,0,0,0)';
     
+    // Standard size for most shapes - make this larger
+    const standardSize = 150; // Increased from previous value
+    
     switch (this.shapeType) {
       case ShapeType.RECTANGLE:
         shape = new fabric.Rect({
           left: x,
           top: y,
-          width: 100,
-          height: 100,
+          width: standardSize,
+          height: standardSize * 0.8, // Keep aspect ratio
           strokeWidth: this.strokeWidth,
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
         });
         break;
         
@@ -102,12 +105,12 @@ class ShapeTool {
         shape = new fabric.Circle({
           left: x,
           top: y,
-          radius: 50,
+          radius: standardSize / 2, // Half the standard size for radius
           strokeWidth: this.strokeWidth,
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
         });
         break;
         
@@ -120,7 +123,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -133,7 +138,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
 
@@ -146,7 +153,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -159,7 +168,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -172,7 +183,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -185,7 +198,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -198,7 +213,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -211,7 +228,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
       
@@ -224,7 +243,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -237,7 +258,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
 
@@ -250,7 +273,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -263,7 +288,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -276,7 +303,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -289,7 +318,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -302,7 +333,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -315,7 +348,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -328,7 +363,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -341,7 +378,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -354,7 +393,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -367,7 +408,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -380,7 +423,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -393,7 +438,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -406,7 +453,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -419,7 +468,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -432,7 +483,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -445,7 +498,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -458,7 +513,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -471,7 +528,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -484,7 +543,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -497,7 +558,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -510,7 +573,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -523,7 +588,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
         break;
         
@@ -538,7 +605,9 @@ class ShapeTool {
           stroke,
           fill,
           originX: 'center',
-          originY: 'center'
+          originY: 'center',
+          scaleX: 5, // Scale up significantly
+          scaleY: 5
         });
     }
     

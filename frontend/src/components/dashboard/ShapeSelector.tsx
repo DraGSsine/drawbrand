@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShapeType } from '@/utils/drawing/ShapeTool';
-
+ 
 interface ShapeSelectorProps {
   onSelectShape: (shape: ShapeType) => void;
   onChangeFillMode: (mode: 'regular' | 'solid') => void;
