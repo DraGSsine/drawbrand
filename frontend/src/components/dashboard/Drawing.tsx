@@ -1,20 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
-import {
-  Pencil,
-  MousePointer,
-  Eraser,
-  PenLineIcon,
-  Square,
-  Image,
-} from "lucide-react";
 import EraserBrush from "@/utils/drawing/EraserBrush";
 import LineTool from "@/utils/drawing/LineTool";
 import ShapeTool, { ShapeType } from "@/utils/drawing/ShapeTool";
 import IconTool, { IconType } from "@/utils/drawing/IconTool";
 import ImageTool from "@/utils/drawing/ImageTool";
-import ShapeSelector from "./ShapeSelector";
-import CustomIconPicker from "./IconPicker";
+import Toolbar from "./ToolBar";
 
 type Tool = "pencil" | "select" | "eraser" | "line" | "shape" | "icon" | "image";
 
@@ -39,7 +30,7 @@ const Sketch: React.FC = () => {
   // Add stroke width state
   const [strokeWidth, setStrokeWidth] = useState<number>(2);
 
-  // Initialize canvas and tools
+  // Initialize canvas and tools useEffect
   useEffect(() => {
     if (canvasRef.current && !fabricRef.current) {
       canvasRef.current.width = 800;
@@ -77,7 +68,7 @@ const Sketch: React.FC = () => {
     };
   }, []);
 
-  // Update tools based on selected tool
+  // Update tools based on selected tool useEffect
   useEffect(() => {
     const canvas = fabricRef.current;
     if (!canvas) return;
@@ -120,7 +111,7 @@ const Sketch: React.FC = () => {
     }
   }, [tool]);
 
-  // Update stroke width when it changes
+  // Update stroke width useEffect
   useEffect(() => {
     if (fabricRef.current && fabricRef.current.isDrawingMode) {
       fabricRef.current.freeDrawingBrush.width = strokeWidth;
@@ -178,125 +169,100 @@ const Sketch: React.FC = () => {
     }
   };
 
-  const handleIconSelect = (icon: IconType) => {
-    setSelectedIcon(icon);
-    setTool("icon");
-    
-    if (iconToolRef.current) {
-      iconToolRef.current.setSelectedIcon(icon);
-      // Add the icon directly to the center of the canvas
-      iconToolRef.current.addIcon();
-    }
-    
-    setShowIconOptions(false);
-  };
-
   const handleStrokeWidthChange = (newWidth: number) => {
     if (newWidth >= 1 && newWidth <= 20) {
       setStrokeWidth(newWidth);
     }
   };
 
+  const handleIconPathSelect = (iconPath: string) => {
+    setTool("icon");
+    setShowIconOptions(false);
+    
+    if (fabricRef.current) {
+      // Load the SVG from the provided path
+      fabric.loadSVGFromURL(`http://localhost:5000${iconPath}`, (objects, options) => {
+        if (!objects || objects.length === 0) {
+          console.error("Failed to load SVG from", iconPath);
+          return;
+        }
+        
+        // Create a fabric group from the loaded SVG objects
+        const svgGroup = fabric.util.groupSVGElements(objects, options);
+        
+        // Scale the icon to a reasonable size
+        svgGroup.scaleToWidth(50);
+        
+        // Center the icon on the canvas
+        const canvas = fabricRef.current;
+        if (canvas) {
+          svgGroup.set({
+            left: (canvas.width || 800) / 2,
+            top: (canvas.height || 600) / 2,
+            originX: 'center',
+            originY: 'center'
+          });
+          
+          // Add to canvas and select it
+          canvas.add(svgGroup);
+          canvas.setActiveObject(svgGroup);
+          canvas.requestRenderAll();
+        }
+      });
+    }
+  };
+
+  const toggleShapeOptions = () => {
+    setShowShapeOptions(!showShapeOptions);
+    setShowIconOptions(false);
+  };
+
+  const toggleIconOptions = () => {
+    setShowIconOptions(!showIconOptions);
+    setShowShapeOptions(false);
+  };
+
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex flex-wrap gap-4 p-4 bg-white rounded-lg shadow-md items-center">
-        {/* Basic tools */}
-        <div className="flex gap-2">
-          <button
-            className={`p-2 rounded ${
-              tool === "pencil" ? "bg-blue-500 text-white" : "bg-gray-100"
-            }`}
-            onClick={() => handleToolChange("pencil")}
-          >
-            <Pencil size={24} />
-          </button>
-          <button
-            className={`p-2 rounded ${
-              tool === "select" ? "bg-blue-500 text-white" : "bg-gray-100"
-            }`}
-            onClick={() => handleToolChange("select")}
-          >
-            <MousePointer size={24} />
-          </button>
-          <button
-            className={`p-2 rounded ${
-              tool === "eraser" ? "bg-blue-500 text-white" : "bg-gray-100"
-            }`}
-            onClick={() => handleToolChange("eraser")}
-          >
-            <Eraser size={24} />
-          </button>
-            <button>
-              <CustomIconPicker />
-            </button>
-          {/* Line tool */}
-          <button
-            className={`p-2 rounded ${
-              tool === "line" ? "bg-blue-500 text-white" : "bg-gray-100"
-            }`}
-            onClick={() => handleToolChange("line")}
-          >
-            <PenLineIcon size={24} />
-          </button>
+    <div className="flex flex-col items-center">
+      {/* Hidden file input for image upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+      
+      {/* Toolbar */}
+      <Toolbar
+        activeTool={tool}
+        onToolChange={handleToolChange}
+        strokeWidth={strokeWidth}
+        onStrokeWidthChange={handleStrokeWidthChange}
+        showShapeOptions={showShapeOptions}
+        toggleShapeOptions={toggleShapeOptions}
+        onSelectShape={handleShapeSelect}
+        onChangeFillMode={handleFillModeChange}
+        fillMode={fillMode}
+        showIconOptions={showIconOptions}
+        toggleIconOptions={toggleIconOptions}
+        onSelectIcon={handleIconPathSelect}
+      />
 
-          {/* Shape tools */}
-          <div className="relative">
-            <button
-              className={`p-2 rounded ${
-                tool === "shape" ? "bg-blue-500 text-white" : "bg-gray-100"
-              }`}
-              onClick={() => setShowShapeOptions(!showShapeOptions)}
-            >
-              <Square size={24} />
-            </button>
-
-            {showShapeOptions && (
-              <div className="absolute top-full left-0 mt-1 z-10">
-                <ShapeSelector 
-                  onSelectShape={handleShapeSelect} 
-                  onChangeFillMode={handleFillModeChange}
-                  fillMode={fillMode}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Image tool */}
-          <button
-            className={`p-2 rounded ${
-              tool === "image" ? "bg-blue-500 text-white" : "bg-gray-100"
-            }`}
-            onClick={() => handleToolChange("image")}
-          >
-            <Image size={24} />
-          </button>
+      {/* Canvas */}
+      <div className="animate-canvas-reveal">
+        <canvas 
+          width={500}
+          height={500}
+          ref={canvasRef} 
+          id="fabric-canvas" 
+          className="transition-all duration-300"
+        />
+        <div className="mt-4 text-center">
+          <p className="text-xs text-gray-500 italic">
+            Tip: Use the select tool to move and resize objects on the canvas.
+          </p>
         </div>
-
-        {/* Stroke width control */}
-        <div className="flex items-center gap-2 ml-4 border-l pl-4">
-          <span className="text-sm font-medium">Size:</span>
-          <input
-            type="range"
-            min="1"
-            max="20"
-            value={strokeWidth}
-            onChange={(e) => handleStrokeWidthChange(Number(e.target.value))}
-            className="w-32"
-          />
-          <div className="ml-2 flex items-center">
-            <div 
-              className="bg-black rounded-full" 
-              style={{ 
-                width: `${Math.min(strokeWidth * 2, 24)}px`,
-                height: `${Math.min(strokeWidth * 2, 24)}px`,
-              }}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
-        <canvas ref={canvasRef} id="fabric-canvas" />
       </div>
     </div>
   );
