@@ -1,7 +1,7 @@
 import React from 'react';
-import { Square } from 'lucide-react';
 import { ShapeType } from '@/utils/drawing/ShapeTool';
 import ShapeSelector from './ShapeSelector';
+import Image from 'next/image'
 
 interface ShapeToolButtonProps {
   activeTool: string;
@@ -27,7 +27,7 @@ const ShapeToolButton: React.FC<ShapeToolButtonProps> = ({
         onClick={toggleOptions}
         aria-label="Shape tool"
       >
-        <Square size={22} className="transition-transform duration-200" />
+       <Image src="/icons/square.svg" alt='square' width={40} height={40} />
         <span className="sr-only">Shape</span>
       </button>
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Star } from 'lucide-react';
 import IconPicker from './IconPicker';
 
 interface IconToolButtonProps {
@@ -22,7 +21,13 @@ const IconToolButton: React.FC<IconToolButtonProps> = ({
         onClick={toggleOptions}
         aria-label="Icon tool"
       >
-        <Star size={22} className={activeTool === "icon" ? "text-white" : "text-tool-text"} />
+        <img 
+          src="/icons/duotone/star.svg" 
+          alt="Icon"
+          width={22}
+          height={22}
+          className={activeTool === "icon" ? "text-white" : "text-tool-text"} 
+        />
         <span className="sr-only">Icon</span>
       </button>
       

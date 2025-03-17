@@ -131,7 +131,7 @@ export default function SignupPage() {
       <div className="absolute bottom-[5%] -left-[10%] h-40 sm:h-80 w-40 sm:w-80 rounded-full bg-fuchsia-500/20 blur-3xl" />
 
       {/* Main form container with improved background and border */}
-      <div className="relative h-[700px] flex justify-center flex-col bg-white/95 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-6 sm:space-y-8 border border-violet-100/20 shadow-lg">
+      <div className="relative h-[700px] flex justify-center flex-col bg-white/95 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-6 sm:space-y-8 border border-violet-100/20 ">
         {/* Header with improved text colors */}
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-800 tracking-tight">

@@ -1,16 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { fabric } from "fabric";
 import EraserBrush from "@/utils/drawing/EraserBrush";
 import LineTool from "@/utils/drawing/LineTool";
 import ShapeTool, { ShapeType } from "@/utils/drawing/ShapeTool";
-import IconTool, { IconType } from "@/utils/drawing/IconTool";
+import IconTool from "@/utils/drawing/IconTool";
 import ImageTool from "@/utils/drawing/ImageTool";
 import Toolbar from "./ToolBar";
+import { RotateLeft, Trash } from "../../../public/icons/SvgIcons";
 
 type Tool = "pencil" | "select" | "eraser" | "line" | "shape" | "icon" | "image";
 
 const Sketch: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const fabricRef = useRef<fabric.Canvas | null>(null);
   const [tool, setTool] = useState<Tool>("pencil");
   const eraserBrushRef = useRef<any>(null);
@@ -19,26 +21,59 @@ const Sketch: React.FC = () => {
   const iconToolRef = useRef<IconTool | null>(null);
   const imageToolRef = useRef<ImageTool | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [history, setHistory] = useState<fabric.Object[]>([]);
+  const [canvasSize, setCanvasSize] = useState({ width: 600, height: 600 });
 
   // Selected shape and icon state
   const [selectedShape, setSelectedShape] = useState<ShapeType>(ShapeType.RECTANGLE);
-  const [selectedIcon, setSelectedIcon] = useState<IconType>(IconType.STAR);
-  const [showShapeOptions, setShowShapeOptions] = useState(false);
-  const [showIconOptions, setShowIconOptions] = useState(false);
   const [fillMode, setFillMode] = useState<'regular' | 'solid'>('regular');
   
   // Add stroke width state
   const [strokeWidth, setStrokeWidth] = useState<number>(2);
 
+  // Resize canvas to fit container
+  const resizeCanvas = () => {
+    if (!containerRef.current || !fabricRef.current) return;
+    
+    // Get container dimensions
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+    
+    // Get the effective width and height considering padding
+    const containerStyle = window.getComputedStyle(container);
+    const paddingX = parseFloat(containerStyle.paddingLeft) + parseFloat(containerStyle.paddingRight);
+    const paddingY = parseFloat(containerStyle.paddingTop) + parseFloat(containerStyle.paddingBottom);
+    
+    // Calculate available space
+    const availableWidth = rect.width - paddingX;
+    const availableHeight = rect.height - paddingY;
+    
+    // Set new dimensions while maintaining aspect ratio if needed
+    // For now, let's make it fill the container
+    const newSize = {
+      width: Math.max(availableWidth, 300),
+      height: Math.max(availableHeight, 300)
+    };
+    
+    // Update state
+    setCanvasSize(newSize);
+    
+    // Update fabric canvas
+    const canvas = fabricRef.current;
+    canvas.setDimensions(newSize);
+    canvas.requestRenderAll();
+  };
+
   // Initialize canvas and tools useEffect
   useEffect(() => {
     if (canvasRef.current && !fabricRef.current) {
-      canvasRef.current.width = 800;
-      canvasRef.current.height = 600;
+      // Initial setup with placeholders - will be resized immediately
+      canvasRef.current.width = canvasSize.width;
+      canvasRef.current.height = canvasSize.height;
 
       const canvas = new fabric.Canvas(canvasRef.current, {
-        width: 800,
-        height: 600,
+        width: canvasSize.width,
+        height: canvasSize.height,
         backgroundColor: "#ffffff",
         isDrawingMode: true,
       });
@@ -58,15 +93,65 @@ const Sketch: React.FC = () => {
       // Set up initial pencil brush settings
       canvas.freeDrawingBrush.width = strokeWidth;
       canvas.freeDrawingBrush.color = "#000000";
+
+      // Add event to focus canvas on object selection
+      canvas.on('mouse:down', function() {
+        // This ensures canvas wrapper gets focus
+        canvasRef.current?.parentElement?.focus();
+      });
+      
+      // Perform initial resize after canvas is set up
+      setTimeout(resizeCanvas, 0);
     }
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        const canvas = fabricRef.current;
+        if (canvas) {
+          const activeObject = canvas.getActiveObject();
+          if (activeObject) {
+            canvas.remove(activeObject);
+            canvas.discardActiveObject();
+            canvas.requestRenderAll();
+            
+            // Update history by filtering out the removed object
+            setHistory(prev => prev.filter(obj => obj !== activeObject));
+          }
+        }
+      }
+    };
+
+    // Attach the event listener to the document
+    document.addEventListener("keydown", handleKeyDown);
+    
+    // Set up resize observer
+    const resizeObserver = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+    
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    
+    // Set up window resize listener
+    window.addEventListener('resize', resizeCanvas);
+
     return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener('resize', resizeCanvas);
+      resizeObserver.disconnect();
+      
       if (fabricRef.current) {
         fabricRef.current.dispose();
         fabricRef.current = null;
       }
     };
   }, []);
+
+  // Add a separate useEffect for updating history when it changes
+  useEffect(() => {
+    // This empty effect ensures we're tracking history changes
+  }, [history]);
 
   // Update tools based on selected tool useEffect
   useEffect(() => {
@@ -125,10 +210,6 @@ const Sketch: React.FC = () => {
   const handleToolChange = (newTool: Tool) => {
     setTool(newTool);
 
-    // Hide option menus when changing tools
-    setShowShapeOptions(false);
-    setShowIconOptions(false);
-
     if (fabricRef.current) {
       fabricRef.current.discardActiveObject();
       fabricRef.current.requestRenderAll();
@@ -177,7 +258,6 @@ const Sketch: React.FC = () => {
 
   const handleIconPathSelect = (iconPath: string) => {
     setTool("icon");
-    setShowIconOptions(false);
     
     if (fabricRef.current) {
       // Load the SVG from the provided path
@@ -197,7 +277,7 @@ const Sketch: React.FC = () => {
         const canvas = fabricRef.current;
         if (canvas) {
           svgGroup.set({
-            left: (canvas.width || 800) / 2,
+            left: (canvas.width || 600) / 2,
             top: (canvas.height || 600) / 2,
             originX: 'center',
             originY: 'center'
@@ -207,23 +287,54 @@ const Sketch: React.FC = () => {
           canvas.add(svgGroup);
           canvas.setActiveObject(svgGroup);
           canvas.requestRenderAll();
+          
+          // Switch to select tool after adding the icon
+          setTool("select");
         }
       });
     }
   };
 
-  const toggleShapeOptions = () => {
-    setShowShapeOptions(!showShapeOptions);
-    setShowIconOptions(false);
+  const handleUndo = () => {
+    const canvas = fabricRef.current;
+    if (canvas && history.length > 0) {
+      const lastObject = history.pop();
+      if (lastObject) {
+        canvas.remove(lastObject);
+        canvas.requestRenderAll();
+      }
+      setHistory([...history]);
+    }
   };
 
-  const toggleIconOptions = () => {
-    setShowIconOptions(!showIconOptions);
-    setShowShapeOptions(false);
+  const handleClearCanvas = () => {
+    const canvas = fabricRef.current;
+    if (canvas) {
+      canvas.clear();
+      canvas.backgroundColor = "#ffffff";
+      canvas.requestRenderAll();
+    }
   };
+
+  const handleObjectAdded = (e: fabric.IEvent) => {
+    setHistory([...history, e.target as fabric.Object]);
+  };
+
+  useEffect(() => {
+    const canvas = fabricRef.current;
+    if (canvas) {
+      canvas.on("object:added", handleObjectAdded);
+    }
+
+    return () => {
+      if (canvas) {
+        canvas.off("object:added", handleObjectAdded);
+      }
+    };
+  }, [history]);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center justify-center w-full h-full">
       {/* Hidden file input for image upload */}
       <input
         type="file"
@@ -233,36 +344,53 @@ const Sketch: React.FC = () => {
         className="hidden"
       />
       
-      {/* Toolbar */}
-      <Toolbar
-        activeTool={tool}
-        onToolChange={handleToolChange}
-        strokeWidth={strokeWidth}
-        onStrokeWidthChange={handleStrokeWidthChange}
-        showShapeOptions={showShapeOptions}
-        toggleShapeOptions={toggleShapeOptions}
-        onSelectShape={handleShapeSelect}
-        onChangeFillMode={handleFillModeChange}
-        fillMode={fillMode}
-        showIconOptions={showIconOptions}
-        toggleIconOptions={toggleIconOptions}
-        onSelectIcon={handleIconPathSelect}
-      />
-
-      {/* Canvas */}
-      <div className="animate-canvas-reveal">
+      {/* Canvas with toolbar - make it responsive */}
+      <div 
+        ref={containerRef}
+        className="animate-canvas-reveal relative w-full h-full flex items-center justify-center px-4"
+      >
+        {/* Undo button - top left */}
+        <button
+          onClick={handleUndo}
+          className="absolute top-6 left-6 bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm z-10 flex items-center gap-1 transition-colors"
+          title="Undo last action"
+        >
+          <RotateLeft size={18}/>
+          Undo
+        </button>
+        
+        {/* Clear all button - top right */}
+        <button
+          onClick={handleClearCanvas}
+          className="absolute top-6 right-6 bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm z-10 flex items-center gap-1 transition-colors"
+          title="Clear canvas"
+        >
+          <Trash size={18}/>
+          Clear
+        </button>
+        
         <canvas 
-          width={500}
-          height={500}
           ref={canvasRef} 
-          id="fabric-canvas" 
-          className="transition-all duration-300"
+          id="fabric-canvas"
+          tabIndex={0}  // Make canvas focusable
+          className="transition-all duration-300 rounded-2xl border object-contain"
+          style={{
+            width: `${canvasSize.width}px`,
+            height: `${canvasSize.height}px`,
+          }}
         />
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500 italic">
-            Tip: Use the select tool to move and resize objects on the canvas.
-          </p>
-        </div>
+        
+        {/* Toolbar positioned inside the canvas */}
+        <Toolbar
+          activeTool={tool}
+          onToolChange={handleToolChange}
+          strokeWidth={strokeWidth}
+          onStrokeWidthChange={handleStrokeWidthChange}
+          onSelectShape={handleShapeSelect}
+          onChangeFillMode={handleFillModeChange}
+          fillMode={fillMode}
+          onSelectIcon={handleIconPathSelect}
+        />
       </div>
     </div>
   );

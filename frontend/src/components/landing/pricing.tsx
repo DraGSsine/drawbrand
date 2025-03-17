@@ -24,12 +24,12 @@ const PricingCard: React.FC<PricingCardProps> = ({
       className={`relative rounded-xl transition-all duration-500 hover:scale-105 ${
         isPopular
           ? "bg-violet-600 text-white ring-2 ring-violet-500"
-          : "bg-white border border-zinc-100 hover:border-violet-200 hover:shadow-lg"
+          : "bg-white border border-zinc-100 hover:border-violet-200 hover:"
       }`}
     >
       {isPopular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="px-3 py-1 rounded-full bg-zinc-800 text-white text-xs font-medium shadow-lg">
+          <span className="px-3 py-1 rounded-full bg-zinc-800 text-white text-xs font-medium ">
             Most Popular
           </span>
         </div>

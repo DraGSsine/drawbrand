@@ -51,7 +51,7 @@ export function Hero() {
         <div className="absolute left-20 bottom-20 w-36 md:w-72 h-36 md:h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob animation-delay-4000" />
       </div>
 
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative w-full max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-center">
           {/* Left Column - Text Content */}
           <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
@@ -94,7 +94,7 @@ export function Hero() {
               </a>
               <button
                 onClick={openModal}
-                className="w-full sm:w-auto h-10 md:h-12 px-4 md:px-6 text-sm md:text-base rounded-full font-medium flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-200 hover:shadow-xl hover:shadow-violet-200 transition-all duration-500 group"
+                className="w-full sm:w-auto h-10 md:h-12 px-4 md:px-6 text-sm md:text-base rounded-full font-medium flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white  shadow-violet-200 hover:shadow-xl hover:shadow-violet-200 transition-all duration-500 group"
                 aria-label="Watch demo video"
               >
                 <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" aria-hidden="true" />

@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { Flame, Zap, Diamond, Check, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useUserInfo } from "@/lib/queries";
 import { api } from "@/lib/axios";
@@ -36,12 +35,12 @@ const PricingCard: React.FC<PricingCardProps> = ({
       className={`relative rounded-xl transition-all duration-500 hover:scale-105 ${
         isPopular
           ? "bg-violet-600 text-white ring-2 ring-violet-500"
-          : "bg-white border border-zinc-100 hover:border-violet-200 hover:shadow-lg"
+          : "bg-white border border-zinc-100 hover:border-violet-200 hover:"
       }`}
     >
       {isPopular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="px-3 py-1 rounded-full bg-zinc-800 text-white text-xs font-medium shadow-lg">
+          <span className="px-3 py-1 rounded-full bg-zinc-800 text-white text-xs font-medium ">
             Most Popular
           </span>
         </div>
@@ -100,7 +99,9 @@ const PricingCard: React.FC<PricingCardProps> = ({
                   isPopular ? "bg-violet-500" : "bg-violet-50"
                 }`}
               >
-                <Check
+                <img
+                  src="/icons/duotone/check.svg"
+                  alt="Check"
                   className={`w-3 h-3 ${
                     isPopular ? "text-white" : "text-violet-600"
                   }`}
@@ -127,7 +128,11 @@ const PricingCard: React.FC<PricingCardProps> = ({
           } ${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
         >
           {isLoading && isSelected ? (
-            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            <img
+              src="/icons/duotone/spinner.svg"
+              alt="Loading"
+              className="w-5 h-5 animate-spin mr-2"
+            />
           ) : null}
           {isLoading && isSelected ? "Processing..." : "Get Started"}
         </button>
@@ -206,7 +211,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({
       planName: "Starter",
       description:
         "Get started for just $3.99! Perfect for occasional LinkedIn users needing message help. Up to 200 messages.",
-      icon: <Flame className={`w-7 h-7`} />,
+      icon: <img src="/icons/duotone/fire.svg" alt="Starter" className="w-7 h-7" />,
       features: [
         "200 messages per month",
         "Generate new responses",
@@ -220,7 +225,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({
       planName: "Growth",
       description:
         "Our most popular plan offering great value! Ideal for daily LinkedIn engagement. Up to 750 messages.",
-      icon: <Zap className={`w-7 h-7`} />,
+      icon: <img src="/icons/duotone/bolt.svg" alt="Growth" className="w-7 h-7" />,
       features: [
         "750 messages per month",
         "Generate new responses",
@@ -234,7 +239,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({
       planName: "Pro",
       description:
         "Unlock unlimited potential! For serious LinkedIn networkers who demand the best. Truly unlimited messages.",
-      icon: <Diamond className={`w-7 h-7`} />,
+      icon: <img src="/icons/duotone/diamond.svg" alt="Pro" className="w-7 h-7" />,
       features: [
         "Unlimited messages per month",
         "Generate new responses",

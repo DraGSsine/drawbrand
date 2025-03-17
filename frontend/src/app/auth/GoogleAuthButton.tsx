@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
 
 const GoogleAuthButton = ({ isPending = false }) => {
@@ -24,7 +23,11 @@ const GoogleAuthButton = ({ isPending = false }) => {
     >
       <GoogleIcon />
       {isLoading ? (
-        <Loader2 className="h-5 w-5 animate-spin" />
+        <img 
+          src="/icons/duotone/spinner.svg"
+          alt="Loading" 
+          className="h-5 w-5 animate-spin" 
+        />
       ) : (
         <span className="relative">Continue with Google</span>
       )}

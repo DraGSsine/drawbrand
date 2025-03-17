@@ -1,30 +1,42 @@
-import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import React, { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface ToolButtonProps {
-  tool: string;
-  activeTool: string;
-  icon: LucideIcon;
-  label: string;
+  isActive: boolean;
   onClick: () => void;
+  ariaLabel: string;
+  children: ReactNode;
+  className?: string;
+  hasDropdown?: boolean;
+  dropdownContent?: ReactNode;
 }
 
-const ToolButton: React.FC<ToolButtonProps> = ({ 
-  tool, 
-  activeTool, 
-  icon: Icon, 
-  label, 
-  onClick 
+const ToolButton: React.FC<ToolButtonProps> = ({
+  isActive,
+  onClick,
+  ariaLabel,
+  children,
+  className,
+  hasDropdown = false,
+  dropdownContent,
 }) => {
   return (
-    <button
-      className={`tool-button ${activeTool === tool ? "active" : ""}`}
-      onClick={onClick}
-      aria-label={`${label} tool`}
-    >
-      <Icon size={22} className={`transition-transform duration-200 ${activeTool === tool ? "text-white" : "text-tool-text"}`} />
-      <span className="sr-only">{label}</span>
-    </button>
+    <div className={hasDropdown ? "relative" : ""}>
+      <button
+        className={cn(
+          "flex items-center justify-center w-10 h-10 rounded-lg transition-all",
+          isActive
+            ? "bg-blue-100 text-white"
+            : "hover:bg-gray-100 dark:hover:bg-gray-800",
+          className
+        )}
+        onClick={onClick}
+        aria-label={ariaLabel}
+      >
+        {children}
+      </button>
+      {hasDropdown && dropdownContent && dropdownContent}
+    </div>
   );
 };
 
