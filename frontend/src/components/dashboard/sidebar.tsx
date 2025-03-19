@@ -14,7 +14,12 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Switch } from "@/components/ui/switch";
 import { HexColorPicker } from "react-colorful";
-import { Palette, Rotate, Cube, CircleXmark } from "../../../public/icons/SvgIcons";
+import {
+  Palette,
+  Rotate,
+  Cube,
+  CircleXmark,
+} from "../../../public/icons/SvgIcons";
 import {
   Popover,
   PopoverContent,
@@ -22,18 +27,20 @@ import {
 } from "@/components/ui/popover";
 import Image from "next/image";
 
+// Updated LogoSettings interface with simpler colors structure
 export interface LogoSettings {
-  creativityStrength: number;
-  colorType: "solid" | "palette";
-  colorPalette: string;
-  customColors: string[]; // This will be the currently active colors
-  customPaletteColors: string[]; // This will store the custom palette separately
-  styleType: string;
-  illustrationStyle: string;
-  logoStyle: string;
-  detailLevel: number;
-  primaryColor: string;
-  customSolidColor: string;
+  styles: {
+    type: "2d" | "3d";  
+    style: string;      
+  };
+  colors: {
+    type: "solid" | "palette"; // Type determines how to interpret color values
+    color: string | string[]; // Single string for solid, array for palette
+  };
+  controls: {
+    creativity: number;
+    detail: number;
+  };
 }
 
 // Define color palettes with strong typing
@@ -84,18 +91,20 @@ const logoStyles = [
 
 const CUSTOM_PALETTE_ID = "custom";
 
+// Updated default settings with simplified color structure
 const defaultSettings: LogoSettings = {
-  creativityStrength: 65,
-  colorType: "palette",
-  colorPalette: "sunset",
-  customColors: ["#F97316", "#FBBF24", "#DC2626"],
-  customPaletteColors: ["#F97316", "#FBBF24", "#DC2626"], // Initialize with same colors
-  styleType: "2d",
-  illustrationStyle: "geometric",
-  logoStyle: "modern",
-  detailLevel: 65,
-  primaryColor: "#6E59A5",
-  customSolidColor: "#6E59A5",
+  styles: {
+    type: "2d",
+    style: "geometric", // Default 2D style
+  },
+  colors: {
+    type: "solid",
+    color: "#6E59A5", // Single color for solid type
+  },
+  controls: {
+    creativity: 65,
+    detail: 65,
+  }
 };
 
 // Color options
@@ -109,153 +118,189 @@ const STORAGE_KEY = "logo-generator-settings";
 
 const LogoSidebar = () => {
   const [settings, setSettings] = useState<LogoSettings>(defaultSettings);
-  const [styleType, setStyleType] = useState<"2d" | "3d">("2d");
-  const [activeControl, setActiveControl] = useState<"creativity" | "detail">(
-    "creativity"
-  );
-  const [isCustomColorSelected, setIsCustomColorSelected] =
-    useState<boolean>(false);
+  const [activeControl, setActiveControl] = useState<"creativity" | "detail">("creativity");
+  const [isCustomColorSelected, setIsCustomColorSelected] = useState<boolean>(false);
 
-  // Fix the useEffect for loading saved settings
+  // Load settings from localStorage on component mount
   useEffect(() => {
     const savedSettings = localStorage.getItem(STORAGE_KEY);
     if (savedSettings) {
       try {
-        const parsedSettings = JSON.parse(
-          savedSettings
-        ) as Partial<LogoSettings>;
-
-        // Ensure customPaletteColors exists (for backward compatibility)
-        if (
-          !parsedSettings.customPaletteColors &&
-          parsedSettings.customColors
-        ) {
-          parsedSettings.customPaletteColors = [...parsedSettings.customColors];
-        }
-
-        // Ensure customSolidColor exists (for backward compatibility)
-        if (!parsedSettings.customSolidColor && parsedSettings.primaryColor) {
-          parsedSettings.customSolidColor = parsedSettings.primaryColor;
-        }
-
+        const parsedSettings = JSON.parse(savedSettings) as Partial<LogoSettings>;
+        
         // Merge with defaults to ensure all properties exist
         setSettings({
           ...defaultSettings,
-          ...(parsedSettings as LogoSettings),
+          ...parsedSettings,
+          // Ensure nested objects don't get lost
+          styles: { ...defaultSettings.styles, ...(parsedSettings.styles || {}) },
+          colors: { ...defaultSettings.colors, ...(parsedSettings.colors || {}) },
+          controls: { ...defaultSettings.controls, ...(parsedSettings.controls || {}) },
         });
       } catch (error) {
         console.error("Error parsing saved settings:", error);
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSettings));
       }
+    } else {
+      // Initialize localStorage with default settings
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSettings));
     }
   }, []);
 
-  // Handle setting changes with improved type safety
-  const handleChange = (field: keyof LogoSettings, value: any) => {
-    const updatedSettings = { ...settings, [field]: value };
+  // Save to localStorage whenever settings change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  }, [settings]);
 
-    // Handle color palette changes
-    if (field === "colorPalette") {
-      if (value === CUSTOM_PALETTE_ID) {
-        // Restore the saved custom palette colors
-        updatedSettings.customColors = [...settings.customPaletteColors];
-        updatedSettings.primaryColor = settings.customPaletteColors[0];
-      } else if (value in colorPalettes) {
-        // Use predefined palette colors
-        const selectedPalette =
-          colorPalettes[value as keyof typeof colorPalettes];
-        updatedSettings.customColors = [...selectedPalette.colors];
-        updatedSettings.primaryColor = selectedPalette.colors[0];
-      }
+  // Handle style type change (2D/3D)
+  const handleStyleTypeChange = (type: "2d" | "3d") => {
+    // When changing type, provide a default style for the new type
+    let newStyle = settings.styles.style;
+    
+    // If current style isn't applicable to new type, use a default
+    if (type === "2d" && !Style2D.some(s => s.value === settings.styles.style)) {
+      newStyle = "geometric"; // Default 2D style
+    } else if (type === "3d" && !Style3D.some(s => s.value === settings.styles.style)) {
+      newStyle = "realistic_3d"; // Default 3D style
     }
-
-    // Set default palette when switching to palette mode
-    if (field === "colorType" && value === "palette") {
-      if (
-        !settings.colorPalette ||
-        (!(settings.colorPalette in colorPalettes) &&
-          settings.colorPalette !== CUSTOM_PALETTE_ID)
-      ) {
-        updatedSettings.colorPalette = "sunset";
-        updatedSettings.customColors = [...colorPalettes.sunset.colors];
-        updatedSettings.primaryColor = colorPalettes.sunset.colors[0];
+    
+    setSettings({
+      ...settings,
+      styles: {
+        type,
+        style: newStyle
       }
-    }
-
-    // Special handling for primary color
-    if (field === "primaryColor") {
-      // Check if this is a predefined color
-      const isPredefined = colorOptions.some(
-        (option) => option.value === value
-      );
-
-      if (!isPredefined) {
-        // This is a custom color, save it separately
-        updatedSettings.customSolidColor = value;
-        setIsCustomColorSelected(true);
-      } else {
-        // This is a predefined color
-        setIsCustomColorSelected(false);
-      }
-    }
-
-    // Save to localStorage and update state
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSettings));
-    setSettings(updatedSettings);
+    });
   };
 
-  // Reset settings to defaults
+  // Handle style change
+  const handleStyleChange = (style: string) => {
+    setSettings({
+      ...settings,
+      styles: {
+        ...settings.styles,
+        style
+      }
+    });
+  };
+
+  // Updated handleColorTypeChange function
+  const handleColorTypeChange = (type: "solid" | "palette") => {
+    // When switching to palette, convert single color to array if needed
+    if (type === "palette" && typeof settings.colors.color === "string") {
+      setSettings({
+        ...settings,
+        colors: {
+          type,
+          color: [settings.colors.color, "#FBBF24", "#DC2626"] // Convert to array with the current color
+        }
+      });
+    } 
+    // When switching to solid, take first color from palette if needed
+    else if (type === "solid" && Array.isArray(settings.colors.color)) {
+      setSettings({
+        ...settings,
+        colors: {
+          type,
+          color: settings.colors.color[0] // Use first color from array
+        }
+      });
+    }
+    // If same type, just update the type
+    else {
+      setSettings({
+        ...settings,
+        colors: {
+          ...settings.colors,
+          type
+        }
+      });
+    }
+  };
+
+  // Updated handleSolidColorChange function
+  const handleSolidColorChange = (color: string) => {
+    setSettings({
+      ...settings,
+      colors: {
+        type: "solid",
+        color: color
+      }
+    });
+    
+    // Determine if this is a custom color
+    const isPredefined = colorOptions.some(option => option.value === color);
+    setIsCustomColorSelected(!isPredefined);
+  };
+
+  // Updated handlePaletteChange function
+  const handlePaletteChange = (paletteId: string) => {
+    let colors: string[];
+    
+    // If selecting a predefined palette
+    if (paletteId !== CUSTOM_PALETTE_ID && paletteId in colorPalettes) {
+      colors = [...colorPalettes[paletteId as keyof typeof colorPalettes].colors];
+    } 
+    // If it's a custom palette, use existing colors or defaults
+    else {
+      colors = Array.isArray(settings.colors.color) ? 
+        settings.colors.color : 
+        ["#F97316", "#FBBF24", "#DC2626"]; // Default colors
+    }
+    
+    setSettings({
+      ...settings,
+      colors: {
+        type: "palette",
+        color: colors
+      }
+    });
+  };
+
+  // Updated updateCustomPaletteColor function
+  const updateCustomPaletteColor = (index: number, color: string) => {
+    // Ensure we have an array
+    const colors = Array.isArray(settings.colors.color) ? 
+      [...settings.colors.color] : 
+      ["#F97316", "#FBBF24", "#DC2626"];
+    
+    colors[index] = color;
+    
+    setSettings({
+      ...settings,
+      colors: {
+        type: "palette",
+        color: colors
+      }
+    });
+  };
+
+  // Update control values
+  const handleControlChange = (control: "creativity" | "detail", value: number) => {
+    setSettings({
+      ...settings,
+      controls: {
+        ...settings.controls,
+        [control]: value
+      }
+    });
+  };
+
+  // Reset to defaults
   const resetToDefaults = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSettings));
     setSettings({ ...defaultSettings });
   };
 
-  // Update a specific color in the custom colors array
-  const updateCustomColor = (index: number, color: string) => {
-    const updatedColors = [...settings.customColors];
-    updatedColors[index] = color;
-
-    // Store in both current colors and the custom palette storage
-    const updatedSettings = {
-      ...settings,
-      customColors: updatedColors,
-      customPaletteColors: updatedColors, // Save to custom palette storage
-      colorPalette: CUSTOM_PALETTE_ID,
-    };
-
-    // Update primary color if changing the first color
-    if (index === 0) {
-      updatedSettings.primaryColor = color;
-    }
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSettings));
-    setSettings(updatedSettings);
-  };
-
-  const handleCreativityChange = (value: number) => {
-    handleChange("creativityStrength", value);
-  };
-
-  const handleDetailChange = (value: number) => {
-    handleChange("detailLevel", value);
-  };
-
-  // Add a function specifically for selecting custom color
-  const selectCustomColor = () => {
-    // Re-select the saved custom color
-    handleChange("primaryColor", settings.customSolidColor);
-    setIsCustomColorSelected(true);
-  };
-
-  // Add a function to get the correct array of styles based on current settings
+  // Helper to get style options based on current type
   const getStyleOptions = () => {
-    return styleType === "2d" ? Style2D : Style3D;
+    return settings.styles.type === "2d" ? Style2D : Style3D;
   };
 
   return (
     <div className="flex rounded-2xl flex-col w-[330px] bg-white border-r h-full border border-blue-100 flex-shrink-0 overflow-hidden z-10">
       {/* Scrollable content section */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-9 pb-4">
         {/* Styles Section */}
         <div className="space-y-3">
           <Label className="text-slate-800 font-medium inline-flex items-center">
@@ -263,9 +308,9 @@ const LogoSidebar = () => {
           </Label>
           <ToggleGroup
             type="single"
-            value={styleType}
+            value={settings.styles.type}
             onValueChange={(value) => {
-              if (value) setStyleType(value as "2d" | "3d");
+              if (value) handleStyleTypeChange(value as "2d" | "3d");
             }}
             className="flex bg-slate-100 p-1 rounded-lg"
           >
@@ -273,7 +318,7 @@ const LogoSidebar = () => {
               value="2d"
               className={cn(
                 "flex-1 rounded-md py-2 text-sm font-medium",
-                styleType === "2d" && "!bg-blue-500 !text-white"
+                settings.styles.type === "2d" && "!bg-blue-500 !text-white"
               )}
             >
               2D Style
@@ -282,7 +327,7 @@ const LogoSidebar = () => {
               value="3d"
               className={cn(
                 "flex-1 rounded-md py-2 text-sm font-medium",
-                styleType === "3d" && "!bg-blue-500 !text-white"
+                settings.styles.type === "3d" && "!bg-blue-500 !text-white"
               )}
             >
               3D Style
@@ -291,10 +336,8 @@ const LogoSidebar = () => {
 
           {/* Style Select with Images */}
           <Select
-            value={styleType === "2d" ? settings.illustrationStyle : settings.logoStyle}
-            onValueChange={(value) =>
-              handleChange(styleType === "2d" ? "illustrationStyle" : "logoStyle", value)
-            }
+            value={settings.styles.style}
+            onValueChange={handleStyleChange}
           >
             {/* Modified select trigger */}
             <SelectTrigger className="w-full">
@@ -302,18 +345,16 @@ const LogoSidebar = () => {
                 {/* Get the currently selected style */}
                 {(() => {
                   const selectedStyle = getStyleOptions().find(
-                    (style) => style.value === (styleType === "2d" ? settings.illustrationStyle : settings.logoStyle)
+                    (style) => style.value === settings.styles.style
                   );
-                  
+
                   return (
                     <>
                       {selectedStyle?.value === "none" ? (
-                        // Show "None" icon for selected option
                         <div className="w-6 h-6 rounded-sm overflow-hidden border border-slate-200 flex items-center justify-center bg-slate-100">
-                          <CircleXmark size={18} />
+                          <CircleXmark />
                         </div>
                       ) : selectedStyle?.image ? (
-                        // Show image thumbnail for other options
                         <div className="w-6 h-6 rounded-sm overflow-hidden border border-slate-200">
                           <Image
                             width={50}
@@ -324,17 +365,18 @@ const LogoSidebar = () => {
                           />
                         </div>
                       ) : null}
-                      {/* Style name instead of SelectValue */}
-                      <span className="flex-1 text-sm text-left">{selectedStyle?.label || `Select ${styleType} style`}</span>
+                      <span className="flex-1 text-sm text-left">
+                        {selectedStyle?.label || `Select ${settings.styles.type} style`}
+                      </span>
                     </>
                   );
                 })()}
               </div>
             </SelectTrigger>
-            
+
             <SelectContent className="w-[340px] p-2 max-h-[450px]">
               <div className="grid grid-cols-3 gap-2">
-                {getStyleOptions().map((style) => (
+                {getStyleOptions().map((style) =>
                   style.value === "none" ? (
                     <SelectItem
                       key={style.value}
@@ -343,9 +385,11 @@ const LogoSidebar = () => {
                     >
                       <div className="flex flex-col items-center p-2 w-full">
                         <div className="w-full aspect-square rounded-md overflow-hidden border border-slate-200 flex items-center justify-center bg-slate-100 mb-1">
-                          <CircleXmark size={80} />
+                          <CircleXmark />
                         </div>
-                        <span className="text-xs font-medium text-center truncate w-full py-1">{style.label}</span>
+                        <span className="text-xs font-medium text-center truncate w-full py-1">
+                          {style.label}
+                        </span>
                       </div>
                     </SelectItem>
                   ) : (
@@ -364,11 +408,13 @@ const LogoSidebar = () => {
                             className="w-full h-full object-contain"
                           />
                         </div>
-                        <span className="text-xs font-medium text-center truncate w-full py-1">{style.label}</span>
+                        <span className="text-xs font-medium text-center truncate w-full py-1">
+                          {style.label}
+                        </span>
                       </div>
                     </SelectItem>
                   )
-                ))}
+                )}
               </div>
             </SelectContent>
           </Select>
@@ -381,10 +427,9 @@ const LogoSidebar = () => {
           </Label>
           <ToggleGroup
             type="single"
-            value={settings.colorType}
+            value={settings.colors.type}
             onValueChange={(value) => {
-              if (value)
-                handleChange("colorType", value as "solid" | "palette");
+              if (value) handleColorTypeChange(value as "solid" | "palette");
             }}
             className="flex bg-slate-100 p-1 rounded-lg"
           >
@@ -392,7 +437,7 @@ const LogoSidebar = () => {
               value="solid"
               className={cn(
                 "flex-1 rounded-md py-2 text-sm font-medium",
-                settings.colorType === "solid" && "!bg-blue-500 !text-white"
+                settings.colors.type === "solid" && "!bg-blue-500 !text-white"
               )}
             >
               Solid
@@ -401,7 +446,7 @@ const LogoSidebar = () => {
               value="palette"
               className={cn(
                 "flex-1 rounded-md py-2 text-sm font-medium",
-                settings.colorType === "palette" && "!bg-blue-500 !text-white"
+                settings.colors.type === "palette" && "!bg-blue-500 !text-white"
               )}
             >
               Palette
@@ -410,7 +455,7 @@ const LogoSidebar = () => {
         </div>
 
         {/* Solid Color Selection */}
-        {settings.colorType === "solid" && (
+        {settings.colors.type === "solid" && (
           <div className="space-y-2">
             <div className="grid grid-cols-4 gap-2">
               {colorOptions.map((preset) => (
@@ -418,12 +463,12 @@ const LogoSidebar = () => {
                   key={preset.value}
                   className={cn(
                     "h-12 w-12 rounded-lg",
-                    settings.primaryColor === preset.value
+                    settings.colors.color === preset.value
                       ? "ring-2 ring-offset-1 ring-slate-400 "
                       : "ring-1 ring-slate-200"
                   )}
                   style={{ backgroundColor: preset.value }}
-                  onClick={() => handleChange("primaryColor", preset.value)}
+                  onClick={() => handleSolidColorChange(preset.value)}
                   aria-label={`Select ${preset.label} color`}
                 />
               ))}
@@ -437,33 +482,30 @@ const LogoSidebar = () => {
                         ? "ring-2 ring-offset-1 ring-slate-400 "
                         : ""
                     )}
-                    style={{ backgroundColor: settings.customSolidColor }}
-                    onClick={selectCustomColor}
+                    style={{ 
+                      backgroundColor: isCustomColorSelected && typeof settings.colors.color === 'string' ? settings.colors.color : undefined 
+                    }}
                     aria-label="Select custom color"
                   >
                     <div
                       className="w-full h-full flex items-center justify-center"
                       style={{
-                        background:
-                          "linear-gradient(135deg, #FF0000, #FF8000, #FFFF00, #00FF00, #0080FF, #8000FF)",
+                        background: !isCustomColorSelected ? 
+                          "linear-gradient(135deg, #FF0000, #FF8000, #FFFF00, #00FF00, #0080FF, #8000FF)" : 
+                          undefined,
                         borderRadius: "inherit",
                         boxShadow: "inset 0 0 5px rgba(0,0,0,0.2)",
                       }}
                     >
-                      <Palette
-                        size={26}
-                        primaryFillColor="#fff"
-                        secondaryFillColor="#444"
-                      />
+                      {!isCustomColorSelected && <Palette />}
                     </div>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-3 bg-white rounded-lg  border border-slate-200">
+                <PopoverContent className="w-auto p-3 bg-white rounded-lg border border-slate-200">
                   <HexColorPicker
-                    color={settings.customSolidColor}
+                    color={isCustomColorSelected && typeof settings.colors.color === 'string' ? settings.colors.color : "#FF0000"}
                     onChange={(color) => {
-                      handleChange("primaryColor", color);
-                      handleChange("customSolidColor", color);
+                      handleSolidColorChange(color);
                       setIsCustomColorSelected(true);
                     }}
                     className="w-48 !h-40"
@@ -475,20 +517,21 @@ const LogoSidebar = () => {
         )}
 
         {/* Palette Selection */}
-        {settings.colorType === "palette" && (
+        {settings.colors.type === "palette" && (
           <div className="space-y-3">
             <div className="grid grid-cols-4 gap-2">
-              {/* The 3 predefined palettes */}
+              {/* Predefined palettes */}
               {Object.entries(colorPalettes).map(([id, palette]) => (
                 <button
                   key={id}
                   className={cn(
                     "h-12 w-12 rounded-lg transition-all hover:scale-105 flex items-center justify-center",
-                    settings.colorPalette === id
-                      ? "ring-2 ring-offset-1 ring-blue-600  bg-blue-50"
+                    // Check if current palette colors match this predefined palette
+                    JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors)
+                      ? "ring-2 ring-offset-1 ring-blue-600 bg-blue-50"
                       : "ring-1 ring-gray-300 hover:ring-gray-400"
                   )}
-                  onClick={() => handleChange("colorPalette", id)}
+                  onClick={() => handlePaletteChange(id)}
                 >
                   <div className="flex">
                     {palette.colors.map((color, index) => (
@@ -506,65 +549,53 @@ const LogoSidebar = () => {
                 </button>
               ))}
 
-              {/* The custom palette button */}
+              {/* Custom palette button - selected when colors don't match any predefined palette */}
               <button
-                onClick={() => handleChange("colorPalette", CUSTOM_PALETTE_ID)}
+                onClick={() => handlePaletteChange(CUSTOM_PALETTE_ID)}
                 className={cn(
                   "h-12 w-12 rounded-lg transition-all hover:scale-105 flex items-center justify-center",
-                  settings.colorPalette === CUSTOM_PALETTE_ID
-                    ? "ring-2 ring-offset-1 ring-blue-400 "
+                  !Object.values(colorPalettes).some(palette => 
+                    JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors))
+                    ? "ring-2 ring-offset-1 ring-blue-400"
                     : "ring-1 ring-gray-300 hover:ring-gray-400"
                 )}
-                style={{
-                  backgroundColor:
-                    settings.colorPalette === CUSTOM_PALETTE_ID
-                      ? undefined
-                      : "#111",
-                }}
               >
-                {settings.colorPalette === CUSTOM_PALETTE_ID ? (
-                  // Show the actual custom colors when selected
+                {Array.isArray(settings.colors.color) ? (
                   <div className="flex">
-                    {(settings.customPaletteColors || []).map(
-                      (color, index) => (
-                        <div
-                          key={index}
-                          className="w-4 h-4 rounded-full border border-white shadow-sm"
-                          style={{
-                            backgroundColor: color,
-                            marginLeft: index > 0 ? "-4px" : "0",
-                            zIndex: 3 - index,
-                          }}
-                        />
-                      )
-                    )}
+                    {settings.colors.color.map((color, index) => (
+                      <div
+                        key={index}
+                        className="w-4 h-4 rounded-full border border-white shadow-sm"
+                        style={{
+                          backgroundColor: color,
+                          marginLeft: index > 0 ? "-4px" : "0",
+                          zIndex: 3 - index,
+                        }}
+                      />
+                    ))}
                   </div>
                 ) : (
-                  // Show palette icon on black background when not selected
+                  /* Fallback palette icon */
                   <div
-                  className="w-full h-full flex items-center justify-center"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #FF0000, #FF8000, #FFFF00, #00FF00, #0080FF, #8000FF)",
-                    borderRadius: "inherit",
-                    boxShadow: "inset 0 0 5px rgba(0,0,0,0.2)",
-                  }}
-                >
-                  <Palette
-                    size={26}
-                    primaryFillColor="#fff"
-                    secondaryFillColor="#444"
-                  />
-                </div>
+                    className="w-full h-full flex items-center justify-center"
+                    style={{
+                      background: "linear-gradient(135deg, #FF0000, #FF8000, #FFFF00, #00FF00, #0080FF, #8000FF)",
+                      borderRadius: "inherit",
+                      boxShadow: "inset 0 0 5px rgba(0,0,0,0.2)",
+                    }}
+                  >
+                    <Palette className="[&>*:nth-child(2)]:fill-[#3b82f6] [&>*:nth-child(1)]:fill-[#3b82f630]" />
+                  </div>
                 )}
               </button>
             </div>
 
-            {/* Color editor for custom palette */}
-            {settings.colorPalette === CUSTOM_PALETTE_ID && (
-              <div className="p-3 bg-white rounded-lg  border border-gray-200 animate-in fade-in-50">
+            {/* Custom palette color editor - show when none of the predefined palettes match */}
+            {!Object.values(colorPalettes).some(palette => 
+              JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors)) && (
+              <div className="p-3 bg-white rounded-lg border border-gray-200 animate-in fade-in-50">
                 <div className="flex gap-2">
-                  {settings.customColors.map((color, index) => (
+                  {Array.isArray(settings.colors.color) && settings.colors.color.map((color, index) => (
                     <div key={index} className="flex-1 relative">
                       <Popover>
                         <PopoverTrigger asChild>
@@ -573,12 +604,10 @@ const LogoSidebar = () => {
                             style={{ backgroundColor: color }}
                           />
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-3 bg-white rounded-lg  border border-gray-200">
+                        <PopoverContent className="w-auto p-3 bg-white rounded-lg border border-gray-200">
                           <HexColorPicker
                             color={color}
-                            onChange={(newColor) =>
-                              updateCustomColor(index, newColor)
-                            }
+                            onChange={(newColor) => updateCustomPaletteColor(index, newColor)}
                             className="w-48 !h-40"
                           />
                         </PopoverContent>
@@ -591,7 +620,7 @@ const LogoSidebar = () => {
           </div>
         )}
 
-        {/* Creativity & Detail Toggle */}
+        {/* Creativity & Detail Controls */}
         <div className="space-y-3">
           <Label className="text-slate-800 font-medium inline-flex items-center">
             Design Controls
@@ -632,7 +661,7 @@ const LogoSidebar = () => {
                   <span className="text-xs text-slate-500">Conservative</span>
                 </div>
                 <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">
-                  {settings.creativityStrength}%
+                  {settings.controls.creativity}%
                 </span>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-slate-500">Creative</span>
@@ -642,8 +671,8 @@ const LogoSidebar = () => {
                 min={0}
                 max={100}
                 step={1}
-                value={[settings.creativityStrength]}
-                onValueChange={(values) => handleCreativityChange(values[0])}
+                value={[settings.controls.creativity]}
+                onValueChange={(values) => handleControlChange("creativity", values[0])}
                 className="mt-2"
               />
             </div>
@@ -657,7 +686,7 @@ const LogoSidebar = () => {
                   <span className="text-xs text-slate-500">Minimal</span>
                 </div>
                 <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">
-                  {settings.detailLevel}%
+                  {settings.controls.detail}%
                 </span>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-slate-500">Detailed</span>
@@ -667,8 +696,8 @@ const LogoSidebar = () => {
                 min={0}
                 max={100}
                 step={1}
-                value={[settings.detailLevel]}
-                onValueChange={(values) => handleDetailChange(values[0])}
+                value={[settings.controls.detail]}
+                onValueChange={(values) => handleControlChange("detail", values[0])}
                 className="mt-2"
               />
             </div>
@@ -683,7 +712,7 @@ const LogoSidebar = () => {
           className="w-full border-slate-300 bg-slate-50 rounded-lg flex items-center gap-2 justify-center hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 text-slate-700 h-11 font-medium"
           onClick={resetToDefaults}
         >
-          <Rotate size={14} />
+          <Rotate className="h-12" />
           Reset to defaults
         </Button>
       </div>
@@ -697,28 +726,108 @@ export default LogoSidebar;
 // First, update the style data with image paths
 const Style2D = [
   { value: "none", label: "None", image: null }, // No image, will show icon
-  { value: "minimalist", label: "Minimalist", image: "/logoStyles/owl_logos_2d/owl_logo_1_minimalist.png" },
-  { value: "geometric", label: "Geometric", image: "/logoStyles/owl_logos_2d/owl_logo_2_geometric.png" },
-  { value: "abstract", label: "Abstract", image: "/logoStyles/owl_logos_2d/owl_logo_3_abstract.png" },
-  { value: "vintage", label: "Vintage", image: "/logoStyles/owl_logos_2d/owl_logo_4_vintage.png" },
-  { value: "flat_design", label: "Flat Design", image: "/logoStyles/owl_logos_2d/owl_logo_5_flat_design.png" },
-  { value: "line_art", label: "Line Art", image: "/logoStyles/owl_logos_2d/owl_logo_6_line_art.png" },
-  { value: "hand_drawn", label: "Hand-drawn", image: "/logoStyles/owl_logos_2d/owl_logo_7_hand_drawn.png" },
-  { value: "watercolor", label: "Watercolor", image: "/logoStyles/owl_logos_2d/owl_logo_8_watercolor.png" },
-  { value: "tribal", label: "Tribal", image: "/logoStyles/owl_logos_2d/owl_logo_9_tribal.png" },
-  { value: "emblem", label: "Emblem", image: "/logoStyles/owl_logos_2d/owl_logo_10_emblem.png" },
+  {
+    value: "minimalist",
+    label: "Minimalist",
+    image: "/logoStyles/owl_logos_2d/owl_logo_1_minimalist.png",
+  },
+  {
+    value: "geometric",
+    label: "Geometric",
+    image: "/logoStyles/owl_logos_2d/owl_logo_2_geometric.png",
+  },
+  {
+    value: "abstract",
+    label: "Abstract",
+    image: "/logoStyles/owl_logos_2d/owl_logo_3_abstract.png",
+  },
+  {
+    value: "vintage",
+    label: "Vintage",
+    image: "/logoStyles/owl_logos_2d/owl_logo_4_vintage.png",
+  },
+  {
+    value: "flat_design",
+    label: "Flat Design",
+    image: "/logoStyles/owl_logos_2d/owl_logo_5_flat_design.png",
+  },
+  {
+    value: "line_art",
+    label: "Line Art",
+    image: "/logoStyles/owl_logos_2d/owl_logo_6_line_art.png",
+  },
+  {
+    value: "hand_drawn",
+    label: "Hand-drawn",
+    image: "/logoStyles/owl_logos_2d/owl_logo_7_hand_drawn.png",
+  },
+  {
+    value: "watercolor",
+    label: "Watercolor",
+    image: "/logoStyles/owl_logos_2d/owl_logo_8_watercolor.png",
+  },
+  {
+    value: "tribal",
+    label: "Tribal",
+    image: "/logoStyles/owl_logos_2d/owl_logo_9_tribal.png",
+  },
+  {
+    value: "emblem",
+    label: "Emblem",
+    image: "/logoStyles/owl_logos_2d/owl_logo_10_emblem.png",
+  },
 ];
 
 const Style3D = [
   { value: "none", label: "None", image: null }, // No image, will show icon
-  { value: "realistic_3d", label: "Realistic", image: "/logoStyles/owl_logos_3d/owl_logo_1_realistic_3d.png" },
-  { value: "neon_3d", label: "Neon", image: "/logoStyles/owl_logos_3d/owl_logo_2_neon_3d.png" },
-  { value: "metallic_3d", label: "Metallic", image: "/logoStyles/owl_logos_3d/owl_logo_3_metallic_3d.png" },
-  { value: "crystal_3d", label: "Crystal", image: "/logoStyles/owl_logos_3d/owl_logo_4_crystal_3d.png" },
-  { value: "steampunk_3d", label: "Steampunk", image: "/logoStyles/owl_logos_3d/owl_logo_5_steampunk_3d.png" },
-  { value: "holographic_3d", label: "Holographic", image: "/logoStyles/owl_logos_3d/owl_logo_6_holographic_3d.png" },
-  { value: "carved_wood_3d", label: "Carved Wood", image: "/logoStyles/owl_logos_3d/owl_logo_7_carved_wood_3d.png" },
-  { value: "stone_3d", label: "Stone", image: "/logoStyles/owl_logos_3d/owl_logo_8_stone_3d.png" },
-  { value: "cyberpunk_3d", label: "Cyberpunk", image: "/logoStyles/owl_logos_3d/owl_logo_9_cyberpunk_3d.png" },
-  { value: "ice_3d", label: "Ice", image: "/logoStyles/owl_logos_3d/owl_logo_10_ice_3d.png" },
+  {
+    value: "realistic_3d",
+    label: "Realistic",
+    image: "/logoStyles/owl_logos_3d/owl_logo_1_realistic_3d.png",
+  },
+  {
+    value: "neon_3d",
+    label: "Neon",
+    image: "/logoStyles/owl_logos_3d/owl_logo_2_neon_3d.png",
+  },
+  {
+    value: "metallic_3d",
+    label: "Metallic",
+    image: "/logoStyles/owl_logos_3d/owl_logo_3_metallic_3d.png",
+  },
+  {
+    value: "crystal_3d",
+    label: "Crystal",
+    image: "/logoStyles/owl_logos_3d/owl_logo_4_crystal_3d.png",
+  },
+  {
+    value: "steampunk_3d",
+    label: "Steampunk",
+    image: "/logoStyles/owl_logos_3d/owl_logo_5_steampunk_3d.png",
+  },
+  {
+    value: "holographic_3d",
+    label: "Holographic",
+    image: "/logoStyles/owl_logos_3d/owl_logo_6_holographic_3d.png",
+  },
+  {
+    value: "carved_wood_3d",
+    label: "Carved Wood",
+    image: "/logoStyles/owl_logos_3d/owl_logo_7_carved_wood_3d.png",
+  },
+  {
+    value: "stone_3d",
+    label: "Stone",
+    image: "/logoStyles/owl_logos_3d/owl_logo_8_stone_3d.png",
+  },
+  {
+    value: "cyberpunk_3d",
+    label: "Cyberpunk",
+    image: "/logoStyles/owl_logos_3d/owl_logo_9_cyberpunk_3d.png",
+  },
+  {
+    value: "ice_3d",
+    label: "Ice",
+    image: "/logoStyles/owl_logos_3d/owl_logo_10_ice_3d.png",
+  },
 ];

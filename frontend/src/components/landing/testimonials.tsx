@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Quote } from "lucide-react";
 import Image from "next/image";
 
 const TestimonialSection = () => {
@@ -18,10 +17,7 @@ const TestimonialSection = () => {
         <div className="relative bg-white rounded-3xl p-6 sm:p-12 shadow-[0_0_50px_-12px_rgba(0,0,0,0.1)] border border-zinc-200">
           {/* Quote Icon */}
           <div className="absolute top-6 sm:top-12 left-6 sm:left-12">
-            <Quote
-              size={32}
-              className="text-fuchsia-500 opacity-80 fill-fuchsia-500"
-            />
+
           </div>
 
           {/* Testimonial Content */}

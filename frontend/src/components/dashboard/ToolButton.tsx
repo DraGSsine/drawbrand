@@ -11,7 +11,7 @@ interface ToolButtonProps {
   dropdownContent?: ReactNode;
 }
 
-const ToolButton: React.FC<ToolButtonProps> = ({
+const ToolButton = ({
   isActive,
   onClick,
   ariaLabel,
@@ -19,9 +19,9 @@ const ToolButton: React.FC<ToolButtonProps> = ({
   className,
   hasDropdown = false,
   dropdownContent,
-}) => {
+}:ToolButtonProps) => {
   return (
-    <div className={hasDropdown ? "relative" : ""}>
+    <>
       <button
         className={cn(
           "flex items-center justify-center w-10 h-10 rounded-lg transition-all",
@@ -36,7 +36,7 @@ const ToolButton: React.FC<ToolButtonProps> = ({
         {children}
       </button>
       {hasDropdown && dropdownContent && dropdownContent}
-    </div>
+    </>
   );
 };
 

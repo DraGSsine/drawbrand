@@ -1,20 +1,18 @@
 // ai/dto/generate-content.dto.ts
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
+import {LogoSettings} from '../../types/interface';
 
 export class GenerateDto {
   @IsString()
+  prompt: string;
+
   @IsOptional()
-  lastReceivedMessage: string;
+  settings: LogoSettings;
+
   @IsOptional()
-  @IsString()
-  message: string;
-  @IsOptional()
-  @IsString()
-  allMessages: string[];
-  @IsOptional()
-  @IsString()
-  userName: string;
+  sketch: any;
+
   @IsOptional()
   @IsString()
-  allMyMessages: string[];
+  timestamp?: string;
 }

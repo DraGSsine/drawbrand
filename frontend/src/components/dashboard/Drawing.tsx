@@ -31,6 +31,9 @@ const Sketch: React.FC = () => {
   // Add stroke width state
   const [strokeWidth, setStrokeWidth] = useState<number>(2);
 
+  // Add constants for storage keys
+  const DRAWING_STORAGE_KEY = 'logo-generator-canvas';
+
   // Resize canvas to fit container
   const resizeCanvas = () => {
     if (!containerRef.current || !fabricRef.current) return;
@@ -295,6 +298,27 @@ const Sketch: React.FC = () => {
     }
   };
 
+  // Update function to save canvas state to localStorage as PNG only
+  const saveCanvasToLocalStorage = () => {
+    if (fabricRef.current) {
+      try {
+        // Get PNG base64 data URL
+        const pngDataUrl = fabricRef.current.toDataURL({
+          format: 'png',
+          quality: 0.9,
+          multiplier: 2 // Higher resolution
+        });
+        
+        // Store the PNG data directly with single key
+        localStorage.setItem(DRAWING_STORAGE_KEY, pngDataUrl);
+        
+        console.log('Canvas saved to localStorage as PNG');
+      } catch (error) {
+        console.error('Error saving canvas to localStorage:', error);
+      }
+    }
+  };
+
   const handleUndo = () => {
     const canvas = fabricRef.current;
     if (canvas && history.length > 0) {
@@ -304,6 +328,7 @@ const Sketch: React.FC = () => {
         canvas.requestRenderAll();
       }
       setHistory([...history]);
+      saveCanvasToLocalStorage();
     }
   };
 
@@ -313,25 +338,65 @@ const Sketch: React.FC = () => {
       canvas.clear();
       canvas.backgroundColor = "#ffffff";
       canvas.requestRenderAll();
+      saveCanvasToLocalStorage();
     }
   };
 
   const handleObjectAdded = (e: fabric.IEvent) => {
     setHistory([...history, e.target as fabric.Object]);
+    saveCanvasToLocalStorage();
+  };
+  
+  // Add handler for object modified
+  const handleObjectModified = () => {
+    saveCanvasToLocalStorage();
+  };
+  
+  // Add handler for object removed
+  const handleObjectRemoved = () => {
+    saveCanvasToLocalStorage();
   };
 
+  // Update event listeners to include object modified and removed
   useEffect(() => {
     const canvas = fabricRef.current;
     if (canvas) {
       canvas.on("object:added", handleObjectAdded);
+      canvas.on("object:modified", handleObjectModified);
+      canvas.on("object:removed", handleObjectRemoved);
     }
 
     return () => {
       if (canvas) {
         canvas.off("object:added", handleObjectAdded);
+        canvas.off("object:modified", handleObjectModified);
+        canvas.off("object:removed", handleObjectRemoved);
       }
     };
   }, [history]);
+
+  // Optional: Load from localStorage when component initializes
+  useEffect(() => {
+    if (fabricRef.current) {
+      const savedPNG = localStorage.getItem(DRAWING_STORAGE_KEY);
+      if (savedPNG && savedPNG.startsWith('data:image/png;base64,')) {
+        // Load the PNG directly as fabric image
+        fabric.Image.fromURL(savedPNG, (img) => {
+          const canvas = fabricRef.current;
+          if (canvas) {
+            // Clear canvas first
+            canvas.clear();
+            canvas.add(img);
+            canvas.centerObject(img);
+            canvas.renderAll();
+            
+            // Update history with loaded objects
+            setHistory(canvas.getObjects());
+          }
+        });
+      }
+    }
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full">
@@ -355,7 +420,7 @@ const Sketch: React.FC = () => {
           className="absolute top-6 left-6 bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm z-10 flex items-center gap-1 transition-colors"
           title="Undo last action"
         >
-          <RotateLeft size={18}/>
+          <RotateLeft className="h-6 w-6" />
           Undo
         </button>
         
@@ -365,7 +430,7 @@ const Sketch: React.FC = () => {
           className="absolute top-6 right-6 bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm z-10 flex items-center gap-1 transition-colors"
           title="Clear canvas"
         >
-          <Trash size={18}/>
+          <Trash className="h-6 w-6"/>
           Clear
         </button>
         

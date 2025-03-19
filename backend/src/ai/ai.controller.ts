@@ -10,12 +10,12 @@ export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Post('generate')
-  @UseGuards(JwtAuthGuard,SubscriptionGuard)
+  @UseGuards(JwtAuthGuard, SubscriptionGuard)
   async generateContent(
     @Req() req,
     @Body() generateDto: GenerateDto
   ): Promise<any> {
-    const {  } = generateDto;
-    return this.aiService.generate();
+    return await this.aiService.generate(generateDto);
+    
   }
 }

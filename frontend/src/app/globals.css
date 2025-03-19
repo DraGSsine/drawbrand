@@ -72,10 +72,10 @@ html {
   scroll-behavior: smooth;
 }
 .icon-primary {
-  fill: black;
+  fill: #1E3050;
 }
 .icon-secondary {
-  fill: #6b7280;
+  fill: #1E305020;
 }
 @layer utilities {
   .glass {

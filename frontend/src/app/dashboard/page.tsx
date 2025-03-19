@@ -14,12 +14,12 @@ export default function DashboardPage() {
 
   return (
     <div className="h-screen w-screen px-8 pt-20 pb-5 overflow-hidden max-w-8xl mx-auto">
-      {/* Main layout container */}
-      <div className="flex h-full relative">
+      {/* Main layout container using CSS Grid */}
+      <div className="h-full grid grid-cols-1 lg:grid-cols-[330px_1fr_400px] gap-4">
         {/* Left Sidebar - Configuration panel */}
         <div
-          className={`fixed lg:relative z-40 h-full bg-white dark:bg-gray-900  transition-all duration-300 ease-in-out
-                     ${showLeftSidebar ? "left-0" : "-left-full lg:left-0"} w-80`}
+          className={`fixed lg:static z-40 h-full transition-all duration-300 ease-in-out
+                     ${showLeftSidebar ? "left-8" : "-left-full"} lg:left-auto`}
         >
           <Sidebar />
 
@@ -30,13 +30,13 @@ export default function DashboardPage() {
             onClick={() => setShowLeftSidebar(false)}
             className="absolute top-2 right-2 lg:hidden"
           >
-            <X size={20} className="h-5 w-5" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
-        {/* Main content area - Drawing canvas takes most space */}
-        <div className="flex-1 h-full flex flex-col overflow-hidden">
-          {/* Configure buttons for mobile - visible up to 1024px */}
+        {/* Main content area - Drawing canvas */}
+        <div className="h-full flex flex-col overflow-hidden">
+          {/* Configure buttons for mobile - visible up to lg breakpoint */}
           <div className="flex justify-between p-2 lg:hidden">
             <Button
               variant="outline"
@@ -63,8 +63,8 @@ export default function DashboardPage() {
 
         {/* Right Sidebar */}
         <div
-          className={`fixed lg:relative z-40 h-full bg-white dark:bg-gray-900  transition-all duration-300 ease-in-out
-                     ${showRightSidebar ? "right-0" : "-right-full lg:right-0"} w-80`}
+          className={`fixed lg:static z-40 h-full transition-all duration-300 ease-in-out
+                     ${showRightSidebar ? "right-8" : "-right-full"} lg:right-auto`}
         >
           <RigthSideBar />
 

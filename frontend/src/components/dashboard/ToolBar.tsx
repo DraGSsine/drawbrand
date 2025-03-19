@@ -3,8 +3,8 @@ import { ShapeType } from "@/utils/drawing/ShapeTool";
 import IconPicker from "./IconPicker";
 import ShapeSelector from "./ShapeSelector";
 import StrokeWidthPicker from "./StrokeWidthPicker";
-import ToolButton from "./ToolButton";
 import {
+  Gear,
   Eraser,
   HandPointer,
   Icons,
@@ -13,6 +13,7 @@ import {
   PenNib,
   Shapes,
 } from "../../../public/icons/SvgIcons";
+import ToolButton from "./ToolButton";
 
 type Tool =
   | "pencil"
@@ -89,7 +90,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     setShowIconOptions(false);
     onSelectIcon(iconPath);
   };
-  const activeStyle = "[&>*:nth-child(2)]:fill-blue-700 [&>*:nth-child(1)]:fill-black";
+  const activeStyle = "[&>*:nth-child(2)]:fill-[#3b82f6] [&>*:nth-child(1)]:fill-[#3b82f630]";
   return (
     <div className="absolute border border-blue-900/20 left-[25px] top-1/2 -translate-y-1/2 flex flex-col items-center bg-white dark:bg-gray-900 rounded-xl  p-2 gap-2 z-10">
       {/* Drawing tools section */}
@@ -117,12 +118,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
         >
           <Eraser className={activeTool === "eraser" ? activeStyle : ""}  />
         </ToolButton>
-      </div>
-
-      <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-1" />
-
-      {/* Creation tools section */}
-      <div className="flex flex-col gap-2">
         <ToolButton
           isActive={activeTool === "line"}
           onClick={() => handleToolChange("line")}
@@ -130,6 +125,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
         >
           <PenNib className={activeTool === "line" ? activeStyle : ""}  />
         </ToolButton>
+      </div>
+
+      <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-1" />
+
+      {/* Creation tools section */}
+      <div className="flex flex-col gap-2">
 
         <ToolButton
           isActive={activeTool === "shape"}
@@ -144,7 +145,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             />
           )}
         >
-          <Shapes />
+          <Shapes className={activeTool === "shape" ? activeStyle : ""}/>
         </ToolButton>
 
         <ToolButton
@@ -156,7 +157,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             <IconPicker onSelectIcon={handleIconSelectAndClose} />
           )}
         >
-          <Icons />
+          <Icons className={activeTool === "icon" ? activeStyle : ""} />
         </ToolButton>
 
         <ToolButton
@@ -164,7 +165,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           onClick={() => handleToolChange("image")}
           ariaLabel="Image tool"
         >
-          <Image />
+          <Image className={activeTool === "image" ? activeStyle : ""} />
         </ToolButton>
       </div>
 
@@ -183,10 +184,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           />
         )}
       >
-        <div className="flex flex-col items-center justify-center gap-1">
-          <div className="w-5 h-1 bg-current rounded-full" />
-          <div className="w-3 h-1 bg-current rounded-full" />
-        </div>
+        <Gear className={showStrokeOptions ? activeStyle : ""} />
       </ToolButton>
     </div>
   );
