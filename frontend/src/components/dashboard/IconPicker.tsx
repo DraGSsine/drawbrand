@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -23,19 +23,29 @@ const categories = [
 const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
   const [selectedCategory, setSelectedCategory] = useState("solid");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(""); 
   const loader = useRef<HTMLDivElement | null>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useInfiniteQuery({
-    queryKey: ["icons", selectedCategory, searchQuery],
+  // Debounce search input to avoid excessive API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error, refetch } = useInfiniteQuery({
+    queryKey: ["icons", selectedCategory, debouncedSearch],
     queryFn: async ({ pageParam = 1 }) => {
-      console.log(`Fetching icons: category=${selectedCategory}, page=${pageParam}, search=${searchQuery}`);
+      console.log(`Fetching icons: category=${selectedCategory}, page=${pageParam}, search=${debouncedSearch}`);
       const queryParams = new URLSearchParams({
         category: selectedCategory,
         page: pageParam.toString()
       });
       
-      if (searchQuery) {
-        queryParams.append("search", searchQuery);
+      if (debouncedSearch) {
+        queryParams.append("search", debouncedSearch);
       }
       
       const res = await fetch(`http://localhost:5000/users/svgs?${queryParams.toString()}`);
@@ -52,6 +62,16 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
       return lastPage.length > 0 ? allPages.length + 1 : undefined;
     },
   });
+
+  // Handle category change
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+  };
+
+  // Clear search function
+  const clearSearch = () => {
+    setSearchQuery("");
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -73,7 +93,7 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
   };
 
   return (
-    <div className="w-[420px] top-[-5%] left-[120%] absolute bg-white z-10 rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
+    <div className="w-[380px] top-[-5%] left-[120%] absolute bg-white z-10 rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
       {/* Search Box */}
       <div className="relative mb-4">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -108,11 +128,11 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
         {categories.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
+            onClick={() => handleCategoryChange(cat.id)}
             className={cn(
               "px-2 py-1.5 text-xs font-medium rounded-full text-center transition-all",
               selectedCategory === cat.id
-                ? "bg-icon-active text-white shadow-sm"
+                ? " bg-primary text-white shadow-sm"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             )}
           >
@@ -209,16 +229,13 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
                 className="aspect-square rounded-lg hover:bg-icon-hover border border-transparent hover:border-gray-200 transition-all cursor-pointer flex flex-col items-center justify-center p-2 group"
                 onClick={() => handleIconClick(src)}
               >
-                <div className="w-full h-[65%] flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                <div className="h-8 w-8 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <img 
                     src={`http://localhost:5000${src}`} 
                     alt={`Icon ${index}`} 
                     className="w-6 h-6 object-contain" 
                   />
                 </div>
-                <p className="text-[10px] text-center text-gray-500 truncate w-full group-hover:text-icon-active transition-colors">
-                  {src.split('/').pop()?.replace('.svg', '')}
-                </p>
               </div>
             ))}
         </div>

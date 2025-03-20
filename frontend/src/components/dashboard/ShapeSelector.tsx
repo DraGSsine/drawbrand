@@ -16,11 +16,11 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
   const isSolid = fillMode === 'solid';
 
   return (
-    <div className="w-[420px] bg-white top-[-5%] left-[120%] absolute z-10 rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
+    <div className="w-[380px] bg-white top-[-5%] left-[120%] absolute z-10 rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
             {/* Shapes grid */}
       <div className="grid grid-cols-5 gap-2 mb-3">
         {/* Pentagon */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.PENTAGON)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.PENTAGON)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M6.23999 20.64L2.68799 9.69598L12 2.92798L21.312 9.69598L17.76 20.64H6.23999Z" 
@@ -32,7 +32,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Rectangle */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.RECTANGLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.RECTANGLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M2 2V22H22V2H2Z" 
@@ -44,7 +44,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Diamond */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.DIAMOND)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.DIAMOND)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M11.6 1.59998L18.6 11.6L11.6 21.6L4.59998 11.6L11.6 1.59998Z" 
@@ -56,7 +56,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Parallelogram */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.PARALLELOGRAM)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.PARALLELOGRAM)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M7 2L2 22H17L22 2H7Z" 
@@ -68,7 +68,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Trapezoid */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.TRAPEZOID)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.TRAPEZOID)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M1.59998 21.6L7.59998 3.59998H15.6L21.6 21.6H1.59998Z" 
@@ -80,7 +80,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Frame */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.FRAME)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.FRAME)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -94,7 +94,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Hexagon */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.HEXAGON)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.HEXAGON)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M7.224 20.28L2.448 12L7.224 3.71997H16.776L21.552 12L16.776 20.28H7.224Z" 
@@ -106,7 +106,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Octagon */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.OCTAGON)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.OCTAGON)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M8.20803 20.976L2.95203 15.72V8.27999L8.20803 3.02399H15.648L20.904 8.27999V15.72L15.648 20.976H8.20803Z" 
@@ -118,7 +118,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* House */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.HOUSE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.HOUSE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M2.68799 16.8V9.59998L12 2.92798L21.312 9.59998V16.8H2.68799Z" 
@@ -130,7 +130,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Polygon */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.POLYGON)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.POLYGON)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M2.448 16.8V8.39998L7.224 3.59998H16.776L21.552 8.39998V16.8H2.448Z" 
@@ -142,7 +142,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Triangle */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.TRIANGLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.TRIANGLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M12 5L22 22H2L12 5Z" 
@@ -154,7 +154,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Right Triangle */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.RIGHT_TRIANGLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.RIGHT_TRIANGLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M2 2L22 22H2V2Z" 
@@ -166,7 +166,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Double Triangle */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.DOUBLE_TRIANGLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.DOUBLE_TRIANGLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M7.2 19L12 11L16.8 19H7.2ZM2 22L12 5L22 22H2Z" 
@@ -178,7 +178,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Arrow Tip */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_TIP)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_TIP)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -192,7 +192,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Circle */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.CIRCLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.CIRCLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M12.48 22.08C17.7819 22.08 22.08 17.7819 22.08 12.48C22.08 7.17807 17.7819 2.88 12.48 2.88C7.17807 2.88 2.88 7.17807 2.88 12.48C2.88 17.7819 7.17807 22.08 12.48 22.08Z" 
@@ -204,7 +204,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Half Circle */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.HALF_CIRCLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.HALF_CIRCLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M2.2782 13.0044C2.9207 9.11502 7.07545 6.19562 11.9999 6.19562C16.9239 6.19562 21.0789 9.11522 21.7217 13.0046L2.2782 13.0044Z" 
@@ -216,7 +216,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Pill */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.PILL)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.PILL)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M2.36841 2.76587H11.5188C16.5725 2.76587 20.6693 6.80861 20.6693 11.7956C20.6693 16.7825 16.5725 20.8253 11.5188 20.8253H2.36841V2.76587Z" 
@@ -228,7 +228,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Rounded Rectangle */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ROUNDED_RECT)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ROUNDED_RECT)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M4.28809 8.57141H18.7522C20.647 8.57141 22.1831 10.1627 22.1831 12.1256C22.1831 14.0885 20.647 15.6797 18.7522 15.6797H4.28809C2.39325 15.6797 0.857178 14.0885 0.857178 12.1256C0.857178 10.1627 2.39325 8.57141 4.28809 8.57141Z" 
@@ -240,7 +240,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Ring */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.RING)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.RING)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M1.41174 10.5576C1.41174 5.5065 5.5065 1.41174 10.5576 1.41174C12.9833 1.41174 15.3096 2.37533 17.0248 4.09052C18.74 5.8057 19.7035 8.132 19.7035 10.5576C19.7035 15.6088 15.6088 19.7035 10.5576 19.7035C5.5065 19.7035 1.41174 15.6088 1.41174 10.5576ZM5.98469 10.5576C5.98469 13.0832 8.03207 15.1306 10.5576 15.1306C13.0832 15.1306 15.1306 13.0832 15.1306 10.5576C15.1306 8.03207 13.0832 5.98469 10.5576 5.98469C8.03207 5.98469 5.98469 8.03207 5.98469 10.5576Z" 
@@ -252,7 +252,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Semi Circle */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.SEMI_CIRCLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.SEMI_CIRCLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M1.375 21.2463C1.375 13.9306 6.00827 8 11.7237 8C17.4391 8 22.0724 13.9306 22.0724 21.2463H16.8981C16.8981 17.5885 14.5814 14.6232 11.7237 14.6232C8.86599 14.6232 6.54935 17.5885 6.54935 21.2463H1.375Z" 
@@ -264,7 +264,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Star */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.STAR)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.STAR)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -278,7 +278,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Heart */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.HEART)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.HEART)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M2.74036 9.7165L9.59286 9.71655L11.7104 2.76923L13.8279 9.71655L20.6804 9.7165L15.1365 14.0101L17.2541 20.9574L11.7104 16.6637L6.16659 20.9574L8.28417 14.0101L2.74036 9.7165Z" 
@@ -290,7 +290,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Star 4 */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.STAR_4)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.STAR_4)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -304,7 +304,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Star 5 */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.STAR_5)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.STAR_5)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -318,7 +318,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Arrow Right */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_RIGHT)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_RIGHT)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -332,7 +332,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Arrow Bidirectional */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_BIDIRECTIONAL)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_BIDIRECTIONAL)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -346,7 +346,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Arrow Corner */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_CORNER)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_CORNER)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -360,7 +360,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Arrow Block */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_BLOCK)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_BLOCK)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -374,7 +374,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Arrow Cross */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_UP_RIGHT)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_UP_RIGHT)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -388,7 +388,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Arrow Left */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_LEFT)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_LEFT)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -402,7 +402,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Arrow Double */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_DOUBLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.ARROW_DOUBLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -416,7 +416,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Speech Bubble */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.SPEECH_BUBBLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.SPEECH_BUBBLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -430,7 +430,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Thought Bubble */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.THOUGHT_BUBBLE)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.THOUGHT_BUBBLE)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               fillRule="evenodd" 
@@ -444,7 +444,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
         </button>
 
         {/* Cloud */}
-        <button className="flex items-center justify-center w-12 h-12 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.CLOUD)}>
+        <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.CLOUD)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path 
               d="M13.2668 14.7218C12.3234 15.9275 10.857 16.7021 9.21015 16.7021C7.54964 16.7021 6.07255 15.9146 5.1301 14.6917C2.55292 14.4067 0.548223 12.216 0.548223 9.55577C0.548223 7.69848 1.52541 6.07005 2.99238 5.15923C3.5349 2.88817 5.57287 1.20001 8.00406 1.20001C9.28028 1.20001 10.4481 1.6652 11.3482 2.4357C12.2483 1.6652 13.4162 1.20001 14.6924 1.20001C17.5385 1.20001 19.8457 3.51352 19.8457 6.36739C19.8457 6.49892 19.8408 6.62931 19.8312 6.75837C20.915 7.70568 21.6 9.10023 21.6 10.6552C21.6 13.5091 19.2928 15.8226 16.4467 15.8226C15.2468 15.8226 14.1427 15.4114 13.2668 14.7218ZM1.15127 20.88C1.7871 20.88 2.30254 20.5601 2.30254 20.1654C2.30254 19.7707 1.7871 19.4507 1.15127 19.4507C0.515441 19.4507 0 19.7707 0 20.1654C0 20.5601 0.515441 20.88 1.15127 20.88ZM3.28934 18.4612C4.43989 18.4612 5.37259 17.8706 5.37259 17.1419C5.37259 16.4133 4.43989 15.8226 3.28934 15.8226C2.13879 15.8226 1.20609 16.4133 1.20609 17.1419C1.20609 17.8706 2.13879 18.4612 3.28934 18.4612Z" 

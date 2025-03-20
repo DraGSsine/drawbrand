@@ -4,8 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/model/UserSchema';
 import { GenerateDto } from './dto/generate.dto';
-import { LogoSettings } from 'src/types/interface';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { LogoSettings } from 'src/types/interface';
 
 @Injectable()
 export class AiService {
@@ -25,153 +25,187 @@ export class AiService {
   }
 
   async generate(data: GenerateDto) {
-    // Step 1: Analyze sketch and create description
-    const sketchDescription = await this.analyzeSketchWithPrompt(
+    // Step 1: Extract the core intent and subject matter from the sketch and prompt
+    const conceptIdeas = await this.extractCoreIntent(
       data.sketch,
       data.prompt,
+      data.settings,
     );
-
-    // Step 2: Generate logo prompts from description
-    const logoPrompts = await this.generateLogoPrompts(
-      sketchDescription,
+    console.log('Concept ideas:', conceptIdeas);
+    // Step 2: Generate text-free image designs based on the extracted intent
+    const logoVariations = await this.generateTextFreeLogos(
+      conceptIdeas,
       data.settings,
     );
 
-    // Step 3: Generate actual logos from the prompts
-    const generatedLogos = await Promise.all(
-      logoPrompts.map((prompt) => this.generateLogo(prompt)),
-    );
-    console.log('Generated logos:', generatedLogos);
-    return generatedLogos;
+    return logoVariations;
   }
 
-  async analyzeSketchWithPrompt(
+  // Extract just the core subject matter and basic intent from the sketch
+  async extractCoreIntent(
     sketch: string,
-    prompt: string,
+    userPrompt: string,
+    settings?: LogoSettings,
   ): Promise<string> {
+    console.log("-------------->", settings)
+    const dimensionType = settings?.styles?.type === '3d' ? '3D' : '2D';
+    const styleType = settings?.styles?.style || '';
+    const colorInfo = settings?.colors?.color || '';
+    const creativity = settings?.controls?.creativity || 100;
+    const detail = settings?.controls?.detail || 100;
+
+    // Creativity descriptions based on level
+    const creativityDescription = creativity < 30 ? 'conventional and safe' :
+                                  creativity < 70 ? 'balanced and thoughtful' :
+                                  'highly innovative and unexpected';
+    
+    // Detail descriptions based on level
+    const detailDescription = detail < 30 ? 'simple, minimal elements with clean lines' :
+                              detail < 70 ? 'moderate level of detail with clear focal points' :
+                              'intricate, rich textures and complex visual elements';
+
+    // Adjust temperature based on creativity level
+    const promptTemperature = creativity / 100 * 0.5 + 0.5; // Scale between 0.5-1.0
+    
     const result = await fetch(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.openRouterApiKey}`,
-          'HTTP-Referer': '<YOUR_SITE_URL>',
-          'X-Title': '<YOUR_SITE_NAME>',
-          'Content-Type': 'application/json',
+      method: 'POST',
+      headers: {
+      Authorization: `Bearer ${this.openRouterApiKey}`,
+      'HTTP-Referer': 'https://image-generator.app',
+      'X-Title': 'image Generator',
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+      model: 'google/gemini-2.0-pro-exp-02-05:free',
+      messages: [
+      {
+        role: 'user',
+        content: [
+        {
+        type: 'text',
+        text: `Analyze this sketch and the user prompt: "${userPrompt}"
+
+    TASK: Create a precise, professional text prompt (100-150 words) for generating a ${dimensionType} logo design that EQUALLY incorporates elements from BOTH the sketch AND the user prompt. 
+    
+    Specifications:
+    - Style: ${styleType || 'clean and professional'}
+    - Color scheme: ${colorInfo || 'harmonious and balanced'}
+    - Creativity approach: ${creativityDescription}
+    - Detail level: ${detailDescription}
+
+    Focus on:
+    1. Core visual elements from the sketch that represent brand identity
+    2. Key concepts and specific requirements from the user prompt
+    3. A balanced fusion of the visual elements in the sketch with the concepts in the user prompt
+    4. Professional, scalable, and memorable image design
+    5. No text elements in the image
+    6. ${detail > 70 ? 'Complex visual hierarchy with intricate details that reward closer inspection' : 'Clear shapes with strong silhouettes and balanced composition'}
+    7. High contrast and legibility at different sizes
+    8. ${creativity > 70 ? 'Groundbreaking, distinctive style that challenges conventional approaches' : 'Distinctive and recognizable form that works as a brand mark'}
+    ${detail > 70 ? '9. Incorporate fine details, textures, and subtle gradients where appropriate' : ''}
+    ${creativity > 70 ? '10. Explore unexpected color combinations and visual metaphors that surprise and delight' : ''}
+
+    Your response should ONLY contain the generation prompt text with no explanations or formatting.`,
         },
-        body: JSON.stringify({
-          model: 'google/gemini-2.0-pro-exp-02-05:free',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: `Analyze this sketch that the user has drawn combined with their concept: "${prompt}". 
-                  Create a concise description (maximum 100 words) focusing only on the visual elements, style, and concept. 
-                  Don't include any introduction or conclusion, just provide the description.`,
-                },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: sketch,
-                  },
-                },
-              ],
-            },
-          ],
-        }),
+        {
+        type: 'image_url',
+        image_url: { url: sketch },
+        },
+        ],
+      },
+      ],
+      temperature: promptTemperature,
+      max_tokens: 250,
+      }),
       },
     ).then((res) => res.json());
 
-    return result?.choices[0]?.message?.content || '';
+    // Extract just the prompt text from the response
+    let promptText = result?.choices[0]?.message?.content || '';
+    
+    // Remove any potential markdown formatting or explanatory text
+    promptText = promptText.replace(/^```.*$/gm, '').trim();
+    promptText = promptText.replace(/^"(.*)"$/s, '$1');
+    
+    return promptText;
   }
 
-  async generateLogoPrompts(
-    sketchDescription: string,
-    logoSettings: LogoSettings,
+  // Generate text-free image designs based on the extracted intent and settings
+  async generateTextFreeLogos(
+    prompt: string,
+    settings?: LogoSettings,
   ): Promise<string[]> {
-    const result = await fetch(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.openRouterApiKey}`,
-          'HTTP-Referer': '<YOUR_SITE_URL>',
-          'X-Title': '<YOUR_SITE_NAME>',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.0-pro-exp-02-05:free',
-          messages: [
-            {
-              role: 'user',
-              content: `Based on this description: "${sketchDescription}", generate 4 logo prompts.
-              Consider these logo settings: ${JSON.stringify(logoSettings)}.
-              
-              Return ONLY an array of 4 strings in valid JSON format like this: ["prompt1", "prompt2", "prompt3", "prompt4"]
-              
-              Each prompt should be clear, concise, and detailed enough for an AI image generator to create a logo.
-              Do not include any explanations or other text outside the JSON array.`,
-            },
-          ],
-          response_format: { type: 'json_object' },
-        }),
-      },
-    ).then((res) => res.json());
-
     try {
-      const content = result?.choices[0]?.message?.content || '[]';
-      // Try to parse as JSON directly
-      const parsedContent = JSON.parse(content);
-      if (Array.isArray(parsedContent)) {
-        return parsedContent;
-      }
-      // If it's a JSON object with an array property
-      if (parsedContent.prompts && Array.isArray(parsedContent.prompts)) {
-        return parsedContent.prompts;
-      }
-      this.logger.warn('Unexpected response format, returning empty array');
-      return [];
-    } catch (error) {
-      this.logger.error('Failed to parse logo prompts', error);
-      return [];
-    }
-  }
+      const variations: string[] = [];
+      const numberOfVariations = 4;
+      
+      // Extract key style preferences
 
-  async generateLogo(prompt: string): Promise<string> {
-    try {
-      // Enhance the prompt for better logo generation
-      const enhancedPrompt = `Create a professional logo: ${prompt}. Make it high quality, vector style, clean design, suitable for business use.`;
-
-      // Configure the model for image generation
-      const model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash-exp-image-generation',
-        generationConfig: {
-          responseModalities: ['Text', 'Image'],
-        },
-      });
-
-      // Generate the image
-      const response = await model.generateContent(enhancedPrompt);
-      let imageBase64 = '';
-
-      // Extract the base64 image data
-      for (const part of response.response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          imageBase64 = part.inlineData.data;
-          break;
+      
+      for (let i = 0; i < numberOfVariations; i++) {
+        const imageBase64 = await this.callGeminiImageGeneration(prompt, (settings?.controls.creativity || 100) / 100);
+        
+        if (imageBase64) {
+          variations.push(imageBase64);
         }
       }
 
-      if (!imageBase64) {
-        this.logger.warn('No image generated for prompt:', prompt);
+      return variations.length > 0 ? variations : [''];
+    } catch (error) {
+      this.logger.error(`Error generating text-free image:`, error);
+      throw new Error('Failed to generate image variations');
+    }
+  }
+
+  // Call Gemini image generation with optimized parameters
+  private async callGeminiImageGeneration(
+    prompt: string,
+    temperature: number,
+  ): Promise<string> {
+    try {
+      // Get creativity level from temperature (inverse of the calculation in extractCoreIntent)
+      const creativityLevel = ((temperature - 0.5) / 0.5) * 100;
+      
+      // Enhanced prompt for logo generation with creativity-specific modifiers
+      let logoSpecificPrompt = '';
+      
+      if (creativityLevel > 70) {
+        // High creativity prompt
+        logoSpecificPrompt = `Create an innovative, original logo design with unexpected elements: ${prompt}. Push creative boundaries with sophisticated visual metaphors and distinctive stylistic choices. The logo should be striking, memorable, and unlike conventional approaches in the industry.`;
+      } else if (creativityLevel > 30) {
+        // Medium creativity prompt
+        logoSpecificPrompt = `Create a balanced, thoughtful logo design: ${prompt}. Combine familiar elements with fresh perspectives to create a distinctive yet accessible visual identity.`;
+      } else {
+        // Low creativity prompt
+        logoSpecificPrompt = `Create a conventional, professional logo design: ${prompt}. Focus on clarity, recognizability, and established design principles for a trustworthy visual identity.`;
+      }
+      
+      console.log('Temperature:', temperature);
+      console.log('Using creativity-specific prompt');
+      
+      const model = this.genAI.getGenerativeModel({
+        model: 'gemini-2.0-flash-exp-image-generation',
+        generationConfig: {
+          responseModalities: ['text','Image'],
+          temperature,
+        },
+      });
+
+      const response = await model.generateContent(logoSpecificPrompt);
+
+      // Extract image data
+      for (const part of response.response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          return part.inlineData.data;
+        }
       }
 
-      return imageBase64;
+      return '';
     } catch (error) {
-      this.logger.error(`Error generating logo for prompt: ${prompt}`, error);
-      throw new Error('Failed to generate logo');
+      this.logger.error(`Error in Gemini image generation:`, error);
+      return '';
     }
   }
 }

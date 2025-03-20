@@ -121,7 +121,7 @@ const RightSideBar = () => {
         </div>
 
         {/* Main image - now with smaller size */}
-        <div className="mx-auto w-full h-[300px] relative aspect-square bg-gradient-to-br from-blue-50 to-white rounded-xl mb-5 overflow-hidden group shadow-md transition-all duration-300 hover:shadow-lg">
+        <div className="mx-auto w-full h-[280px] relative aspect-square bg-gradient-to-br from-blue-50 to-white rounded-xl mb-5 overflow-hidden group shadow-md transition-all duration-300 hover:shadow-lg">
           {hasGenerated && images[selectedImage] ? (
             // When displaying base64 images, we need to use a different approach
             <div className="w-full h-full relative">

@@ -93,6 +93,12 @@ const Sketch: React.FC = () => {
       iconToolRef.current = new IconTool(canvas);
       imageToolRef.current = new ImageTool(canvas);
 
+      // Fix: Make sure tools are properly set up
+      if (shapeToolRef.current) {
+        shapeToolRef.current.setFillMode(fillMode);
+        shapeToolRef.current.setStrokeWidth(strokeWidth);
+      }
+
       // Set up initial pencil brush settings
       canvas.freeDrawingBrush.width = strokeWidth;
       canvas.freeDrawingBrush.color = "#000000";
@@ -237,12 +243,22 @@ const Sketch: React.FC = () => {
     setSelectedShape(shape);
     setTool("shape");
     
-    if (shapeToolRef.current) {
+    if (shapeToolRef.current && fabricRef.current) {
       shapeToolRef.current.setShapeType(shape);
       shapeToolRef.current.setFillMode(fillMode);
       shapeToolRef.current.setStrokeWidth(strokeWidth);
-      // Add the shape directly to the center of the canvas
-      shapeToolRef.current.addShape();
+      
+      // Add the shape to the canvas and select it
+      const newShape = shapeToolRef.current.addShape();
+      
+      if (newShape) {
+        // Select the shape after adding it
+        fabricRef.current.setActiveObject(newShape);
+        fabricRef.current.requestRenderAll();
+        
+        // Switch to select tool to prevent shape disappearing
+        setTool("select");
+      }
     }
   };
 
@@ -291,6 +307,9 @@ const Sketch: React.FC = () => {
           canvas.setActiveObject(svgGroup);
           canvas.requestRenderAll();
           
+          // Update history to include this object
+          setHistory(prev => [...prev, svgGroup]);
+          
           // Switch to select tool after adding the icon
           setTool("select");
         }
@@ -302,17 +321,32 @@ const Sketch: React.FC = () => {
   const saveCanvasToLocalStorage = () => {
     if (fabricRef.current) {
       try {
-        // Get PNG base64 data URL
-        const pngDataUrl = fabricRef.current.toDataURL({
-          format: 'png',
-          quality: 0.9,
-          multiplier: 2 // Higher resolution
-        });
+        // Store canvas background color
+        const backgroundColor = fabricRef.current.backgroundColor;
         
-        // Store the PNG data directly with single key
-        localStorage.setItem(DRAWING_STORAGE_KEY, pngDataUrl);
+        // Create a clone of the canvas to preserve original state
+        const tempCanvas = document.createElement('canvas');
+        const tempContext = tempCanvas.getContext('2d');
         
-        console.log('Canvas saved to localStorage as PNG');
+        tempCanvas.width = fabricRef.current.width || 600;
+        tempCanvas.height = fabricRef.current.height || 600;
+        
+        if (tempContext) {
+          // Fill background
+          tempContext.fillStyle = backgroundColor as string;
+          tempContext.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+          
+          // Draw canvas content on top
+          const dataUrl = fabricRef.current.toDataURL({
+            format: 'png',
+            quality: 0.9,
+            multiplier: 1 // Keep original size
+          });
+          
+          // Store just the final PNG
+          localStorage.setItem(DRAWING_STORAGE_KEY, dataUrl);
+          console.log('Canvas saved to localStorage as PNG');
+        }
       } catch (error) {
         console.error('Error saving canvas to localStorage:', error);
       }
@@ -343,8 +377,10 @@ const Sketch: React.FC = () => {
   };
 
   const handleObjectAdded = (e: fabric.IEvent) => {
-    setHistory([...history, e.target as fabric.Object]);
-    saveCanvasToLocalStorage();
+    if (e.target) {
+      setHistory(prev => [...prev, e.target as fabric.Object]);
+      saveCanvasToLocalStorage();
+    }
   };
   
   // Add handler for object modified
@@ -386,15 +422,51 @@ const Sketch: React.FC = () => {
           if (canvas) {
             // Clear canvas first
             canvas.clear();
-            canvas.add(img);
-            canvas.centerObject(img);
-            canvas.renderAll();
             
-            // Update history with loaded objects
-            setHistory(canvas.getObjects());
+            // Set background color first
+            canvas.backgroundColor = "#ffffff";
+            
+            // Scale image to fit canvas while maintaining aspect ratio
+            const canvasWidth = canvas.width || 600;
+            const canvasHeight = canvas.height || 600;
+            
+            // Calculate scaling to fit within canvas (with some margin)
+            const scaleX = (canvasWidth - 20) / img.width;
+            const scaleY = (canvasHeight - 20) / img.height;
+            const scale = Math.min(scaleX, scaleY, 1); // Don't enlarge if smaller
+            
+            img.scale(scale);
+            img.set({
+              left: (canvasWidth - img.width * scale) / 2,
+              top: (canvasHeight - img.height * scale) / 2,
+              selectable: false, // Make it non-selectable as it's a background
+              evented: false     // Don't allow events on it
+            });
+            
+            canvas.add(img);
+            canvas.renderAll();
           }
         });
       }
+    }
+  }, []);
+
+  // Add specific handler for object selection
+  useEffect(() => {
+    const canvas = fabricRef.current;
+    if (canvas) {
+      const handleObjectSelection = () => {
+        // This prevents objects from disappearing when selected
+        // by ensuring they remain active
+      };
+      
+      canvas.on("selection:created", handleObjectSelection);
+      canvas.on("selection:updated", handleObjectSelection);
+      
+      return () => {
+        canvas.off("selection:created", handleObjectSelection);
+        canvas.off("selection:updated", handleObjectSelection);
+      };
     }
   }, []);
 

@@ -24,7 +24,7 @@ export class UsersController {
     }
     return await this.usersService.getUserInfo(req.user);
   }
-
+ 
   @Get('token')
   @UseGuards(JwtAuthGuard)
   async getToken(@Req() req: any) {
@@ -32,9 +32,13 @@ export class UsersController {
   }
 
   @Get('svgs')
-  getSvgs(@Query("category") category: string, @Query("page") page = "1") {
-    console.log("SVG request received:", category, page); // Debug log
-    console.log("SVG root path:", this.svgRoot); // Debug log
+  getSvgs(
+    @Query("category") category: string, 
+    @Query("page") page = "1",
+    @Query("search") search?: string
+  ) {
+    console.log("SVG request received:", category, page, search ? `search: ${search}` : ''); // Updated debug log
+    console.log("SVG root path:", this.svgRoot);
     
     if (!category) {
       throw new BadRequestException('Category parameter is required');
@@ -46,24 +50,37 @@ export class UsersController {
     }
 
     const categoryPath = path.join(this.svgRoot, category.toLowerCase());
-    console.log("Looking for SVGs in:", categoryPath); // Debug log
+    console.log("Looking for SVGs in:", categoryPath);
     
     try {
       // Check if directory exists
       if (!fs.existsSync(categoryPath)) {
-        console.log("Directory not found:", categoryPath); // Debug log
+        console.log("Directory not found:", categoryPath);
         throw new NotFoundException(`Category directory not found: ${category}`);
       }
       
-      const files = fs.readdirSync(categoryPath).filter(file => file.endsWith(".svg"));
-      console.log(`Found ${files.length} SVG files`); // Debug log
+      // Get all SVG files
+      let files = fs.readdirSync(categoryPath).filter(file => file.endsWith(".svg"));
+      
+      // Apply search filter if query is provided
+      if (search && search.trim() !== '') {
+        const searchLower = search.toLowerCase();
+        files = files.filter(file => {
+          // Remove .svg extension and convert to lowercase for case-insensitive search
+          const filename = file.replace('.svg', '').toLowerCase();
+          return filename.includes(searchLower);
+        });
+        console.log(`Found ${files.length} SVG files matching search: "${search}"`);
+      } else {
+        console.log(`Found ${files.length} total SVG files`);
+      }
       
       const pageNumber = Math.max(1, parseInt(page, 10) || 1);
       const pageSize = 20;
       const start = (pageNumber - 1) * pageSize;
       const paginatedFiles = files.slice(start, start + pageSize);
 
-      // FIXED: Return paths that match your actual directory structure
+      // Return paths that match your directory structure
       return paginatedFiles.map(file => `/${category.toLowerCase()}/${file}`);
     } catch (error) {
       console.error("Error loading icons:", error);
