@@ -1,63 +1,81 @@
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useMutation } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import {
   ArrowRight,
   Image as ImageIcon,
-  ArrowsRotate,
+  RotateReverse,
 } from "../../../public/icons/SvgIcons";
-import { cn } from "@/lib/utils";
-import { LogoSettings } from "./sidebar";
-import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
+import ImageModal from "./ImageModal";
+import Image from "next/image";
 
 // Constants for localStorage keys
 const SETTINGS_STORAGE_KEY = "logo-generator-settings";
 const DRAWING_STORAGE_KEY = "logo-generator-canvas";
 
-const RightSideBar = () => {
+type LogoSettings = {
+  // Updated to match backend expectations
+  styles?: {
+    type?: string;
+    style?: string;
+  };
+  colors?: {
+    color?: string;
+  };
+  controls?: {
+    creativity?: number;
+    detail?: number;
+  };
+  [key: string]: any;
+};
+
+interface RightSideBarProps {
+  onImageClick?: (imageSrc: string) => void;
+}
+
+const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [promptText, setPromptText] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
+  
+  // Add these two lines for modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImageSrc, setModalImageSrc] = useState<string | null>(null);
 
-  // TanStack Query mutation
+  // TanStack Query mutation with real API call
   const logoMutation = useMutation({
     mutationFn: async (generationData: any) => {
-      const response = await api.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/ai/generate`,
-        generationData
-      );
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await api.post(`${apiUrl}/ai/generate`, generationData);
       return response.data;
     },
     onSuccess: (data) => {
-      console.log("Logo generated successfully:", data);
-
-      // Process the received base64 images
+      console.log("Logo generation response:", data);
+      
+      // Handle different possible response formats
       if (Array.isArray(data) && data.length > 0) {
-        // Ensure we're getting data URLs or convert plain base64 to data URLs
+        // Response is directly an array of base64 images
         const processedImages = data.map((imageData: string) => {
-          // Check if it's already a complete data URL
           if (imageData.startsWith('data:image/')) {
             return imageData;
           }
-          // Otherwise, it might be a raw base64 string, so add the correct prefix
           return `data:image/png;base64,${imageData}`;
         });
-        
         setImages(processedImages);
         setHasGenerated(true);
       } else if (data.images && Array.isArray(data.images)) {
-        // Alternative format - if the API returns {images: [...]}} structure
+        // Response has an images property that is an array
         const processedImages = data.images.map((imageData: string) => {
           if (imageData.startsWith('data:image/')) {
             return imageData;
           }
           return `data:image/png;base64,${imageData}`;
         });
-        
         setImages(processedImages);
         setHasGenerated(true);
       } else {
@@ -66,13 +84,14 @@ const RightSideBar = () => {
     },
     onError: (error) => {
       console.error("Error generating logo:", error);
+      setIsGenerating(false);
     },
     onSettled: () => {
       setIsGenerating(false);
     },
   });
 
-  // Handle prompt change without saving to localStorage
+  // Handle prompt change
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPromptText(e.target.value);
   };
@@ -88,14 +107,14 @@ const RightSideBar = () => {
         ? JSON.parse(settingsJson)
         : null;
 
-      // Get drawing canvas data from localStorage - it's directly a PNG data URL
+      // Get drawing canvas data from localStorage
       const sketchPng = localStorage.getItem(DRAWING_STORAGE_KEY);
 
       // Collect all data
       const generationData = {
         prompt: promptText,
         settings: settings,
-        sketch: sketchPng, // Send the PNG data URL directly
+        sketch: sketchPng,
         timestamp: new Date().toISOString(),
       };
 
@@ -107,93 +126,105 @@ const RightSideBar = () => {
     }
   };
 
+  // Handle image click if the callback is provided
+  const handleImageClick = (image: string) => {
+    // Set modal image and open the modal
+    setModalImageSrc(image);
+    setIsModalOpen(true);
+    
+    // Also call the external onImageClick if provided
+    if (onImageClick) {
+      onImageClick(image);
+    }
+  };
+
   return (
-    <div className="w-[400px] rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-100 shadow-xl h-full flex-shrink-0 flex flex-col py-6 overflow-y-auto transition-all duration-300 ease-in-out">
-      {/* Section 1: Logo Viewer */}
-      <div className="px-6 mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-800 flex items-center">
-            <span className="bg-blue-50 text-blue-600 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+    <div className="w-[400px] bg-white rounded-2xl h-full border border-blue-100  flex flex-col py-6 overflow-y-auto">
+      {/* Add ImageModal component */}
+      <ImageModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        imageSrc={modalImageSrc} 
+      />
+      
+      {/* Rest of the component remains the same */}
+      {/* Logo Viewer Section */}
+      <div className="px-6 mb-6">
+        <div className="mb-4">
+          <h3 className="text-base font-medium text-gray-800">
+            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 mr-2 rounded">
               Preview
             </span>
-            Logo Viewer
           </h3>
         </div>
 
-        {/* Main image - now with smaller size */}
-        <div className="mx-auto w-full h-[280px] relative aspect-square bg-gradient-to-br from-blue-50 to-white rounded-xl mb-5 overflow-hidden group shadow-md transition-all duration-300 hover:shadow-lg">
-          {hasGenerated && images[selectedImage] ? (
-            // When displaying base64 images, we need to use a different approach
-            <div className="w-full h-full relative">
-              <Image
-                src={images[selectedImage]}
-                alt="Generated logo preview"
-                className="object-contain transition-transform duration-500 ease-out group-hover:scale-105"
-                fill
-                sizes="400px"
-                priority
-                unoptimized={true} // Important for base64 images
-              />
+        {/* Loading state with blob animation */}
+        {isGenerating && (
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="relative aspect-square bg-blue-50 rounded-md overflow-hidden">
+              <Skeleton variant="blob" className="w-full h-full" />
             </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-blue-50">
-              <div className="text-center">
-                <ImageIcon className="w-16 h-16 text-blue-200 mx-auto" />
-                <p className="text-blue-400 mt-3 text-sm">
-                  {isGenerating
-                    ? "Generating logos..."
-                    : "Enter a prompt to generate logos"}
-                </p>
-              </div>
+            <div className="relative aspect-square bg-blue-50 rounded-md overflow-hidden">
+              <Skeleton variant="blob" className="w-full h-full" />
             </div>
-          )}
+            <div className="relative aspect-square bg-blue-50 rounded-md overflow-hidden">
+              <Skeleton variant="blob" className="w-full h-full" />
+            </div>
+            <div className="relative aspect-square bg-blue-50 rounded-md overflow-hidden">
+              <Skeleton variant="blob" className="w-full h-full" />
+            </div>
+          </div>
+        )}
 
-          {/* Elegant overlay that appears on hover */}
-          {hasGenerated && images[selectedImage] && (
-            <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-4">
-              <span className="text-white text-sm font-medium backdrop-blur-sm bg-black/20 px-3 py-1 rounded-full">
-                Logo Design {selectedImage + 1}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Thumbnail images row with selection indicator */}
-        {hasGenerated && images.length > 0 && (
-          <div className="grid grid-cols-5 gap-2 w-full mx-auto">
-            {images.map((image, index) => (
-              <button
+        {/* Results grid - 2x2 layout */}
+        {!isGenerating && hasGenerated && (
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {images.slice(0, 4).map((image, index) => (
+              <div
                 key={index}
-                onClick={() => setSelectedImage(index)}
                 className={cn(
-                  "aspect-square bg-gradient-to-br from-blue-50 to-white rounded-lg overflow-hidden transition-all duration-300 relative",
-                  selectedImage === index
-                    ? "ring-2 ring-blue-500 ring-offset-2 shadow-md"
-                    : "hover:shadow-md"
+                  "aspect-square bg-white rounded-md overflow-hidden transition-all cursor-pointer",
+                  selectedImage === index ? "ring-2 ring-blue-500" : ""
                 )}
+                onClick={() => {
+                  setSelectedImage(index);
+                  handleImageClick(image);
+                }}
               >
                 <Image
+                  width={100}
+                  height={100}
                   src={image}
                   alt={`Logo ${index + 1}`}
-                  className="object-cover"
-                  fill
-                  sizes="100px"
-                  unoptimized={true} // Important for base64 images
+                  className="w-full h-full object-contain"
                 />
-              </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!isGenerating && !hasGenerated && (
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {[1, 2, 3, 4].map((index) => (
+              <div
+                key={index}
+                className="aspect-square bg-blue-50 rounded-md flex items-center justify-center"
+              >
+                <ImageIcon className="w-8 h-8 text-blue-200" />
+              </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Section 2: Prompt Section with elegant styling */}
+      {/* Prompt Section */}
       <div className="px-6 mt-2">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-800 flex items-center">
-            <span className="bg-blue-50 text-blue-600 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+        <div className="mb-4">
+          <h3 className="text-base font-medium text-gray-800">
+            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 mr-2 rounded">
               Create
             </span>
-            Logo Generator
           </h3>
         </div>
 
@@ -202,8 +233,8 @@ const RightSideBar = () => {
             <Textarea
               value={promptText}
               onChange={handlePromptChange}
-              placeholder="Describe the logo you want to generate... (e.g., A minimalist tech logo with blue and green colors)"
-              className="min-h-[120px] resize-none rounded-xl border-gray-200 bg-white/80 backdrop-blur-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all duration-300"
+              placeholder="Describe the logo you want to generate..."
+              className="min-h-[120px] resize-none rounded-lg border-gray-200 bg-white focus:border-blue-400 focus:ring-0"
             />
             <div className="absolute bottom-3 right-3 text-xs text-gray-400">
               Be descriptive for best results
@@ -211,20 +242,20 @@ const RightSideBar = () => {
           </div>
 
           <Button
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg"
             onClick={handleGenerate}
             disabled={isGenerating || !promptText.trim()}
           >
             {isGenerating ? (
-              <>
-                <ArrowsRotate className="w-4 h-4 animate-spin" />
+              <span className="flex items-center justify-center">
+                <RotateReverse className="w-4 h-4 mr-2 animate-spin" />
                 Generating...
-              </>
+              </span>
             ) : (
-              <>
+              <span className="flex items-center justify-center">
                 Generate Logo
-                <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" />
-              </>
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </span>
             )}
           </Button>
         </div>
@@ -234,3 +265,17 @@ const RightSideBar = () => {
 };
 
 export default RightSideBar;
+
+const Skeleton = ({
+  variant,
+  className,
+}: {
+  variant: "blob";
+  className?: string;
+}) => {
+  return (
+    <div className={`animate-pulse ${className}`}>
+      <div className="h-full w-full bg-gray-200 rounded-md" />
+    </div>
+  );
+};

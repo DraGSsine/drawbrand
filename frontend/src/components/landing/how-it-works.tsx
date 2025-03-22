@@ -1,6 +1,6 @@
 import React from "react";
-import { Sparkles, WandSparkles } from "lucide-react";
 import Image from "next/image";
+import { Sparkles, WandSparkles } from "../../../public/icons/SvgIcons";
 
 function WindowCard({
   highlightedText,

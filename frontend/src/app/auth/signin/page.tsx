@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Mail, Lock } from "lucide-react";
 import GoogleAuthButton from "../GoogleAuthButton";
 import { z } from "zod";
 import { useState } from "react";
@@ -12,6 +11,7 @@ import { AxiosError } from "axios";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { api } from "@/lib/axios";
+import { Loader, Lock, Mailbox } from "../../../../public/icons/SvgIcons";
 
 const signinSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -130,7 +130,7 @@ export default function SigninPage() {
                         : ""
                     }`}
                   />
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Mailbox className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
                 {errors.email && (
                   <p className="text-red-500 text-xs sm:text-sm mt-1">
@@ -179,7 +179,7 @@ export default function SigninPage() {
             className="relative w-full h-11 rounded-xl bg-violet-600 text-white font-medium transition-all hover:bg-violet-700 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPending ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader className="h-5 w-5 animate-spin" />
             ) : (
               <>
                 <span className="relative">Sign In</span>

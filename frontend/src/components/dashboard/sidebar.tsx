@@ -7,17 +7,14 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Switch } from "@/components/ui/switch";
 import { HexColorPicker } from "react-colorful";
 import {
   Palette,
   Rotate,
-  Cube,
   CircleXmark,
 } from "../../../public/icons/SvgIcons";
 import {
@@ -51,6 +48,42 @@ type ColorPaletteType = {
     colors: string[];
   };
 };
+const Style2D = [
+  { value: "pictorial", label: "Pictorial", image: "/logoStyles/logos_2d/pictorial.png" },
+  { value: "mascot", label: "Mascot", image: "/logoStyles/logos_2d/mascot.png" },
+  { value: "badgeCrest", label: "Badge Crest", image: "/logoStyles/logos_2d/badgeCrest.png" },
+  { value: "cartoon", label: "Cartoon", image: "/logoStyles/logos_2d/cartoon.png" },
+  { value: "iconEmoji", label: "Icon Emoji", image: "/logoStyles/logos_2d/iconEmoji.png" },
+  { value: "abstract", label: "Abstract", image: "/logoStyles/logos_2d/abstract.png" },
+  { value: "line", label: "Line", image: "/logoStyles/logos_2d/line.png" },
+  { value: "pixel", label: "Pixel", image: "/logoStyles/logos_2d/pixel.png" },
+  { value: "comic", label: "Comic", image: "/logoStyles/logos_2d/comic.png" },
+  { value: "flatGraphic", label: "Flat Graphic", image: "/logoStyles/logos_2d/flatGraphic.png" },
+  { value: "manga", label: "Manga", image: "/logoStyles/logos_2d/manga.png" },
+  { value: "kawaii", label: "Kawaii", image: "/logoStyles/logos_2d/kawaii.png" },
+  { value: "watercolor", label: "Watercolor", image: "/logoStyles/logos_2d/watercolor.png" },
+  { value: "pop", label: "Pop", image: "/logoStyles/logos_2d/pop.png" },
+  { value: "illustration", label: "Illustration", image: "/logoStyles/logos_2d/illustration.png" }
+];
+
+const Style3D = [
+  { value: "lowPoly", label: "Low Poly", image: "/logoStyles/owl_logos_3d/low_poly.png" },
+  { value: "realistic", label: "Realistic", image: "/logoStyles/owl_logos_3d/realistic.png" },
+  { value: "celShaded", label: "Cel Shaded", image: "/logoStyles/owl_logos_3d/cel_shaded.png" },
+  { value: "sculpted", label: "Sculpted", image: "/logoStyles/owl_logos_3d/sculpted.png" },
+  { value: "voxel", label: "Voxel", image: "/logoStyles/owl_logos_3d/voxel_art.png" },
+  { value: "cyberpunk", label: "Cyberpunk", image: "/logoStyles/owl_logos_3d/cyberpunk.png" },
+  { value: "fantasy", label: "Fantasy", image: "/logoStyles/owl_logos_3d/fantasy.png" },
+  { value: "steampunk", label: "Steampunk", image: "/logoStyles/owl_logos_3d/steampunk.png" },
+  { value: "sciFi", label: "Sci-Fi", image: "/logoStyles/owl_logos_3d/sci_fi.png" },
+  { value: "surreal", label: "Surreal", image: "/logoStyles/owl_logos_3d/surreal.png" },
+  { value: "toonStyle", label: "Toon Style", image: "/logoStyles/owl_logos_3d/toon_style.png" },
+  { value: "claymation", label: "Claymation", image: "/logoStyles/owl_logos_3d/claymation.png" },
+  { value: "metallic", label: "Metallic", image: "/logoStyles/owl_logos_3d/metallic.png" },
+  { value: "abstract", label: "Abstract", image: "/logoStyles/owl_logos_3d/abstract.png" },
+  { value: "organic", label: "Organic", image: "/logoStyles/owl_logos_3d/organic.png" }
+];
+
 
 const colorPalettes: ColorPaletteType = {
   sunset: {
@@ -69,25 +102,6 @@ const colorPalettes: ColorPaletteType = {
     colors: ["#10B981", "#059669", "#166534"],
   },
 };
-
-// Illustration styles
-const illustrationStyles = [
-  { value: "geometric", label: "Geometric" },
-  { value: "abstract", label: "Abstract" },
-  { value: "minimalist", label: "Minimalist" },
-  { value: "handdrawn", label: "Hand-drawn" },
-  { value: "gradient", label: "Gradient" },
-  { value: "outline", label: "Outline" },
-];
-
-// Logo styles
-const logoStyles = [
-  { value: "modern", label: "Modern" },
-  { value: "vintage", label: "Vintage" },
-  { value: "playful", label: "Playful" },
-  { value: "corporate", label: "Corporate" },
-  { value: "tech", label: "Tech" },
-];
 
 const CUSTOM_PALETTE_ID = "custom";
 
@@ -722,112 +736,3 @@ const LogoSidebar = () => {
 
 export default LogoSidebar;
 
-// First, update the style data with image paths
-// First, update the style data with image paths
-const Style2D = [
-  { value: "none", label: "None", image: null }, // No image, will show icon
-  {
-    value: "minimalist",
-    label: "Minimalist",
-    image: "/logoStyles/owl_logos_2d/owl_logo_1_minimalist.png",
-  },
-  {
-    value: "geometric",
-    label: "Geometric",
-    image: "/logoStyles/owl_logos_2d/owl_logo_2_geometric.png",
-  },
-  {
-    value: "abstract",
-    label: "Abstract",
-    image: "/logoStyles/owl_logos_2d/owl_logo_3_abstract.png",
-  },
-  {
-    value: "vintage",
-    label: "Vintage",
-    image: "/logoStyles/owl_logos_2d/owl_logo_4_vintage.png",
-  },
-  {
-    value: "flat_design",
-    label: "Flat Design",
-    image: "/logoStyles/owl_logos_2d/owl_logo_5_flat_design.png",
-  },
-  {
-    value: "line_art",
-    label: "Line Art",
-    image: "/logoStyles/owl_logos_2d/owl_logo_6_line_art.png",
-  },
-  {
-    value: "hand_drawn",
-    label: "Hand-drawn",
-    image: "/logoStyles/owl_logos_2d/owl_logo_7_hand_drawn.png",
-  },
-  {
-    value: "watercolor",
-    label: "Watercolor",
-    image: "/logoStyles/owl_logos_2d/owl_logo_8_watercolor.png",
-  },
-  {
-    value: "tribal",
-    label: "Tribal",
-    image: "/logoStyles/owl_logos_2d/owl_logo_9_tribal.png",
-  },
-  {
-    value: "emblem",
-    label: "Emblem",
-    image: "/logoStyles/owl_logos_2d/owl_logo_10_emblem.png",
-  },
-];
-
-const Style3D = [
-  { value: "none", label: "None", image: null }, // No image, will show icon
-  {
-    value: "realistic_3d",
-    label: "Realistic",
-    image: "/logoStyles/owl_logos_3d/owl_logo_1_realistic_3d.png",
-  },
-  {
-    value: "neon_3d",
-    label: "Neon",
-    image: "/logoStyles/owl_logos_3d/owl_logo_2_neon_3d.png",
-  },
-  {
-    value: "metallic_3d",
-    label: "Metallic",
-    image: "/logoStyles/owl_logos_3d/owl_logo_3_metallic_3d.png",
-  },
-  {
-    value: "crystal_3d",
-    label: "Crystal",
-    image: "/logoStyles/owl_logos_3d/owl_logo_4_crystal_3d.png",
-  },
-  {
-    value: "steampunk_3d",
-    label: "Steampunk",
-    image: "/logoStyles/owl_logos_3d/owl_logo_5_steampunk_3d.png",
-  },
-  {
-    value: "holographic_3d",
-    label: "Holographic",
-    image: "/logoStyles/owl_logos_3d/owl_logo_6_holographic_3d.png",
-  },
-  {
-    value: "carved_wood_3d",
-    label: "Carved Wood",
-    image: "/logoStyles/owl_logos_3d/owl_logo_7_carved_wood_3d.png",
-  },
-  {
-    value: "stone_3d",
-    label: "Stone",
-    image: "/logoStyles/owl_logos_3d/owl_logo_8_stone_3d.png",
-  },
-  {
-    value: "cyberpunk_3d",
-    label: "Cyberpunk",
-    image: "/logoStyles/owl_logos_3d/owl_logo_9_cyberpunk_3d.png",
-  },
-  {
-    value: "ice_3d",
-    label: "Ice",
-    image: "/logoStyles/owl_logos_3d/owl_logo_10_ice_3d.png",
-  },
-];

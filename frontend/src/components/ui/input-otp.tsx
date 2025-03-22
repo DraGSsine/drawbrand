@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import { OTPInput, OTPInputContext } from "input-otp"
-import { Minus } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Minus } from "../../../public/icons/SvgIcons"
 
 const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,

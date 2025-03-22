@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -11,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import Logo from "./logo";
 import Link from "next/link";
+import { Burger, X } from "../../../public/icons/SvgIcons";
 
 const links = {
   testimonials: "Testimonials",
@@ -130,7 +130,7 @@ const Navbar = () => {
             {isMenuOpen ? (
               <X className="h-6 w-6 text-zinc-700" aria-hidden="true" />
             ) : (
-              <Menu className="h-6 w-6 text-zinc-700" aria-hidden="true" />
+              <Burger className="h-6 w-6 text-zinc-700" aria-hidden="true" />
             )}
           </Button>
         </div>

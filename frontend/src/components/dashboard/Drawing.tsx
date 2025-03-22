@@ -31,8 +31,9 @@ const Sketch: React.FC = () => {
   // Add stroke width state
   const [strokeWidth, setStrokeWidth] = useState<number>(2);
 
-  // Add constants for storage keys
+  // Add constants for both storage keys
   const DRAWING_STORAGE_KEY = 'logo-generator-canvas';
+  const DRAWING_JSON_STORAGE_KEY = 'logo-generator-canvas-json';
 
   // Resize canvas to fit container
   const resizeCanvas = () => {
@@ -248,12 +249,14 @@ const Sketch: React.FC = () => {
       shapeToolRef.current.setFillMode(fillMode);
       shapeToolRef.current.setStrokeWidth(strokeWidth);
       
-      // Add the shape to the canvas and select it
-      const newShape = shapeToolRef.current.addShape();
+      // Add the shape to the canvas
+      shapeToolRef.current.addShape();
       
-      if (newShape) {
-        // Select the shape after adding it
-        fabricRef.current.setActiveObject(newShape);
+      // Get the most recently added object and select it
+      const objects = fabricRef.current.getObjects();
+      if (objects.length > 0) {
+        const lastObject = objects[objects.length - 1];
+        fabricRef.current.setActiveObject(lastObject);
         fabricRef.current.requestRenderAll();
         
         // Switch to select tool to prevent shape disappearing
@@ -317,7 +320,7 @@ const Sketch: React.FC = () => {
     }
   };
 
-  // Update function to save canvas state to localStorage as PNG only
+  // Keep the existing PNG save function
   const saveCanvasToLocalStorage = () => {
     if (fabricRef.current) {
       try {
@@ -343,26 +346,18 @@ const Sketch: React.FC = () => {
             multiplier: 1 // Keep original size
           });
           
-          // Store just the final PNG
+          // Store the PNG (still needed for backend)
           localStorage.setItem(DRAWING_STORAGE_KEY, dataUrl);
-          console.log('Canvas saved to localStorage as PNG');
+          
+          // ALSO store the editable canvas JSON
+          const canvasJSON = fabricRef.current.toJSON();
+          localStorage.setItem(DRAWING_JSON_STORAGE_KEY, JSON.stringify(canvasJSON));
+          
+          console.log('Canvas saved to localStorage as both PNG and JSON');
         }
       } catch (error) {
         console.error('Error saving canvas to localStorage:', error);
       }
-    }
-  };
-
-  const handleUndo = () => {
-    const canvas = fabricRef.current;
-    if (canvas && history.length > 0) {
-      const lastObject = history.pop();
-      if (lastObject) {
-        canvas.remove(lastObject);
-        canvas.requestRenderAll();
-      }
-      setHistory([...history]);
-      saveCanvasToLocalStorage();
     }
   };
 
@@ -376,44 +371,38 @@ const Sketch: React.FC = () => {
     }
   };
 
-  const handleObjectAdded = (e: fabric.IEvent) => {
-    if (e.target) {
-      setHistory(prev => [...prev, e.target as fabric.Object]);
-      saveCanvasToLocalStorage();
-    }
-  };
-  
-  // Add handler for object modified
-  const handleObjectModified = () => {
-    saveCanvasToLocalStorage();
-  };
-  
-  // Add handler for object removed
-  const handleObjectRemoved = () => {
-    saveCanvasToLocalStorage();
-  };
-
-  // Update event listeners to include object modified and removed
-  useEffect(() => {
-    const canvas = fabricRef.current;
-    if (canvas) {
-      canvas.on("object:added", handleObjectAdded);
-      canvas.on("object:modified", handleObjectModified);
-      canvas.on("object:removed", handleObjectRemoved);
-    }
-
-    return () => {
-      if (canvas) {
-        canvas.off("object:added", handleObjectAdded);
-        canvas.off("object:modified", handleObjectModified);
-        canvas.off("object:removed", handleObjectRemoved);
-      }
-    };
-  }, [history]);
-
   // Optional: Load from localStorage when component initializes
   useEffect(() => {
     if (fabricRef.current) {
+      // First try to load the JSON version (with editable objects)
+      const savedJSON = localStorage.getItem(DRAWING_JSON_STORAGE_KEY);
+      
+      if (savedJSON) {
+        try {
+          // Load from JSON to preserve all object properties
+          fabricRef.current.loadFromJSON(JSON.parse(savedJSON), () => {
+            console.log('Canvas restored from JSON with editable objects');
+            
+            // Update history with loaded objects
+            const loadedObjects = fabricRef.current?.getObjects() || [];
+            setHistory([...loadedObjects]);
+            
+            fabricRef.current?.requestRenderAll();
+          });
+        } catch (jsonError) {
+          console.error('Error loading canvas from JSON:', jsonError);
+          
+          // Fall back to PNG if JSON loading fails
+          loadFromPNG();
+        }
+      } else {
+        // Fall back to PNG if no JSON is available
+        loadFromPNG();
+      }
+    }
+    
+    // Helper function to load from PNG as fallback
+    function loadFromPNG() {
       const savedPNG = localStorage.getItem(DRAWING_STORAGE_KEY);
       if (savedPNG && savedPNG.startsWith('data:image/png;base64,')) {
         // Load the PNG directly as fabric image
@@ -423,28 +412,28 @@ const Sketch: React.FC = () => {
             // Clear canvas first
             canvas.clear();
             
-            // Set background color first
+            // Set background color
             canvas.backgroundColor = "#ffffff";
             
             // Scale image to fit canvas while maintaining aspect ratio
             const canvasWidth = canvas.width || 600;
             const canvasHeight = canvas.height || 600;
             
-            // Calculate scaling to fit within canvas (with some margin)
-            const scaleX = (canvasWidth - 20) / img.width;
-            const scaleY = (canvasHeight - 20) / img.height;
-            const scale = Math.min(scaleX, scaleY, 1); // Don't enlarge if smaller
+            const scaleX = (canvasWidth - 20) / (img.width || 1);
+            const scaleY = (canvasHeight - 20) / (img.height || 1);
+            const scale = Math.min(scaleX, scaleY, 1);
             
             img.scale(scale);
             img.set({
-              left: (canvasWidth - img.width * scale) / 2,
-              top: (canvasHeight - img.height * scale) / 2,
-              selectable: false, // Make it non-selectable as it's a background
-              evented: false     // Don't allow events on it
+              left: (canvasWidth - (img.width || 0) * scale) / 2,
+              top: (canvasHeight - (img.height || 0) * scale) / 2,
+              selectable: false,
+              evented: false
             });
             
             canvas.add(img);
             canvas.renderAll();
+            console.log('Canvas restored from PNG (non-editable)');
           }
         });
       }
@@ -486,16 +475,6 @@ const Sketch: React.FC = () => {
         ref={containerRef}
         className="animate-canvas-reveal relative w-full h-full flex items-center justify-center px-4"
       >
-        {/* Undo button - top left */}
-        <button
-          onClick={handleUndo}
-          className="absolute top-6 left-6 bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm z-10 flex items-center gap-1 transition-colors"
-          title="Undo last action"
-        >
-          <RotateLeft className="h-6 w-6" />
-          Undo
-        </button>
-        
         {/* Clear all button - top right */}
         <button
           onClick={handleClearCanvas}

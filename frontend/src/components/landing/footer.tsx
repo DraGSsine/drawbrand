@@ -1,7 +1,7 @@
 import React from "react";
 import Logo from "./logo";
-import { ArrowRight, Linkedin, Twitter } from "lucide-react";
 import Link from "next/link";
+import { ArrowRight , Linkedin, Twitter} from "../../../public/icons/SvgIcons";
 
 const Footer = () => {
   return (

@@ -1,6 +1,6 @@
 import React from "react";
-import { Flame, Zap, Diamond, Check } from "lucide-react";
 import Link from "next/link";
+import { Check, Diamond, Fire, UserGroupCrown } from "../../../public/icons/SvgIcons";
 
 interface PricingCardProps {
   price: string;
@@ -127,7 +127,7 @@ const PricingSection = () => {
       planName: "Starter",
       description:
         "Get started for just $3.99! Perfect for occasional LinkedIn users needing message help. Up to 200 messages.",
-      icon: <Flame className={`w-7 h-7`} />,
+      icon: <Fire className={`w-7 h-7`} />,
       features: [
         "200 messages per month",
         "Generate new responses",
@@ -141,7 +141,7 @@ const PricingSection = () => {
       planName: "Growth",
       description:
         "Our most popular plan offering great value! Ideal for daily LinkedIn engagement. Up to 750 messages.",
-      icon: <Zap className={`w-7 h-7`} />,
+      icon: <UserGroupCrown className={`w-7 h-7`} />,
       features: [
         "750 messages per month",
         "Generate new responses",

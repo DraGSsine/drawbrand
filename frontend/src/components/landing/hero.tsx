@@ -1,20 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Chrome,
-  Play,
-  X,
-  CheckCircle2,
-  Star,
-  MoreHorizontal,
-  AlertCircle,
-  SmilePlus,
-  LinkIcon,
-  ImageIcon,
-  Send,
-} from "lucide-react";
 import Trusted from "./trusted";
-import Image from "next/image";
+import { CircleCheck, Play, X } from "../../../public/icons/SvgIcons";
 
 export function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,7 +75,6 @@ export function Hero() {
                 className="w-full sm:w-auto h-10 md:h-12 px-4 md:px-6 text-sm md:text-base font-medium flex items-center justify-center gap-2 rounded-full border-2 hover:border-violet-200 bg-white/50 hover:bg-white/80 hover:text-violet-600 transition-all duration-500 text-zinc-800"
                 aria-label="Add to Chrome for free"
               >
-                <Chrome className="w-4 h-4 md:w-5 md:h-5" aria-hidden="true" />
                 <span className="whitespace-nowrap">Add to Chrome</span>
                 <span className="hidden sm:inline ml-1">- Free!</span>
               </a>
@@ -165,7 +151,7 @@ export function Hero() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" aria-hidden="true">
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <CircleCheck className="w-5 h-5 text-green-600" />
                   </div>
                   <p className="text-sm font-medium text-gray-700">
                     I went from ignored to inbox hero landed a gig in weeks!
