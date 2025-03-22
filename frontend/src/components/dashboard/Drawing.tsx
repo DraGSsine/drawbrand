@@ -22,6 +22,7 @@ const Sketch: React.FC = () => {
   const imageToolRef = useRef<ImageTool | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [history, setHistory] = useState<fabric.Object[]>([]);
+  const [undoHistory, setUndoHistory] = useState<string[]>([]);
   const [canvasSize, setCanvasSize] = useState({ width: 600, height: 600 });
 
   // Selected shape and icon state
@@ -103,6 +104,15 @@ const Sketch: React.FC = () => {
       // Set up initial pencil brush settings
       canvas.freeDrawingBrush.width = strokeWidth;
       canvas.freeDrawingBrush.color = "#000000";
+
+      // Save initial state
+      saveCanvasState();
+
+      // Track canvas changes to enable undo
+      canvas.on('object:added', saveCanvasState);
+      canvas.on('object:modified', saveCanvasState);
+      canvas.on('object:removed', saveCanvasState);
+      canvas.on('path:created', saveCanvasState);
 
       // Add event to focus canvas on object selection
       canvas.on('mouse:down', function() {
@@ -243,22 +253,22 @@ const Sketch: React.FC = () => {
   const handleShapeSelect = (shape: ShapeType) => {
     setSelectedShape(shape);
     setTool("shape");
-    
+      
     if (shapeToolRef.current && fabricRef.current) {
       shapeToolRef.current.setShapeType(shape);
       shapeToolRef.current.setFillMode(fillMode);
       shapeToolRef.current.setStrokeWidth(strokeWidth);
-      
+        
       // Add the shape to the canvas
       shapeToolRef.current.addShape();
-      
+        
       // Get the most recently added object and select it
       const objects = fabricRef.current.getObjects();
       if (objects.length > 0) {
         const lastObject = objects[objects.length - 1];
         fabricRef.current.setActiveObject(lastObject);
         fabricRef.current.requestRenderAll();
-        
+          
         // Switch to select tool to prevent shape disappearing
         setTool("select");
       }
@@ -459,6 +469,38 @@ const Sketch: React.FC = () => {
     }
   }, []);
 
+  // Add this function to save canvas state
+  const saveCanvasState = () => {
+    if (fabricRef.current) {
+      const json = JSON.stringify(fabricRef.current.toJSON());
+      setUndoHistory(prev => [...prev, json]);
+    }
+  };
+
+  // Modify the handleUndo function to remove the last added object
+  const handleUndo = () => {
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+  
+    // Get all objects on canvas
+    const objects = canvas.getObjects();
+    
+    // If there are objects, remove the last one
+    if (objects.length > 0) {
+      const lastObject = objects[objects.length - 1];
+      canvas.remove(lastObject);
+      canvas.discardActiveObject();
+      canvas.requestRenderAll();
+      
+      // Update history stack after removal
+      setUndoHistory(prev => {
+        const newStack = [...prev];
+        newStack.pop(); // Remove the current state
+        return newStack;
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full">
       {/* Hidden file input for image upload */}
@@ -475,15 +517,29 @@ const Sketch: React.FC = () => {
         ref={containerRef}
         className="animate-canvas-reveal relative w-full h-full flex items-center justify-center px-4"
       >
-        {/* Clear all button - top right */}
-        <button
-          onClick={handleClearCanvas}
-          className="absolute top-6 right-6 bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm z-10 flex items-center gap-1 transition-colors"
-          title="Clear canvas"
-        >
-          <Trash className="h-6 w-6"/>
-          Clear
-        </button>
+        {/* Buttons - top right */}
+        <div className="absolute top-6 right-6 flex gap-2 z-10">
+          {/* Undo button */}
+          <button
+            onClick={handleUndo}
+            disabled={undoHistory.length <= 1}
+            className={`bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm flex items-center gap-1 transition-colors ${undoHistory.length <= 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title="Undo"
+          >
+            <RotateLeft className="h-6 w-6"/>
+            Undo
+          </button>
+          
+          {/* Clear button */}
+          <button
+            onClick={handleClearCanvas}
+            className="bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm flex items-center gap-1 transition-colors"
+            title="Clear canvas"
+          >
+            <Trash className="h-6 w-6"/>
+            Clear
+          </button>
+        </div>
         
         <canvas 
           ref={canvasRef} 

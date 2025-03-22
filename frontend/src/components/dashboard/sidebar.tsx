@@ -15,7 +15,6 @@ import { HexColorPicker } from "react-colorful";
 import {
   Palette,
   Rotate,
-  CircleXmark,
 } from "../../../public/icons/SvgIcons";
 import {
   Popover,
@@ -49,6 +48,7 @@ type ColorPaletteType = {
   };
 };
 const Style2D = [
+  { value: "none", label: "None", image: "/logoStyles/none.png" },
   { value: "pictorial", label: "Pictorial", image: "/logoStyles/logos_2d/pictorial.png" },
   { value: "mascot", label: "Mascot", image: "/logoStyles/logos_2d/mascot.png" },
   { value: "badgeCrest", label: "Badge Crest", image: "/logoStyles/logos_2d/badgeCrest.png" },
@@ -67,6 +67,7 @@ const Style2D = [
 ];
 
 const Style3D = [
+  { value: "none", label: "None", image: "/logoStyles/none.png" },
   { value: "lowPoly", label: "Low Poly", image: "/logoStyles/owl_logos_3d/low_poly.png" },
   { value: "realistic", label: "Realistic", image: "/logoStyles/owl_logos_3d/realistic.png" },
   { value: "celShaded", label: "Cel Shaded", image: "/logoStyles/owl_logos_3d/cel_shaded.png" },
@@ -364,11 +365,7 @@ const LogoSidebar = () => {
 
                   return (
                     <>
-                      {selectedStyle?.value === "none" ? (
-                        <div className="w-6 h-6 rounded-sm overflow-hidden border border-slate-200 flex items-center justify-center bg-slate-100">
-                          <CircleXmark />
-                        </div>
-                      ) : selectedStyle?.image ? (
+                      {selectedStyle?.image ? (
                         <div className="w-6 h-6 rounded-sm overflow-hidden border border-slate-200">
                           <Image
                             width={50}
@@ -391,22 +388,6 @@ const LogoSidebar = () => {
             <SelectContent className="w-[340px] p-2 max-h-[450px]">
               <div className="grid grid-cols-3 gap-2">
                 {getStyleOptions().map((style) =>
-                  style.value === "none" ? (
-                    <SelectItem
-                      key={style.value}
-                      value={style.value}
-                      className="p-0 m-0 rounded-md border border-slate-200 hover:border-slate-300 hover:bg-slate-50 data-[state=checked]:bg-blue-50 data-[state=checked]:border-blue-300"
-                    >
-                      <div className="flex flex-col items-center p-2 w-full">
-                        <div className="w-full aspect-square rounded-md overflow-hidden border border-slate-200 flex items-center justify-center bg-slate-100 mb-1">
-                          <CircleXmark />
-                        </div>
-                        <span className="text-xs font-medium text-center truncate w-full py-1">
-                          {style.label}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ) : (
                     <SelectItem
                       key={style.value}
                       value={style.value}
@@ -427,7 +408,7 @@ const LogoSidebar = () => {
                         </span>
                       </div>
                     </SelectItem>
-                  )
+                  
                 )}
               </div>
             </SelectContent>
