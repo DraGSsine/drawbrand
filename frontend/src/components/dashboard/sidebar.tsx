@@ -498,10 +498,10 @@ const LogoSidebar = () => {
 
         {/* Colors Section - Improved section header */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <Label className="text-slate-800 font-semibold inline-flex items-center text-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
               Colors
-            </Label>
+            </span>
             <div className="flex items-center gap-2">
               {!enabledSections.colors && <AnythingBadge />}
               <Switch
@@ -790,10 +790,10 @@ const LogoSidebar = () => {
 
         {/* Design Controls - Improved section */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <Label className="text-slate-800 font-semibold inline-flex items-center text-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
               Design Controls
-            </Label>
+            </span>
             <div className="flex items-center gap-2">
               {!enabledSections.controls && <AnythingBadge />}
               <Switch

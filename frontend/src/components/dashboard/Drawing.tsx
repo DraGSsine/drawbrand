@@ -50,16 +50,13 @@ const Sketch: React.FC = () => {
     const paddingX = parseFloat(containerStyle.paddingLeft) + parseFloat(containerStyle.paddingRight);
     const paddingY = parseFloat(containerStyle.paddingTop) + parseFloat(containerStyle.paddingBottom);
     
-    // Calculate available space
+    // Calculate available space - use full dimensions instead of forcing square
     const availableWidth = rect.width - paddingX;
     const availableHeight = rect.height - paddingY;
     
-    // Set new dimensions while maintaining 1:1 aspect ratio
-    const size = Math.min(availableWidth, availableHeight);
-    
     const newSize = {
-      width: size,
-      height: size
+      width: availableWidth,
+      height: availableHeight
     };
     
     // Update state
@@ -143,7 +140,7 @@ const Sketch: React.FC = () => {
         selection: false,
         enableRetinaScaling: true,
         renderOnAddRemove: true,
-        stateful: false,  // Improve performance
+        stateful: true,  // Changed to true for better state persistence
       });
 
       fabricRef.current = canvas;
@@ -200,23 +197,28 @@ const Sketch: React.FC = () => {
         saveCanvasState();
       });
 
-      // Save initial state
-      saveCanvasState();
-
-      // Disable touch scrolling to prevent gesture conflicts
-      canvas.allowTouchScrolling = false;
+      // Setup complete - now check for saved canvas data
+      console.log('Canvas initialized successfully, loading saved data...');
       
-      console.log('Canvas initialized successfully');
-      
-      // Immediately resize and warm up the canvas
+      // First resize the canvas
       resizeCanvas();
+      
+      // Now attempt to load saved canvas data
+      const loadSuccess = loadSavedCanvas();
+      
+      if (!loadSuccess) {
+        // Only if there was no saved data, save initial state
+        console.log('No saved data found, saving initial blank state');
+        saveCanvasState();
+      }
+      
+      // Warm up canvas after loading (or not loading) data
       warmUpCanvas();
       
       // Set an immediate timeout to render again after DOM updates
       setTimeout(() => {
         if (fabricRef.current) {
           fabricRef.current.renderAll();
-          warmUpCanvas();
         }
       }, 0);
     } catch (error) {
@@ -257,7 +259,7 @@ const Sketch: React.FC = () => {
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
-
+    
     // Add track changes event handlers after canvas is initialized
     const trackChanges = () => {
       if (!fabricRef.current) return;
@@ -287,11 +289,6 @@ const Sketch: React.FC = () => {
       }
     };
   }, []);
-
-  // Add a separate useEffect for updating history when it changes
-  useEffect(() => {
-    // This empty effect ensures we're tracking history changes
-  }, [history]);
 
   // Consolidate tool switching into a single useEffect
   useEffect(() => {
@@ -364,7 +361,7 @@ const Sketch: React.FC = () => {
         canvas.selection = true;
         break;
     }
-    
+
     canvas.requestRenderAll();
   }, [tool, strokeWidth]);
 
@@ -482,64 +479,63 @@ const Sketch: React.FC = () => {
     }
   };
 
-  // Keep the existing PNG save function
-  const saveCanvasToLocalStorage = () => {
+  // Improve the saveCanvasState function for better persistence
+  const saveCanvasState = () => {
     if (fabricRef.current) {
       try {
-        // Store canvas background color
-        const backgroundColor = fabricRef.current.backgroundColor;
+        // Create a JSON representation with all necessary properties
+        const json = JSON.stringify(fabricRef.current.toJSON([
+          'id', 
+          'selectable',
+          'hasControls',
+          'hasBorders',
+          'lockMovementX',
+          'lockMovementY',
+          'lockRotation',
+          'lockScalingX',
+          'lockScalingY',
+          'lockUniScaling',
+          'evented'
+        ]));
         
-        // Create a clone of the canvas to preserve original state
-        const tempCanvas = document.createElement('canvas');
-        const tempContext = tempCanvas.getContext('2d');
+        // Add to undo history
+        setUndoHistory(prev => [...prev, json]);
         
-        tempCanvas.width = fabricRef.current.width || 600;
-        tempCanvas.height = fabricRef.current.height || 600;
+        // ALWAYS save to localStorage immediately - remove throttling
+        localStorage.setItem(DRAWING_JSON_STORAGE_KEY, json);
         
-        if (tempContext) {
-          // Fill background
-          tempContext.fillStyle = backgroundColor as string;
-          tempContext.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-          
-          // Draw canvas content on top
+        // Also save as PNG for compatibility
           const dataUrl = fabricRef.current.toDataURL({
             format: 'png',
             quality: 0.9,
-            multiplier: 1 // Keep original size
+          multiplier: 1
           });
-          
-          // Store the PNG (still needed for backend)
           localStorage.setItem(DRAWING_STORAGE_KEY, dataUrl);
           
-          // ALSO store the editable canvas JSON
-          const canvasJSON = fabricRef.current.toJSON();
-          localStorage.setItem(DRAWING_JSON_STORAGE_KEY, JSON.stringify(canvasJSON));
-          
-          console.log('Canvas saved to localStorage as both PNG and JSON');
-        }
+        console.log('Canvas saved to localStorage - both JSON and PNG');
+        
+        // Update history with current objects
+        const currentObjects = fabricRef.current.getObjects();
+        setHistory([...currentObjects]);
+        
       } catch (error) {
-        console.error('Error saving canvas to localStorage:', error);
+        console.error('Error saving canvas state:', error);
       }
     }
   };
 
-  const handleClearCanvas = () => {
-    const canvas = fabricRef.current;
-    if (canvas) {
-      canvas.clear();
-      canvas.backgroundColor = "#ffffff";
-      canvas.requestRenderAll();
-      saveCanvasToLocalStorage();
-    }
-  };
-
-  // Optional: Load from localStorage when component initializes
-  useEffect(() => {
-    if (fabricRef.current) {
+  // Improve the loadSavedCanvas function to be more robust
+  const loadSavedCanvas = () => {
+    if (!fabricRef.current) return false;
+    
+    console.log("Loading saved drawing from localStorage...");
+    
+    try {
       // First try to load the JSON version (with editable objects)
       const savedJSON = localStorage.getItem(DRAWING_JSON_STORAGE_KEY);
       
-      if (savedJSON) {
+      if (savedJSON && savedJSON.length > 10) { // Basic validation to ensure we have real JSON data
+        console.log("Found saved JSON data:", savedJSON.substring(0, 50) + "...");
         try {
           // Load from JSON to preserve all object properties
           fabricRef.current.loadFromJSON(JSON.parse(savedJSON), () => {
@@ -547,28 +543,46 @@ const Sketch: React.FC = () => {
             
             // Update history with loaded objects
             const loadedObjects = fabricRef.current?.getObjects() || [];
+            console.log(`Loaded ${loadedObjects.length} objects from saved data`);
+            
             setHistory([...loadedObjects]);
             
-            fabricRef.current?.requestRenderAll();
+            // Save canvas state for undo history
+            if (loadedObjects.length > 0) {
+              const json = JSON.stringify(fabricRef.current?.toJSON(['id', 'selectable']));
+              setUndoHistory(prev => [...prev, json]);
+            }
+            
+            fabricRef.current?.renderAll();
           });
+          return true; // Successfully loaded
         } catch (jsonError) {
           console.error('Error loading canvas from JSON:', jsonError);
           
           // Fall back to PNG if JSON loading fails
-          loadFromPNG();
+          return loadFromPNG();
         }
       } else {
+        console.log("No valid JSON data found, trying PNG...");
         // Fall back to PNG if no JSON is available
-        loadFromPNG();
+        return loadFromPNG();
       }
+    } catch (error) {
+      console.error("Error in loadSavedCanvas:", error);
+      return false;
     }
+  };
     
     // Helper function to load from PNG as fallback
     function loadFromPNG() {
+    try {
       const savedPNG = localStorage.getItem(DRAWING_STORAGE_KEY);
-      if (savedPNG && savedPNG.startsWith('data:image/png;base64,')) {
+      if (savedPNG && savedPNG.startsWith('data:image/png;base64,') && savedPNG.length > 100) {
+        console.log('Found PNG data, loading as fallback...');
+        
         // Load the PNG directly as fabric image
         fabric.Image.fromURL(savedPNG, (img) => {
+          try {
           const canvas = fabricRef.current;
           if (canvas) {
             // Clear canvas first
@@ -577,10 +591,12 @@ const Sketch: React.FC = () => {
             // Set background color
             canvas.backgroundColor = "#ffffff";
             
-            // Scale image to fit canvas while maintaining aspect ratio
+              // Scale image to fit canvas
             const canvasWidth = canvas.width || 600;
             const canvasHeight = canvas.height || 600;
             
+              // Check if the image has valid dimensions
+              if (img.width && img.height && img.width > 10 && img.height > 10) {
             const scaleX = (canvasWidth - 20) / (img.width || 1);
             const scaleY = (canvasHeight - 20) / (img.height || 1);
             const scale = Math.min(scaleX, scaleY, 1);
@@ -596,49 +612,37 @@ const Sketch: React.FC = () => {
             canvas.add(img);
             canvas.renderAll();
             console.log('Canvas restored from PNG (non-editable)');
+                return true;
+              } else {
+                console.error("Loaded image has invalid dimensions:", img.width, img.height);
+              }
+            }
+          } catch (imgError) {
+            console.error("Error adding PNG to canvas:", imgError);
           }
         });
+        return true; // Successfully loading
       }
+      console.log('No saved drawing found in localStorage');
+      return false; // Nothing to load
+    } catch (pngError) {
+      console.error("Error in loadFromPNG:", pngError);
+      return false;
     }
-  }, []);
+  }
 
-  // Add specific handler for object selection
-  useEffect(() => {
+  // Restore the handleClearCanvas function
+  const handleClearCanvas = () => {
     const canvas = fabricRef.current;
     if (canvas) {
-      const handleObjectSelection = () => {
-        // This prevents objects from disappearing when selected
-        // by ensuring they remain active
-      };
-      
-      canvas.on("selection:created", handleObjectSelection);
-      canvas.on("selection:updated", handleObjectSelection);
-      
-      return () => {
-        canvas.off("selection:created", handleObjectSelection);
-        canvas.off("selection:updated", handleObjectSelection);
-      };
-    }
-  }, []);
-
-  // Improve the saveCanvasState function for better performance
-  const saveCanvasState = () => {
-    if (fabricRef.current) {
-      try {
-        const json = JSON.stringify(fabricRef.current.toJSON(['id', 'selectable']));
-        setUndoHistory(prev => [...prev, json]);
-        
-        // Also save to localStorage for persistence - but don't do this too frequently
-        if (undoHistory.length % 5 === 0) {
-          saveCanvasToLocalStorage();
-        }
-      } catch (error) {
-        console.error('Error saving canvas state:', error);
-      }
+      canvas.clear();
+      canvas.backgroundColor = "#ffffff";
+      canvas.renderAll();
+      saveCanvasState(); // Use the updated saveCanvasState
     }
   };
 
-  // Modify the handleUndo function to remove the last added object
+  // Restore the handleUndo function
   const handleUndo = () => {
     const canvas = fabricRef.current;
     if (!canvas) return;
@@ -651,7 +655,7 @@ const Sketch: React.FC = () => {
       const lastObject = objects[objects.length - 1];
       canvas.remove(lastObject);
       canvas.discardActiveObject();
-      canvas.requestRenderAll();
+      canvas.renderAll();
       
       // Update history stack after removal
       setUndoHistory(prev => {
@@ -659,182 +663,175 @@ const Sketch: React.FC = () => {
         newStack.pop(); // Remove the current state
         return newStack;
       });
-    }
-  };
-
-  // Add touch event prevention to avoid default gestures in mobile browsers
-  useEffect(() => {
-    const preventTouchDefault = (e: TouchEvent) => {
-      if (e.target instanceof HTMLCanvasElement) {
-        e.preventDefault();
-      }
-    };
-    
-    document.addEventListener('touchstart', preventTouchDefault, { passive: false });
-    document.addEventListener('touchmove', preventTouchDefault, { passive: false });
-    
-    return () => {
-      document.removeEventListener('touchstart', preventTouchDefault);
-      document.removeEventListener('touchmove', preventTouchDefault);
-    };
-  }, []);
-
-  // Add a window resize listener
-  useEffect(() => {
-    // Handle window resize events to ensure canvas adapts to new layout
-    const handleResize = () => {
-      if (fabricRef.current) {
-        // Give time for the layout to stabilize
-        setTimeout(resizeCanvas, 100);
-      }
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    // Initial resize after component mounts
-    const initialSizeTimer = setTimeout(handleResize, 200);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(initialSizeTimer);
-    };
-  }, []);
-
-  // Fix the completeWarmUp function to use valid fill parameter
-  const completeWarmUp = () => {
-    if (!fabricRef.current) return;
-    
-    // Draw and immediately erase a path to get the engine ready
-    const canvas = fabricRef.current;
-    
-    // Force drawing mode
-    canvas.isDrawingMode = true;
-    
-    // Create a warm-up path programmatically (not visible to user)
-    const path = new fabric.Path('M 10 10 L 20 20 L 30 30', {
-      stroke: 'rgba(0,0,0,0.01)',
-      strokeWidth: 1,
-      fill: undefined
-    });
-    
-    canvas.add(path);
-    canvas.renderAll();
-    
-    // Remove the path right away
-    canvas.remove(path);
-    canvas.renderAll();
-    
-    // Force re-render once more
-    requestAnimationFrame(() => {
-      canvas.renderAll();
-    });
-  };
-
-  // Replace the aggressive canvas warm-up useEffect with a more effective version
-  useEffect(() => {
-    if (fabricRef.current) {
-      // Run the complete warm-up multiple times to ensure drawing is ready
-      completeWarmUp();
-      setTimeout(completeWarmUp, 100);
-      setTimeout(completeWarmUp, 300);
       
-      // Force the canvas into drawing mode with the pencil tool
-      const canvas = fabricRef.current;
-      if (tool === 'pencil') {
-        canvas.isDrawingMode = true;
-        
-        // Get or create a pencil brush
-        let pencilBrush = canvas.freeDrawingBrush;
-        if (!(pencilBrush instanceof fabric.PencilBrush)) {
-          pencilBrush = new fabric.PencilBrush(canvas);
-        }
-        
-        // Configure for immediate responsiveness
-        pencilBrush.width = strokeWidth;
-        pencilBrush.color = "#000000";
-        pencilBrush.decimate = 1;
-        canvas.freeDrawingBrush = pencilBrush;
-        
-        // Ensure rendering is active
-        canvas.renderAll();
-      }
+      // Make sure to save the new state
+      saveCanvasState();
     }
-  }, [fabricRef.current]);
+  };
 
-  // Add a high-priority first-load effect to ensure immediate drawing readiness
+  // Make sure localStorage is used on important events
   useEffect(() => {
-    // This runs once on component mount
-    const immediateInit = () => {
+    // Force localStorage save when canvas is about to be destroyed
+    return () => {
       if (fabricRef.current) {
-        console.log('Immediate drawing initialization');
-        const canvas = fabricRef.current;
+        // Force save to localStorage on component unmount
+        const json = JSON.stringify(fabricRef.current.toJSON([
+          'id', 'selectable', 'hasControls', 'hasBorders',
+          'lockMovementX', 'lockMovementY', 'lockRotation',
+          'lockScalingX', 'lockScalingY', 'lockUniScaling', 'evented'
+        ]));
+        localStorage.setItem(DRAWING_JSON_STORAGE_KEY, json);
         
-        // Force drawing mode
-        canvas.isDrawingMode = true;
-        
-        // Create a responsive brush
-        const pencilBrush = new fabric.PencilBrush(canvas);
-        pencilBrush.width = strokeWidth;
-        pencilBrush.color = "#000000";
-        pencilBrush.decimate = 1;
-        canvas.freeDrawingBrush = pencilBrush;
-        
-        // Force rendering
-        canvas.renderAll();
-        
-        // Schedule another render
-        requestAnimationFrame(() => canvas.renderAll());
-      } else {
-        // If canvas not available yet, try again shortly
-        setTimeout(immediateInit, 50);
+        // Also save PNG version
+        const dataUrl = fabricRef.current.toDataURL({
+          format: 'png',
+          quality: 0.9,
+          multiplier: 1
+        });
+        localStorage.setItem(DRAWING_STORAGE_KEY, dataUrl);
+        console.log('Final canvas state saved to localStorage');
       }
     };
-    
-    // Execute immediately and also after a short delay
-    immediateInit();
-    const timer = setTimeout(immediateInit, 300);
-    
-    return () => clearTimeout(timer);
   }, []);
   
-  // Fix the rendering optimization useEffect
+  // Add an effect to save canvas periodically
   useEffect(() => {
-    if (!fabricRef.current) return;
-    
-    const canvas = fabricRef.current;
-    
-    // Optimize canvas rendering
-    const optimizeRendering = () => {
-      canvas.renderAll();
-      
-      if (canvas.isDrawingMode) {
-        const brush = canvas.freeDrawingBrush;
-        if (brush && typeof brush.decimate !== 'undefined') {
-          // Set to lowest value for maximum responsiveness
-          brush.decimate = 1;
-        }
+    // Automatically save every 30 seconds
+    const autoSaveInterval = setInterval(() => {
+      if (fabricRef.current) {
+        console.log('Auto-saving canvas to localStorage...');
+        saveCanvasState();
       }
-    };
-    
-    // Run optimization
-    optimizeRendering();
-    
-    // Set up an interval to ensure canvas stays responsive
-    const renderInterval = setInterval(() => {
-      if (canvas.isDrawingMode) {
-        canvas.renderAll();
-      }
-    }, 30); // More frequent rendering (30ms instead of 100ms)
+    }, 30000); // Save every 30 seconds
     
     return () => {
-      clearInterval(renderInterval);
+      clearInterval(autoSaveInterval);
     };
   }, []);
+  
+  // Add an effect to save canvas when user leaves/refreshes the page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (fabricRef.current) {
+        console.log('Saving canvas before page unload...');
+        
+        // Force immediate save to localStorage
+        const json = JSON.stringify(fabricRef.current.toJSON([
+          'id', 'selectable', 'hasControls', 'hasBorders',
+          'lockMovementX', 'lockMovementY', 'lockRotation',
+          'lockScalingX', 'lockScalingY', 'lockUniScaling', 'evented'
+        ]));
+        localStorage.setItem(DRAWING_JSON_STORAGE_KEY, json);
+        
+        // Also save PNG version
+        const dataUrl = fabricRef.current.toDataURL({
+          format: 'png',
+          quality: 0.9,
+          multiplier: 1
+        });
+        localStorage.setItem(DRAWING_STORAGE_KEY, dataUrl);
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  // Add event handlers for all drawing activities
+  useEffect(() => {
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+    
+    // Save after any path is created (when drawing)
+    const handlePathCreated = () => {
+      console.log("Path created - saving canvas state");
+      saveCanvasState();
+    };
+    
+    // Save after mouse up (when finishing a drawing stroke)
+    const handleMouseUp = () => {
+      if (canvas.isDrawingMode) {
+        console.log("Mouse up during drawing - saving canvas state");
+        saveCanvasState();
+      }
+    };
+    
+    // Save after object modifications (resize, rotate, etc)
+    const handleObjectModified = () => {
+      console.log("Object modified - saving canvas state");
+      saveCanvasState();
+    };
+
+    // Save after object added (shapes, icons, images)
+    const handleObjectAdded = (e: fabric.IEvent) => {
+      // Don't save for paths as they trigger path:created
+      if (e.target && !(e.target instanceof fabric.Path)) {
+        console.log("Object added - saving canvas state");
+        saveCanvasState();
+      }
+    };
+    
+    // Save after object removed
+    const handleObjectRemoved = () => {
+      console.log("Object removed - saving canvas state");
+      saveCanvasState();
+    };
+    
+    canvas.on('path:created', handlePathCreated);
+    canvas.on('mouse:up', handleMouseUp);
+    canvas.on('object:modified', handleObjectModified);
+    canvas.on('object:added', handleObjectAdded);
+    canvas.on('object:removed', handleObjectRemoved);
+    
+    return () => {
+      canvas.off('path:created', handlePathCreated);
+      canvas.off('mouse:up', handleMouseUp);
+      canvas.off('object:modified', handleObjectModified);
+      canvas.off('object:added', handleObjectAdded);
+      canvas.off('object:removed', handleObjectRemoved);
+    };
+  }, [fabricRef.current]);
+  
+  // Add forced save/load functions for debugging
+  const forceSaveCanvas = () => {
+    console.log("Forcing canvas save to localStorage...");
+    if (fabricRef.current) {
+      // Create a JSON representation with all necessary properties
+      const json = JSON.stringify(fabricRef.current.toJSON([
+        'id', 'selectable', 'hasControls', 'hasBorders',
+        'lockMovementX', 'lockMovementY', 'lockRotation',
+        'lockScalingX', 'lockScalingY', 'lockUniScaling', 'evented'
+      ]));
+      
+      // Save directly to localStorage
+      localStorage.setItem(DRAWING_JSON_STORAGE_KEY, json);
+      
+      // Also save as PNG for compatibility
+      const dataUrl = fabricRef.current.toDataURL({
+        format: 'png',
+        quality: 0.9,
+        multiplier: 1
+      });
+      localStorage.setItem(DRAWING_STORAGE_KEY, dataUrl);
+      
+      console.log('Emergency canvas save completed');
+      return true;
+    }
+    return false;
+  };
+  
+  const forceLoadCanvas = () => {
+    console.log("Forcing canvas load from localStorage...");
+    return loadSavedCanvas();
+  };
 
   return (
     <div className="flex flex-col h-full p-4">
-      <div 
-        ref={containerRef} 
+    <div
+      ref={containerRef}
         className="flex-1 flex items-center justify-center relative bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden"
       >
         {/* Toolbar positioned absolutely inside the canvas container */}
@@ -854,10 +851,21 @@ const Sketch: React.FC = () => {
           />
         </div>
         
+        {/* Small debug save button */}
+        <div className="absolute bottom-2 right-2 z-10">
+          <button 
+            onClick={forceSaveCanvas}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs py-1 px-2 rounded"
+            title="Force Save to LocalStorage"
+          >
+            Save
+          </button>
+        </div>
+        
         {/* Canvas wrapper with focus ring */}
         <div 
           className="flex-1 flex items-center justify-center w-full h-full focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 rounded-lg transition-all duration-150 ease-in-out"
-          tabIndex={0}
+      tabIndex={0}
           onTouchStart={(e) => e.currentTarget.focus()}
           onMouseDown={(e) => e.currentTarget.focus()}
           style={{ outline: 'none' }}

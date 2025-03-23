@@ -115,7 +115,7 @@ export default function DashboardPage() {
             boxShadow: (showLeftSidebar && isMobile) ? "5px 0 20px rgba(0,0,0,0.1)" : "none"
           }}
           transition={{ type: "spring", stiffness: 400, damping: 40 }}
-          className="fixed lg:relative z-40 h-full w-[300px] lg:translate-x-0 bg-white lg:shadow-sm rounded-2xl overflow-hidden border border-blue-100"
+          className="fixed lg:relative z-40 h-full w-[350px] lg:translate-x-0 bg-white lg:shadow-sm rounded-2xl overflow-hidden border border-blue-100"
         >
           <Sidebar />
 
