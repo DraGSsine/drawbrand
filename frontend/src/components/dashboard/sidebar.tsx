@@ -22,16 +22,24 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import Image from "next/image";
+import { Switch } from "@/components/ui/switch";
 
-// Updated LogoSettings interface with simpler colors structure
+// Improved AnythingBadge with better contrast and padding
+const AnythingBadge = () => (
+  <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">
+    Anything
+  </span>
+);
+
+// Updated LogoSettings interface with palette structure
 export interface LogoSettings {
   styles: {
-    type: "2d" | "3d";  
+    type: "2d" | "3d" | "anything";  
     style: string;      
   };
   colors: {
-    type: "solid" | "palette"; // Type determines how to interpret color values
-    color: string | string[]; // Single string for solid, array for palette
+    type: "solid" | "palette" | "anything"; // Support both solid and palette types, plus "anything"
+    color: string | string[] | "anything"; // Can be a single color or array of colors
   };
   controls: {
     creativity: number;
@@ -47,6 +55,31 @@ type ColorPaletteType = {
     colors: string[];
   };
 };
+
+// Define predefined color palettes with better colors
+const colorPalettes: ColorPaletteType = {
+  vibrant: {
+    name: "Vibrant",
+    description: "Bright and energetic colors",
+    colors: ["#EF4444", "#F59E0B", "#06B6D4"]
+  },
+  pastel: {
+    name: "Pastel",
+    description: "Soft and soothing colors",
+    colors: ["#FDBA74", "#BAE6FD", "#C4B5FD"]
+  },
+  earthy: {
+    name: "Earthy",
+    description: "Natural earth tones",
+    colors: ["#A8A29E", "#78716C", "#57534E"]
+  },
+  monochrome: {
+    name: "Monochrome",
+    description: "Shades of a single color",
+    colors: ["#1E40AF", "#3B82F6", "#93C5FD"]
+  }
+};
+
 const Style2D = [
   { value: "none", label: "None", image: "/logoStyles/none.png" },
   { value: "pictorial", label: "Pictorial", image: "/logoStyles/logos_2d/pictorial.png" },
@@ -85,48 +118,27 @@ const Style3D = [
   { value: "organic", label: "Organic", image: "/logoStyles/owl_logos_3d/organic.png" }
 ];
 
-
-const colorPalettes: ColorPaletteType = {
-  sunset: {
-    name: "Sunset",
-    description: "Warm orange and red tones",
-    colors: ["#F97316", "#FBBF24", "#DC2626"],
-  },
-  ocean: {
-    name: "Ocean",
-    description: "Cool blue tones",
-    colors: ["#0EA5E9", "#0891B2", "#1E40AF"],
-  },
-  forest: {
-    name: "Forest",
-    description: "Natural green tones",
-    colors: ["#10B981", "#059669", "#166534"],
-  },
-};
-
-const CUSTOM_PALETTE_ID = "custom";
-
-// Updated default settings with simplified color structure
+// Updated default settings with palette as default color type
 const defaultSettings: LogoSettings = {
   styles: {
     type: "2d",
-    style: "geometric", // Default 2D style
+    style: "none", // Default 2D style
   },
   colors: {
-    type: "solid",
-    color: "#6E59A5", // Single color for solid type
+    type: "palette",  // Changed from "solid" to "palette"
+    color: ["#4F46E5", "#10B981", "#F59E0B"], // Array of colors for palette
   },
   controls: {
-    creativity: 65,
-    detail: 65,
+    creativity: 100,
+    detail: 100,
   }
 };
 
 // Color options
 const colorOptions = [
-  { value: "#6366F1", label: "Indigo", group: "primary" },
-  { value: "#3B82F6", label: "Blue", group: "primary" },
-  { value: "#10B981", label: "Green", group: "primary" },
+  { value: "#4F46E5", label: "Indigo", group: "primary" },
+  { value: "#0EA5E9", label: "Sky Blue", group: "primary" },
+  { value: "#10B981", label: "Emerald", group: "primary" },
 ];
 
 const STORAGE_KEY = "logo-generator-settings";
@@ -135,6 +147,16 @@ const LogoSidebar = () => {
   const [settings, setSettings] = useState<LogoSettings>(defaultSettings);
   const [activeControl, setActiveControl] = useState<"creativity" | "detail">("creativity");
   const [isCustomColorSelected, setIsCustomColorSelected] = useState<boolean>(false);
+  const [enabledSections, setEnabledSections] = useState({
+    styles: true,
+    colors: false,
+    controls: true
+  });
+  const [previousValues, setPreviousValues] = useState({
+    styles: { ...settings.styles },
+    colors: { ...settings.colors },
+    controls: { ...settings.controls }
+  });
 
   // Load settings from localStorage on component mount
   useEffect(() => {
@@ -249,26 +271,23 @@ const LogoSidebar = () => {
     setIsCustomColorSelected(!isPredefined);
   };
 
-  // Updated handlePaletteChange function
+  // Updated handlePaletteChange function to fix custom palette handling
   const handlePaletteChange = (paletteId: string) => {
-    let colors: string[];
+    let selectedColors: string[];
     
-    // If selecting a predefined palette
-    if (paletteId !== CUSTOM_PALETTE_ID && paletteId in colorPalettes) {
-      colors = [...colorPalettes[paletteId as keyof typeof colorPalettes].colors];
-    } 
-    // If it's a custom palette, use existing colors or defaults
-    else {
-      colors = Array.isArray(settings.colors.color) ? 
-        settings.colors.color : 
-        ["#F97316", "#FBBF24", "#DC2626"]; // Default colors
+    if (paletteId in colorPalettes) {
+      selectedColors = [...colorPalettes[paletteId].colors];
+    } else {
+      // Default colors if palette not found
+      selectedColors = ["#F97316", "#FBBF24", "#DC2626"];
     }
     
+    // Always set to palette type and update colors
     setSettings({
       ...settings,
       colors: {
         type: "palette",
-        color: colors
+        color: selectedColors
       }
     });
   };
@@ -276,17 +295,17 @@ const LogoSidebar = () => {
   // Updated updateCustomPaletteColor function
   const updateCustomPaletteColor = (index: number, color: string) => {
     // Ensure we have an array
-    const colors = Array.isArray(settings.colors.color) ? 
+    const currentColors = Array.isArray(settings.colors.color) ? 
       [...settings.colors.color] : 
       ["#F97316", "#FBBF24", "#DC2626"];
     
-    colors[index] = color;
+    currentColors[index] = color;
     
     setSettings({
       ...settings,
       colors: {
         type: "palette",
-        color: colors
+        color: currentColors
       }
     });
   };
@@ -312,402 +331,576 @@ const LogoSidebar = () => {
     return settings.styles.type === "2d" ? Style2D : Style3D;
   };
 
+  // Helper function to toggle sections - updated for simpler color structure
+  const toggleSection = (section: 'styles' | 'colors' | 'controls') => {
+    if (enabledSections[section]) {
+      // Disabling section - store current values first
+      setPreviousValues({
+        ...previousValues,
+        [section]: { ...settings[section] }
+      });
+      
+      // Update settings with "Anything"
+      if (section === 'styles') {
+        setSettings({
+          ...settings,
+          styles: { type: "anything" as any, style: "anything" }
+        });
+      } else if (section === 'colors') {
+        setSettings({
+          ...settings,
+          colors: { type: "anything" as any, color: "anything" }
+        });
+      } else if (section === 'controls') {
+        setSettings({
+          ...settings,
+          controls: { creativity: -1, detail: -1 }
+        });
+      }
+    } else {
+      // Enabling section - restore previous values
+      setSettings({
+        ...settings,
+        [section]: previousValues[section]
+      });
+    }
+    
+    // Toggle the enabled state
+    setEnabledSections({
+      ...enabledSections,
+      [section]: !enabledSections[section]
+    });
+  };
+
   return (
-    <div className="flex rounded-2xl flex-col w-[330px] bg-white border-r h-full border border-blue-100 flex-shrink-0 overflow-hidden z-10">
-      {/* Scrollable content section */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-9 pb-4">
+    <div className="w-full h-full overflow-auto bg-white border border-blue-100 rounded-2xl">
+      <div className="p-6 space-y-6">
         {/* Styles Section */}
-        <div className="space-y-3">
-          <Label className="text-slate-800 font-medium inline-flex items-center">
-            Styles
-          </Label>
-          <ToggleGroup
-            type="single"
-            value={settings.styles.type}
-            onValueChange={(value) => {
-              if (value) handleStyleTypeChange(value as "2d" | "3d");
-            }}
-            className="flex bg-slate-100 p-1 rounded-lg"
-          >
-            <ToggleGroupItem
-              value="2d"
-              className={cn(
-                "flex-1 rounded-md py-2 text-sm font-medium",
-                settings.styles.type === "2d" && "!bg-blue-500 !text-white"
-              )}
-            >
-              2D Style
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="3d"
-              className={cn(
-                "flex-1 rounded-md py-2 text-sm font-medium",
-                settings.styles.type === "3d" && "!bg-blue-500 !text-white"
-              )}
-            >
-              3D Style
-            </ToggleGroupItem>
-          </ToggleGroup>
-
-          {/* Style Select with Images */}
-          <Select
-            value={settings.styles.style}
-            onValueChange={handleStyleChange}
-          >
-            {/* Modified select trigger */}
-            <SelectTrigger className="w-full">
-              <div className="flex items-center gap-2">
-                {/* Get the currently selected style */}
-                {(() => {
-                  const selectedStyle = getStyleOptions().find(
-                    (style) => style.value === settings.styles.style
-                  );
-
-                  return (
-                    <>
-                      {selectedStyle?.image ? (
-                        <div className="w-6 h-6 rounded-sm overflow-hidden border border-slate-200">
-                          <Image
-                            width={50}
-                            height={50}
-                            src={selectedStyle.image}
-                            alt={selectedStyle.label}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : null}
-                      <span className="flex-1 text-sm text-left">
-                        {selectedStyle?.label || `Select ${settings.styles.type} style`}
-                      </span>
-                    </>
-                  );
-                })()}
-              </div>
-            </SelectTrigger>
-
-            <SelectContent className="w-[340px] p-2 max-h-[450px]">
-              <div className="grid grid-cols-3 gap-2">
-                {getStyleOptions().map((style) =>
-                    <SelectItem
-                      key={style.value}
-                      value={style.value}
-                      className="p-0 m-0 rounded-md border border-slate-200 hover:border-slate-300 hover:bg-slate-50 data-[state=checked]:bg-blue-50 data-[state=checked]:border-blue-300"
-                    >
-                      <div className="flex flex-col items-center p-2 w-full">
-                        <div className="w-full aspect-square rounded-md overflow-hidden bg-gray-100 mb-1">
-                          <Image
-                            width={100}
-                            height={100}
-                            src={style.image || "/placeholder.png"}
-                            alt={style.label || "Style thumbnail"}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                        <span className="text-xs font-medium text-center truncate w-full py-1">
-                          {style.label}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  
-                )}
-              </div>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Colors */}
-        <div className="space-y-2">
-          <Label className="text-slate-800 font-medium inline-flex items-center">
-            Colors
-          </Label>
-          <ToggleGroup
-            type="single"
-            value={settings.colors.type}
-            onValueChange={(value) => {
-              if (value) handleColorTypeChange(value as "solid" | "palette");
-            }}
-            className="flex bg-slate-100 p-1 rounded-lg"
-          >
-            <ToggleGroupItem
-              value="solid"
-              className={cn(
-                "flex-1 rounded-md py-2 text-sm font-medium",
-                settings.colors.type === "solid" && "!bg-blue-500 !text-white"
-              )}
-            >
-              Solid
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="palette"
-              className={cn(
-                "flex-1 rounded-md py-2 text-sm font-medium",
-                settings.colors.type === "palette" && "!bg-blue-500 !text-white"
-              )}
-            >
-              Palette
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        {/* Solid Color Selection */}
-        {settings.colors.type === "solid" && (
-          <div className="space-y-2">
-            <div className="grid grid-cols-4 gap-2">
-              {colorOptions.map((preset) => (
-                <button
-                  key={preset.value}
-                  className={cn(
-                    "h-12 w-12 rounded-lg",
-                    settings.colors.color === preset.value
-                      ? "ring-2 ring-offset-1 ring-slate-400 "
-                      : "ring-1 ring-slate-200"
-                  )}
-                  style={{ backgroundColor: preset.value }}
-                  onClick={() => handleSolidColorChange(preset.value)}
-                  aria-label={`Select ${preset.label} color`}
-                />
-              ))}
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    className={cn(
-                      "h-12 w-12 rounded-lg ring-1 ring-slate-200 flex items-center justify-center overflow-hidden",
-                      isCustomColorSelected
-                        ? "ring-2 ring-offset-1 ring-slate-400 "
-                        : ""
-                    )}
-                    style={{ 
-                      backgroundColor: isCustomColorSelected && typeof settings.colors.color === 'string' ? settings.colors.color : undefined 
-                    }}
-                    aria-label="Select custom color"
-                  >
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{
-                        background: !isCustomColorSelected ? 
-                          "linear-gradient(135deg, #FF0000, #FF8000, #FFFF00, #00FF00, #0080FF, #8000FF)" : 
-                          undefined,
-                        borderRadius: "inherit",
-                        boxShadow: "inset 0 0 5px rgba(0,0,0,0.2)",
-                      }}
-                    >
-                      {!isCustomColorSelected && <Palette />}
-                    </div>
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-3 bg-white rounded-lg border border-slate-200">
-                  <HexColorPicker
-                    color={isCustomColorSelected && typeof settings.colors.color === 'string' ? settings.colors.color : "#FF0000"}
-                    onChange={(color) => {
-                      handleSolidColorChange(color);
-                      setIsCustomColorSelected(true);
-                    }}
-                    className="w-48 !h-40"
-                  />
-                </PopoverContent>
-              </Popover>
+        <div className="space-y-4">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
+              Styles
+            </span>
+            <div className="flex items-center gap-2">
+              {!enabledSections.styles && <AnythingBadge />}
+              <Switch
+                checked={enabledSections.styles}
+                onCheckedChange={() => toggleSection('styles')}
+                className="data-[state=checked]:bg-blue-600"
+              />
             </div>
           </div>
-        )}
-
-        {/* Palette Selection */}
-        {settings.colors.type === "palette" && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-4 gap-2">
-              {/* Predefined palettes */}
-              {Object.entries(colorPalettes).map(([id, palette]) => (
-                <button
-                  key={id}
-                  className={cn(
-                    "h-12 w-12 rounded-lg transition-all hover:scale-105 flex items-center justify-center",
-                    // Check if current palette colors match this predefined palette
-                    JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors)
-                      ? "ring-2 ring-offset-1 ring-blue-600 bg-blue-50"
-                      : "ring-1 ring-gray-300 hover:ring-gray-400"
-                  )}
-                  onClick={() => handlePaletteChange(id)}
-                >
-                  <div className="flex">
-                    {palette.colors.map((color, index) => (
-                      <div
-                        key={index}
-                        className="w-4 h-4 rounded-full border border-white shadow-sm"
-                        style={{
-                          backgroundColor: color,
-                          marginLeft: index > 0 ? "-4px" : "0",
-                          zIndex: 3 - index,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </button>
-              ))}
-
-              {/* Custom palette button - selected when colors don't match any predefined palette */}
-              <button
-                onClick={() => handlePaletteChange(CUSTOM_PALETTE_ID)}
+          
+          {/* Always show content, but apply disabled styling when toggled off */}
+          <div className={cn(
+            "transition-all duration-300 space-y-4",
+            !enabledSections.styles && "opacity-50 pointer-events-none saturate-50"
+          )}>
+            <ToggleGroup
+              type="single"
+              value={settings.styles.type}
+              onValueChange={(value) => {
+                if (value && enabledSections.styles) handleStyleTypeChange(value as "2d" | "3d");
+              }}
+              className="flex bg-slate-50 p-1 rounded-lg border border-slate-200"
+            >
+              <ToggleGroupItem
+                value="2d"
                 className={cn(
-                  "h-12 w-12 rounded-lg transition-all hover:scale-105 flex items-center justify-center",
-                  !Object.values(colorPalettes).some(palette => 
-                    JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors))
-                    ? "ring-2 ring-offset-1 ring-blue-400"
-                    : "ring-1 ring-gray-300 hover:ring-gray-400"
+                  "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
+                  settings.styles.type === "2d" && enabledSections.styles 
+                    ? "!bg-blue-600 !text-white shadow-md" 
+                    : "hover:bg-slate-100"
                 )}
               >
-                {Array.isArray(settings.colors.color) ? (
-                  <div className="flex">
-                    {settings.colors.color.map((color, index) => (
-                      <div
-                        key={index}
-                        className="w-4 h-4 rounded-full border border-white shadow-sm"
-                        style={{
-                          backgroundColor: color,
-                          marginLeft: index > 0 ? "-4px" : "0",
-                          zIndex: 3 - index,
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  /* Fallback palette icon */
-                  <div
-                    className="w-full h-full flex items-center justify-center"
-                    style={{
-                      background: "linear-gradient(135deg, #FF0000, #FF8000, #FFFF00, #00FF00, #0080FF, #8000FF)",
-                      borderRadius: "inherit",
-                      boxShadow: "inset 0 0 5px rgba(0,0,0,0.2)",
-                    }}
-                  >
-                    <Palette className="[&>*:nth-child(2)]:fill-[#3b82f6] [&>*:nth-child(1)]:fill-[#3b82f630]" />
-                  </div>
+                2D Style
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="3d"
+                className={cn(
+                  "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
+                  settings.styles.type === "3d" && enabledSections.styles 
+                    ? "!bg-blue-600 !text-white shadow-md" 
+                    : "hover:bg-slate-100"
                 )}
-              </button>
-            </div>
+              >
+                3D Style
+              </ToggleGroupItem>
+            </ToggleGroup>
 
-            {/* Custom palette color editor - show when none of the predefined palettes match */}
-            {!Object.values(colorPalettes).some(palette => 
-              JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors)) && (
-              <div className="p-3 bg-white rounded-lg border border-gray-200 animate-in fade-in-50">
-                <div className="flex gap-2">
-                  {Array.isArray(settings.colors.color) && settings.colors.color.map((color, index) => (
-                    <div key={index} className="flex-1 relative">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button
-                            className="h-6 w-full rounded-md shadow-sm overflow-hidden"
+            {/* Style Select with improved visuals */}
+            <Select
+              value={settings.styles.style}
+              onValueChange={handleStyleChange}
+              disabled={!enabledSections.styles}
+            >
+              {/* Better select trigger with improved spacing and visual cues */}
+              <SelectTrigger className="w-full bg-white border border-slate-200 hover:border-blue-300 focus:ring-blue-300 transition-all">
+                <div className="flex items-center gap-3">
+                  {/* Get the currently selected style */}
+                  {(() => {
+                    const selectedStyle = getStyleOptions().find(
+                      (style) => style.value === settings.styles.style
+                    );
+
+                    return (
+                      <>
+                        {selectedStyle?.image ? (
+                          <div className="w-8 h-8 rounded-md overflow-hidden border border-slate-200 bg-white flex-shrink-0 shadow-sm">
+                            <Image
+                              width={50}
+                              height={50}
+                              src={selectedStyle.image}
+                              alt={selectedStyle.label}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : null}
+                        <span className="flex-1 text-sm text-left">
+                          {selectedStyle?.label || `Select ${settings.styles.type} style`}
+                        </span>
+                      </>
+                    );
+                  })()}
+                </div>
+              </SelectTrigger>
+
+              <SelectContent className="w-[340px] p-3 max-h-[450px]">
+                <div className="grid grid-cols-3 gap-3">
+                  {getStyleOptions().map((style) =>
+                      <SelectItem
+                        key={style.value}
+                        value={style.value}
+                        className="p-0 m-0 rounded-md border border-slate-200 hover:border-blue-200 hover:bg-blue-50 data-[state=checked]:bg-blue-50 data-[state=checked]:border-blue-300 transition-all"
+                      >
+                        <div className="flex flex-col items-center p-2 w-full">
+                          <div className="w-full aspect-square rounded-md overflow-hidden bg-white mb-2 border border-slate-100 hover:shadow-md transition-all">
+                            <Image
+                              width={100}
+                              height={100}
+                              src={style.image || "/placeholder.png"}
+                              alt={style.label || "Style thumbnail"}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <span className="text-xs font-medium text-center truncate w-full py-1">
+                            {style.label}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    
+                  )}
+                </div>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Colors Section - Improved section header */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <Label className="text-slate-800 font-semibold inline-flex items-center text-sm">
+              Colors
+            </Label>
+            <div className="flex items-center gap-2">
+              {!enabledSections.colors && <AnythingBadge />}
+              <Switch
+                checked={enabledSections.colors}
+                onCheckedChange={() => toggleSection('colors')}
+                className="data-[state=checked]:bg-indigo-600"
+              />
+            </div>
+          </div>
+          
+          {/* Color type toggle - Always visible but with reduced opacity when disabled */}
+          <div className="space-y-3">
+            <ToggleGroup
+              type="single"
+              value={enabledSections.colors ? settings.colors.type : undefined}
+              onValueChange={(value) => {
+                if (value && enabledSections.colors) handleColorTypeChange(value as "solid" | "palette");
+              }}
+              className={cn(
+                "flex bg-slate-50 p-1 rounded-lg border border-slate-200 mb-3",
+                !enabledSections.colors && "opacity-50 pointer-events-none"
+              )}
+            >
+              <ToggleGroupItem
+                value="solid"
+                className={cn(
+                  "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
+                  settings.colors.type === "solid" && enabledSections.colors 
+                    ? "!bg-indigo-600 !text-white shadow-md" 
+                    : "hover:bg-slate-100"
+                )}
+              >
+                Solid Color
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="palette"
+                className={cn(
+                  "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
+                  settings.colors.type === "palette" && enabledSections.colors 
+                    ? "!bg-indigo-600 !text-white shadow-md" 
+                    : "hover:bg-slate-100"
+                )}
+              >
+                Color Palette
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            {/* Solid Color Selection - Visible even when disabled */}
+            {(settings.colors.type === "solid" || 
+              (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid')) && (
+              <div className={cn(
+                "space-y-3",
+                !enabledSections.colors && "opacity-50 pointer-events-none saturate-50"
+              )}>
+                <div className="grid grid-cols-4 gap-2">
+                  {colorOptions.map((preset) => (
+                    <button
+                      key={preset.value}
+                      className={cn(
+                        "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
+                        (settings.colors.type === "solid" && settings.colors.color === preset.value) ||
+                        (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
+                         previousValues.colors?.color === preset.value)
+                          ? "ring-2 ring-offset-2 ring-indigo-500 scale-105 shadow-md z-10"
+                          : "ring-1 ring-slate-200 hover:ring-indigo-300 hover:scale-105 hover:shadow-sm"
+                      )}
+                      style={{ backgroundColor: preset.value }}
+                      onClick={() => enabledSections.colors && handleSolidColorChange(preset.value)}
+                      aria-label={`Select ${preset.label} color`}
+                      disabled={!enabledSections.colors}
+                    >
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    </button>
+                  ))}
+
+                  <Popover>
+                    <PopoverTrigger asChild disabled={!enabledSections.colors}>
+                      <button
+                        className={cn(
+                          "h-16 rounded-lg transition-all duration-200 relative overflow-hidden group",
+                          (settings.colors.type === "solid" && isCustomColorSelected) ||
+                          (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
+                            typeof previousValues.colors?.color === 'string' && 
+                            !colorOptions.some(o => o.value === previousValues.colors?.color))
+                            ? "ring-2 ring-offset-2 ring-indigo-500 scale-105 shadow-md z-10"
+                            : "ring-1 ring-slate-200 hover:ring-indigo-300 hover:scale-105 hover:shadow-sm"
+                        )}
+                        style={{ 
+                          backgroundColor: 
+                            settings.colors.type === "solid" && isCustomColorSelected && typeof settings.colors.color === 'string'
+                              ? settings.colors.color 
+                              : settings.colors.type === 'anything' && 
+                                typeof previousValues.colors?.color === 'string' && 
+                                !colorOptions.some(o => o.value === previousValues.colors?.color)
+                                ? previousValues.colors?.color
+                                : undefined
+                        }}
+                        aria-label="Select custom color"
+                        disabled={!enabledSections.colors}
+                      >
+                        <div
+                          className={cn(
+                            "w-full h-full flex items-center justify-center absolute inset-0",
+                            (settings.colors.type === "solid" && !isCustomColorSelected) ||
+                            (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
+                              typeof previousValues.colors?.color === 'string' && 
+                              colorOptions.some(o => o.value === previousValues.colors?.color)) 
+                              ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500" : ""
+                          )}
+                        >
+                          {((settings.colors.type === "solid" && !isCustomColorSelected) ||
+                            (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
+                              typeof previousValues.colors?.color === 'string' && 
+                              colorOptions.some(o => o.value === previousValues.colors?.color))) && (
+                            <div className="bg-white/70 backdrop-blur-[3px] rounded-full p-2.5 shadow-sm z-10">
+                              <Palette className="w-5 h-5 text-indigo-700 drop-shadow-sm" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-4 bg-white rounded-lg border border-slate-200 shadow-lg">
+                      <div className="space-y-4">
+                        <HexColorPicker
+                          color={isCustomColorSelected && typeof settings.colors.color === 'string' ? 
+                            settings.colors.color : "#FF0000"}
+                          onChange={(color) => {
+                            handleSolidColorChange(color);
+                            setIsCustomColorSelected(true);
+                          }}
+                          className="w-48 !h-48"
+                        />
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                          <div className="h-8 w-12 rounded-md border border-slate-200 shadow-sm" 
+                               style={{ backgroundColor: isCustomColorSelected && typeof settings.colors.color === 'string' ? 
+                                 settings.colors.color : "#FF0000" }} />
+                          <span className="text-sm font-medium text-slate-700">
+                            {isCustomColorSelected && typeof settings.colors.color === 'string' ? 
+                              settings.colors.color.toUpperCase() : "#FF0000"}
+                          </span>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
+
+            {/* Palette Selection - Visible even when disabled */}
+            {(settings.colors.type === "palette" || 
+              settings.colors.type === 'anything' && 
+              (previousValues.colors?.type === 'palette' || !previousValues.colors?.type)) && (
+              <div className={cn(
+                "space-y-2",
+                !enabledSections.colors && "opacity-50 pointer-events-none saturate-50"
+              )}>
+                <div className="grid grid-cols-4 gap-2">
+                  {/* Predefined palettes (first 3 columns) */}
+                  {Object.entries(colorPalettes).slice(0, 3).map(([id, palette]) => (
+                    <button
+                      key={id}
+                      className={cn(
+                        "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
+                        (settings.colors.type === "palette" && Array.isArray(settings.colors.color) && 
+                         JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors)) ||
+                        (settings.colors.type === 'anything' && previousValues.colors?.type === 'palette' && 
+                         Array.isArray(previousValues.colors?.color) && 
+                         JSON.stringify(previousValues.colors?.color) === JSON.stringify(palette.colors))
+                          ? "ring-2 ring-offset-2 ring-indigo-500 scale-105 shadow-md z-10"
+                          : "ring-1 ring-slate-200 hover:ring-indigo-300 hover:scale-105 hover:shadow-sm"
+                      )}
+                      onClick={() => enabledSections.colors && handlePaletteChange(id)}
+                      disabled={!enabledSections.colors}
+                    >
+                      <div className="flex h-full overflow-hidden rounded-md">
+                        {palette.colors.map((color, index) => (
+                          <div
+                            key={index}
+                            className="h-full flex-1"
                             style={{ backgroundColor: color }}
                           />
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-3 bg-white rounded-lg border border-gray-200">
-                          <HexColorPicker
-                            color={color}
-                            onChange={(newColor) => updateCustomPaletteColor(index, newColor)}
-                            className="w-48 !h-40"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
+                        ))}
+                      </div>
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-[2px] px-2 py-0.5 rounded text-[11px] font-medium text-slate-800 shadow-sm transition-all group-hover:scale-110 group-hover:bottom-2.5">
+                        {palette.name}
+                      </span>
+                    </button>
                   ))}
+
+                  {/* Custom palette editor in the 4th column */}
+                  <Popover>
+                    <PopoverTrigger asChild disabled={!enabledSections.colors}>
+                      <button
+                        className={cn(
+                          "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
+                          (settings.colors.type === "palette" && Array.isArray(settings.colors.color) && 
+                           !Object.entries(colorPalettes).some(([, p]) => 
+                            JSON.stringify(p.colors) === JSON.stringify(settings.colors.color))) ||
+                          (settings.colors.type === 'anything' && previousValues.colors?.type === 'palette' && 
+                           Array.isArray(previousValues.colors?.color) && 
+                           !Object.entries(colorPalettes).some(([, p]) => 
+                            JSON.stringify(p.colors) === JSON.stringify(previousValues.colors?.color)))
+                            ? "ring-2 ring-offset-2 ring-indigo-500 scale-105 shadow-md z-10"
+                            : "ring-1 ring-slate-200 hover:ring-indigo-300 hover:scale-105 hover:shadow-sm"
+                        )}
+                        disabled={!enabledSections.colors}
+                      >
+                        <div className="flex h-full overflow-hidden rounded-md">
+                          {Array.isArray(settings.colors.color) && settings.colors.type === "palette" ? 
+                            settings.colors.color.slice(0, 3).map((color, index) => (
+                              <div
+                                key={index}
+                                className="h-full flex-1"
+                                style={{ backgroundColor: color }}
+                              />
+                            )) : 
+                            settings.colors.type === 'anything' && previousValues.colors?.type === 'palette' && 
+                            Array.isArray(previousValues.colors?.color) ?
+                            previousValues.colors.color.slice(0, 3).map((color, index) => (
+                              <div
+                                key={index}
+                                className="h-full flex-1"
+                                style={{ backgroundColor: color }}
+                              />
+                            )) :
+                            <div className="h-full w-full bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500" />
+                          }
+                        </div>
+                        <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-[2px] px-2 py-0.5 rounded text-[11px] font-medium text-slate-800 shadow-sm transition-all group-hover:scale-110 group-hover:bottom-2.5">
+                          Custom
+                        </span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-4 bg-white rounded-lg border border-slate-200 shadow-lg">
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-medium text-slate-700">Edit Custom Palette</h4>
+                        
+                        {/* Simplified UI with direct color pickers */}
+                        <div className="flex gap-2 justify-between">
+                          {Array.isArray(settings.colors.color) ? 
+                            settings.colors.color.map((color, index) => (
+                              <div key={index} className="flex-1">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <button
+                                      className="h-16 w-full rounded-md transition-all ring-1 ring-slate-200 hover:ring-indigo-300 relative group overflow-hidden shadow-sm"
+                                      style={{ backgroundColor: color }}
+                                    >
+                                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="bg-white/70 backdrop-blur-[2px] rounded-full p-1.5 shadow-sm">
+                                          <Palette className="w-4 h-4 text-indigo-700" />
+                                        </div>
+                                      </div>
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent side="top" className="w-auto p-3">
+                                    <div className="space-y-3">
+                                      <HexColorPicker
+                                        color={color}
+                                        onChange={(newColor) => updateCustomPaletteColor(index, newColor)}
+                                        className="w-48 !h-48"
+                                      />
+                                      <div className="pt-2 border-t border-slate-100 text-center">
+                                        <span className="text-xs font-medium text-slate-600">{color.toUpperCase()}</span>
+                                      </div>
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                            )) : 
+                            <div className="text-sm text-slate-500">No colors defined</div>
+                          }
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {/* Creativity & Detail Controls */}
-        <div className="space-y-3">
-          <Label className="text-slate-800 font-medium inline-flex items-center">
-            Design Controls
-          </Label>
-          <ToggleGroup
-            type="single"
-            value={activeControl}
-            onValueChange={(value) => {
-              if (value) setActiveControl(value as "creativity" | "detail");
-            }}
-            className="flex bg-slate-100 p-1 rounded-lg"
-          >
-            <ToggleGroupItem
-              value="creativity"
-              className={cn(
-                "flex-1 rounded-md py-2 text-sm font-medium",
-                activeControl === "creativity" && "!bg-blue-500 !text-white"
-              )}
-            >
-              Creativity
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="detail"
-              className={cn(
-                "flex-1 rounded-md py-2 text-sm font-medium",
-                activeControl === "detail" && "!bg-blue-500 !text-white"
-              )}
-            >
-              Detail
-            </ToggleGroupItem>
-          </ToggleGroup>
-
-          {/* Creativity Controls */}
-          {activeControl === "creativity" && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-slate-500">Conservative</span>
-                </div>
-                <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">
-                  {settings.controls.creativity}%
-                </span>
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-slate-500">Creative</span>
-                </div>
-              </div>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                value={[settings.controls.creativity]}
-                onValueChange={(values) => handleControlChange("creativity", values[0])}
-                className="mt-2"
+        {/* Design Controls - Improved section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <Label className="text-slate-800 font-semibold inline-flex items-center text-sm">
+              Design Controls
+            </Label>
+            <div className="flex items-center gap-2">
+              {!enabledSections.controls && <AnythingBadge />}
+              <Switch
+                checked={enabledSections.controls}
+                onCheckedChange={() => toggleSection('controls')}
+                className="data-[state=checked]:bg-indigo-600"
               />
             </div>
-          )}
+          </div>
+          
+          {/* Enhanced controls UI */}
+          <div className={cn(
+            "transition-all duration-300 space-y-5",
+            !enabledSections.controls && "opacity-50 pointer-events-none saturate-50"
+          )}>
+            <ToggleGroup
+              type="single"
+              value={activeControl}
+              onValueChange={(value) => {
+                if (value && enabledSections.controls) setActiveControl(value as "creativity" | "detail");
+              }}
+              className="flex bg-slate-50 p-1 rounded-lg border border-slate-200 mb-2"
+            >
+              <ToggleGroupItem
+                value="creativity"
+                className={cn(
+                  "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
+                  activeControl === "creativity" && enabledSections.controls 
+                    ? "!bg-indigo-600 !text-white shadow-md" 
+                    : "hover:bg-slate-100"
+                )}
+              >
+                Creativity
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="detail"
+                className={cn(
+                  "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
+                  activeControl === "detail" && enabledSections.controls 
+                    ? "!bg-indigo-600 !text-white shadow-md" 
+                    : "hover:bg-slate-100"
+                )}
+              >
+                Detail
+              </ToggleGroupItem>
+            </ToggleGroup>
 
-          {/* Detail Controls */}
-          {activeControl === "detail" && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-slate-500">Minimal</span>
+            {/* Improved slider UI with better visual feedback */}
+            {activeControl === "creativity" && (
+              <div className="space-y-4 bg-gradient-to-br from-slate-50 to-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-slate-600 font-medium">Conservative</span>
+                  </div>
+                  <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-200">
+                    {settings.controls.creativity}%
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-slate-600 font-medium">Creative</span>
+                  </div>
                 </div>
-                <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">
-                  {settings.controls.detail}%
-                </span>
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-slate-500">Detailed</span>
-                </div>
+                <Slider
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={[settings.controls.creativity]}
+                  onValueChange={(values) => handleControlChange("creativity", values[0])}
+                  className="mt-2"
+                />
               </div>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                value={[settings.controls.detail]}
-                onValueChange={(values) => handleControlChange("detail", values[0])}
-                className="mt-2"
-              />
-            </div>
-          )}
+            )}
+            
+            {activeControl === "detail" && (
+              <div className="space-y-4 bg-gradient-to-br from-slate-50 to-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-slate-600 font-medium">Minimal</span>
+                  </div>
+                  <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-200">
+                    {settings.controls.detail}%
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-slate-600 font-medium">Detailed</span>
+                  </div>
+                </div>
+                <Slider
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={[settings.controls.detail]}
+                  onValueChange={(values) => handleControlChange("detail", values[0])}
+                  className="mt-2"
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Fixed button container at bottom */}
-      <div className="p-4 border-t border-slate-200">
+      {/* Improved fixed button container at bottom */}
+      <div className="p-4 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white">
         <Button
           variant="outline"
-          className="w-full border-slate-300 bg-slate-50 rounded-lg flex items-center gap-2 justify-center hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 text-slate-700 h-11 font-medium"
+          className="w-full border-slate-300 bg-white rounded-lg flex items-center gap-2 justify-center hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 text-slate-700 h-12 font-medium transition-all shadow-sm"
           onClick={resetToDefaults}
         >
-          <Rotate className="h-12" />
+          <Rotate className="h-5 w-5 mr-1" />
           Reset to defaults
         </Button>
       </div>

@@ -4,39 +4,30 @@ import { cn } from "@/lib/utils";
 interface ToolButtonProps {
   isActive: boolean;
   onClick: () => void;
-  ariaLabel: string;
-  children: ReactNode;
+  icon: ReactNode;
   className?: string;
-  hasDropdown?: boolean;
-  dropdownContent?: ReactNode;
 }
 
-const ToolButton = ({
+const ToolButton: React.FC<ToolButtonProps> = ({
   isActive,
   onClick,
-  ariaLabel,
-  children,
+  icon,
   className,
-  hasDropdown = false,
-  dropdownContent,
-}:ToolButtonProps) => {
+}) => {
   return (
-    <>
-      <button
-        className={cn(
-          "flex items-center justify-center w-10 h-10 rounded-lg transition-all",
-          isActive
-            ? "bg-blue-100 text-white"
-            : "hover:bg-gray-100 dark:hover:bg-gray-800",
-          className
-        )}
-        onClick={onClick}
-        aria-label={ariaLabel}
-      >
-        {children}
-      </button>
-      {hasDropdown && dropdownContent && dropdownContent}
-    </>
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
+        isActive
+          ? "bg-blue-500 text-white hover:bg-blue-600"
+          : "bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600",
+        className
+      )}
+    >
+      <span className="w-4 h-4">{icon}</span>
+    </button>
   );
 };
 

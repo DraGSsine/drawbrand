@@ -1,38 +1,22 @@
 import React from 'react';
+import StrokeWidthPicker from './StrokeWidthPicker';
 
 interface StrokeWidthControlProps {
-  strokeWidth: number;
+  value: number;
   onChange: (width: number) => void;
 }
 
-const StrokeWidthControl: React.FC<StrokeWidthControlProps> = ({
-  strokeWidth,
-  onChange
+const StrokeWidthControl: React.FC<StrokeWidthControlProps> = ({ 
+  value, 
+  onChange 
 }) => {
   return (
-    <div className="flex items-center gap-3 pl-2">
-      <div className="flex h-7 items-center rounded-full bg-tool px-3">
-        <span className="text-xs font-medium text-gray-600 mr-2">Size</span>
-        <input
-          type="range"
-          min="1"
-          max="20"
-          value={strokeWidth}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="w-24 md:w-32"
-          aria-label="Stroke width"
-        />
-      </div>
-      <div className="flex items-center justify-center w-7 h-7">
-        <div 
-          className="bg-tool-text rounded-full" 
-          style={{ 
-            width: `${Math.min(strokeWidth * 0.8, 14)}px`,
-            height: `${Math.min(strokeWidth * 0.8, 14)}px`,
-          }}
-          aria-hidden="true"
-        />
-      </div>
+    <div className="flex flex-col gap-2">
+      <h3 className="text-sm font-medium text-gray-700">Stroke Width</h3>
+      <StrokeWidthPicker
+        value={value}
+        onChange={onChange}
+      />
     </div>
   );
 };

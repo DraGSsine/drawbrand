@@ -5,19 +5,21 @@ interface ShapeSelectorProps {
   onSelectShape: (shape: ShapeType) => void;
   onChangeFillMode: (mode: 'regular' | 'solid') => void;
   fillMode: 'regular' | 'solid';
+  selectedShape?: ShapeType;
 }
 
 const ShapeSelector: React.FC<ShapeSelectorProps> = ({
   onSelectShape,
   onChangeFillMode,
   fillMode,
+  selectedShape,
 }) => {
   // We'll control how SVGs should render based on fillMode
   const isSolid = fillMode === 'solid';
 
   return (
-    <div className="w-[380px] bg-white top-[-5%] left-[120%] absolute z-10 rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
-            {/* Shapes grid */}
+    <div className="w-[380px] bg-white rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
+      {/* Shapes grid */}
       <div className="grid grid-cols-5 gap-2 mb-3">
         {/* Pentagon */}
         <button className="flex items-center justify-center w-14 h-14 rounded-lg transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20 text-2xl border border-gray-200 dark:border-gray-700" onClick={() => onSelectShape(ShapeType.PENTAGON)}>
@@ -269,7 +271,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
             <path 
               fillRule="evenodd" 
               clipRule="evenodd" 
-              d="M1.59998 9.89226L8.42638 8.42638L9.89226 1.59998L11.3581 8.42638L18.1845 9.89226L11.3581 11.3581L9.89226 18.1845L8.42638 11.3581L1.59998 9.89226Z" 
+              d="M1.59998 11.1723L6.00442 9.78754L2.88242 6.38612L7.38914 7.38914L6.38612 2.88242L9.78754 6.00442L11.1723 1.59998L12.557 6.00442L15.9584 2.88242L14.9554 7.38914L19.4621 6.38612L16.3401 9.78754L20.7445 11.1723L16.3401 12.557L19.4621 15.9584L14.9554 14.9554L15.9584 19.4621L12.557 16.3401L11.1723 20.7445L9.78754 16.3401L6.38612 19.4621L7.38914 14.9554L2.88242 15.9584L6.00442 12.557L1.59998 11.1723Z" 
               fill={isSolid ? "#020617" : "none"} 
               stroke={isSolid ? "none" : "#000"} 
               strokeWidth={isSolid ? "0" : "1.5"} 
@@ -295,7 +297,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
             <path 
               fillRule="evenodd" 
               clipRule="evenodd" 
-              d="M1.59998 11.1723L6.00442 9.78754L2.88242 6.38612L7.38914 7.38914L6.38612 2.88242L9.78754 6.00442L11.1723 1.59998L12.557 6.00442L15.9584 2.88242L14.9554 7.38914L19.4621 6.38612L16.3401 9.78754L20.7445 11.1723L16.3401 12.557L19.4621 15.9584L14.9554 14.9554L15.9584 19.4621L12.557 16.3401L11.1723 20.7445L9.78754 16.3401L6.38612 19.4621L7.38914 14.9554L2.88242 15.9584L6.00442 12.557L1.59998 11.1723Z" 
+              d="M1.59998 11.1723L6.00442 9.78754L2.88242 6.38612L7.38914 7.38914L6.38612 2.88242L9.78754 6.00442L11.1723 1.59998L12.557 6.00442L15.9584 2.88242L14.9554 7.38914L19.4621 6.38612L16.3401 9.78754L20.7445 11.1723L16.3401 12.557L19.4621 15.9584L14.9554 14.9554L15.9584 19.4621L12.557 16.3401L13.6497 20.7445L11.7269 15.385L11.1723 20.7445L10.6176 15.385L8.69477 20.4184L9.5462 15.098L6.38612 19.4621L8.58555 14.5433L4.40363 17.9409L7.80121 13.759L2.88242 15.9584L7.24657 12.7983L1.92614 13.6497L6.9595 11.7269L1.59998 11.1723Z" 
               fill={isSolid ? "#020617" : "none"} 
               stroke={isSolid ? "none" : "#000"} 
               strokeWidth={isSolid ? "0" : "1.5"} 

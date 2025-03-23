@@ -7,6 +7,7 @@ import IconTool from "@/utils/drawing/IconTool";
 import ImageTool from "@/utils/drawing/ImageTool";
 import Toolbar from "./ToolBar";
 import { RotateLeft, Trash } from "../../../public/icons/SvgIcons";
+import { Button } from "@/components/ui/button";
 
 type Tool = "pencil" | "select" | "eraser" | "line" | "shape" | "icon" | "image";
 
@@ -53,11 +54,12 @@ const Sketch: React.FC = () => {
     const availableWidth = rect.width - paddingX;
     const availableHeight = rect.height - paddingY;
     
-    // Set new dimensions while maintaining aspect ratio if needed
-    // For now, let's make it fill the container
+    // Set new dimensions while maintaining 1:1 aspect ratio
+    const size = Math.min(availableWidth, availableHeight);
+    
     const newSize = {
-      width: Math.max(availableWidth, 300),
-      height: Math.max(availableHeight, 300)
+      width: size,
+      height: size
     };
     
     // Update state
@@ -66,12 +68,69 @@ const Sketch: React.FC = () => {
     // Update fabric canvas
     const canvas = fabricRef.current;
     canvas.setDimensions(newSize);
+    
+    // Fix: Need to refresh zoom/pan
+    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
     canvas.requestRenderAll();
   };
 
-  // Initialize canvas and tools useEffect
-  useEffect(() => {
-    if (canvasRef.current && !fabricRef.current) {
+  // Replace the warm-up function with a more effective version
+  const warmUpCanvas = () => {
+    if (!fabricRef.current) return;
+    
+    const canvas = fabricRef.current;
+    
+    // Force immediate initialization of drawing capabilities
+    canvas.isDrawingMode = true;
+    
+    // Create a fresh pencil brush and force its initialization
+    const pencilBrush = new fabric.PencilBrush(canvas);
+    pencilBrush.width = strokeWidth;
+    pencilBrush.color = "#000000";
+    pencilBrush.decimate = 1; // Minimum value for maximum responsiveness
+    canvas.freeDrawingBrush = pencilBrush;
+    
+    // Pre-initialize the brush by drawing short paths
+    const drawInvisibleLine = () => {
+      // Get canvas dimensions
+      const width = canvas.getWidth();
+      const height = canvas.getHeight();
+      
+      // Create an invisible path (very faint)
+      const path = new fabric.Path(
+        `M ${width/4} ${height/4} L ${width/4 + 1} ${height/4 + 1}`, 
+        {
+          stroke: 'rgba(0,0,0,0.01)',
+          strokeWidth: 1,
+          fill: undefined
+        }
+      );
+      
+      canvas.add(path);
+      canvas.renderAll();
+      
+      // Remove after rendering
+      setTimeout(() => {
+        canvas.remove(path);
+        canvas.renderAll();
+      }, 50);
+    };
+    
+    // Draw multiple paths to ensure brush is fully initialized
+    drawInvisibleLine();
+    setTimeout(drawInvisibleLine, 100);
+    setTimeout(drawInvisibleLine, 200);
+    
+    // Force execution of first-time operations
+    canvas.renderAll();
+  };
+
+  // Update the initialization function to fix property errors and improve initialization
+  const initializeCanvas = () => {
+    if (!canvasRef.current || fabricRef.current) return;
+    
+    try {
+      console.log('Initializing canvas...');
       // Initial setup with placeholders - will be resized immediately
       canvasRef.current.width = canvasSize.width;
       canvasRef.current.height = canvasSize.height;
@@ -81,11 +140,26 @@ const Sketch: React.FC = () => {
         height: canvasSize.height,
         backgroundColor: "#ffffff",
         isDrawingMode: true,
+        selection: false,
+        enableRetinaScaling: true,
+        renderOnAddRemove: true,
+        stateful: false,  // Improve performance
       });
 
       fabricRef.current = canvas;
 
-      // Initialize tools
+      // Immediately apply critical settings for responsive drawing
+      canvas.isDrawingMode = true;
+      const pencilBrush = new fabric.PencilBrush(canvas);
+      pencilBrush.width = strokeWidth;
+      pencilBrush.color = "#000000";
+      pencilBrush.decimate = 1; // Minimum value for maximum responsiveness
+      canvas.freeDrawingBrush = pencilBrush;
+      
+      // Pre-render the canvas for drawing
+      canvas.renderAll();
+
+      // Initialize other tools
       eraserBrushRef.current = new EraserBrush(canvas);
       eraserBrushRef.current.width = 10;
       eraserBrushRef.current.color = "#ffffff";
@@ -101,28 +175,59 @@ const Sketch: React.FC = () => {
         shapeToolRef.current.setStrokeWidth(strokeWidth);
       }
 
-      // Set up initial pencil brush settings
-      canvas.freeDrawingBrush.width = strokeWidth;
-      canvas.freeDrawingBrush.color = "#000000";
+      // Critical for performance: Set up rendering events and state tracking
+      canvas.on('mouse:down', function(opt) {
+        // Make canvas wrapper get focus on mousedown (for new structure)
+        const focusableElement = canvasRef.current?.closest('[tabindex="0"]') as HTMLElement;
+        if (focusableElement) {
+          focusableElement.focus();
+        }
+        
+        // Request render for immediate drawing feedback
+        canvas.renderAll();
+      });
+      
+      canvas.on('mouse:move', function(opt) {
+        if (canvas.isDrawingMode) {
+          // Force render during drawing for immediate feedback
+          canvas.renderAll();
+        }
+      });
+      
+      canvas.on('path:created', function() {
+        // Ensure path is visible immediately
+        canvas.renderAll();
+        saveCanvasState();
+      });
 
       // Save initial state
       saveCanvasState();
 
-      // Track canvas changes to enable undo
-      canvas.on('object:added', saveCanvasState);
-      canvas.on('object:modified', saveCanvasState);
-      canvas.on('object:removed', saveCanvasState);
-      canvas.on('path:created', saveCanvasState);
-
-      // Add event to focus canvas on object selection
-      canvas.on('mouse:down', function() {
-        // This ensures canvas wrapper gets focus
-        canvasRef.current?.parentElement?.focus();
-      });
+      // Disable touch scrolling to prevent gesture conflicts
+      canvas.allowTouchScrolling = false;
       
-      // Perform initial resize after canvas is set up
-      setTimeout(resizeCanvas, 0);
+      console.log('Canvas initialized successfully');
+      
+      // Immediately resize and warm up the canvas
+      resizeCanvas();
+      warmUpCanvas();
+      
+      // Set an immediate timeout to render again after DOM updates
+      setTimeout(() => {
+        if (fabricRef.current) {
+          fabricRef.current.renderAll();
+          warmUpCanvas();
+        }
+      }, 0);
+    } catch (error) {
+      console.error('Error initializing canvas:', error);
     }
+  };
+
+  // Update the initialization useEffect to use the new function
+  useEffect(() => {
+    // Initialize canvas
+    initializeCanvas();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Delete" || e.key === "Backspace") {
@@ -152,16 +257,31 @@ const Sketch: React.FC = () => {
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
+
+    // Add track changes event handlers after canvas is initialized
+    const trackChanges = () => {
+      if (!fabricRef.current) return;
+      
+      // Track canvas changes to enable undo - do this after initialization
+      fabricRef.current.on('object:added', saveCanvasState);
+      fabricRef.current.on('object:modified', saveCanvasState);
+      fabricRef.current.on('object:removed', saveCanvasState);
+    };
     
-    // Set up window resize listener
-    window.addEventListener('resize', resizeCanvas);
+    // Add event handlers after a small delay to ensure canvas is ready
+    setTimeout(trackChanges, 300);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener('resize', resizeCanvas);
       resizeObserver.disconnect();
       
       if (fabricRef.current) {
+        // Clean up event listeners
+        fabricRef.current.off('object:added', saveCanvasState);
+        fabricRef.current.off('object:modified', saveCanvasState);
+        fabricRef.current.off('object:removed', saveCanvasState);
+        fabricRef.current.off('path:created');
+        
         fabricRef.current.dispose();
         fabricRef.current = null;
       }
@@ -173,67 +293,99 @@ const Sketch: React.FC = () => {
     // This empty effect ensures we're tracking history changes
   }, [history]);
 
-  // Update tools based on selected tool useEffect
+  // Consolidate tool switching into a single useEffect
   useEffect(() => {
     const canvas = fabricRef.current;
     if (!canvas) return;
 
-    // Deactivate all tools first
+    // Deactivate all tools first to avoid conflicts
     if (lineToolRef.current) lineToolRef.current.deactivate();
-    // No need to deactivate shape and icon tools since they don't use events anymore
+    
+    // Reset touch events to avoid conflicts
+    canvas.off('touch:gesture');
+    canvas.off('touch:drag');
 
+    console.log('Setting tool:', tool); // Helpful debug
+
+    // Clean up and set proper state based on selected tool
     switch (tool) {
       case "pencil":
         canvas.isDrawingMode = true;
-        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-        canvas.freeDrawingBrush.width = strokeWidth;
-        canvas.freeDrawingBrush.color = "#000000";
+        canvas.selection = false;
+        
+        // Create a fresh pencil brush
+        const pencilBrush = new fabric.PencilBrush(canvas);
+        pencilBrush.width = strokeWidth;
+        pencilBrush.color = "#000000";
+        // Important: Set the decimate parameter to 2 (default 8) for more responsive drawing
+        pencilBrush.decimate = 2;
+        canvas.freeDrawingBrush = pencilBrush;
         break;
+        
       case "eraser":
         canvas.isDrawingMode = true;
+        canvas.selection = false;
+        
+        // Ensure eraser brush is properly initialized
+        if (!eraserBrushRef.current) {
+          eraserBrushRef.current = new EraserBrush(canvas);
+          eraserBrushRef.current.width = 10;
+          eraserBrushRef.current.color = "#ffffff";
+        }
         canvas.freeDrawingBrush = eraserBrushRef.current;
         break;
+        
       case "select":
         canvas.isDrawingMode = false;
         canvas.selection = true;
         break;
+        
       case "line":
         canvas.isDrawingMode = false;
-        if (lineToolRef.current) lineToolRef.current.activate();
+        canvas.selection = false;
+        if (lineToolRef.current) {
+          lineToolRef.current.setStrokeWidth(strokeWidth);
+          lineToolRef.current.activate();
+        }
         break;
+        
       case "shape":
         canvas.isDrawingMode = false;
-        // Shape tool doesn't need canvas events anymore
+        canvas.selection = true;
         break;
+        
       case "icon":
         canvas.isDrawingMode = false;
-        // Icon tool doesn't need canvas events anymore
+        canvas.selection = true;
         break;
+        
       case "image":
         canvas.isDrawingMode = false;
-        // Image tool is activated by file input
+        canvas.selection = true;
         break;
     }
-  }, [tool]);
+    
+    canvas.requestRenderAll();
+  }, [tool, strokeWidth]);
 
-  // Update stroke width useEffect
+  // Update stroke width useEffect - Simplify this as it's now handled in the tool switching useEffect
   useEffect(() => {
     if (fabricRef.current && fabricRef.current.isDrawingMode) {
       fabricRef.current.freeDrawingBrush.width = strokeWidth;
+      fabricRef.current.requestRenderAll();
     }
     
-    if (lineToolRef.current) {
-      lineToolRef.current.setStrokeWidth(strokeWidth);
+    if (shapeToolRef.current) {
+      shapeToolRef.current.setStrokeWidth(strokeWidth);
     }
   }, [strokeWidth]);
 
   const handleToolChange = (newTool: Tool) => {
-    setTool(newTool);
-
     if (fabricRef.current) {
       fabricRef.current.discardActiveObject();
-      fabricRef.current.requestRenderAll();
     }
+    
+    setTool(newTool);
 
     // Open file dialog when image tool is selected
     if (newTool === "image" && fileInputRef.current) {
@@ -469,11 +621,20 @@ const Sketch: React.FC = () => {
     }
   }, []);
 
-  // Add this function to save canvas state
+  // Improve the saveCanvasState function for better performance
   const saveCanvasState = () => {
     if (fabricRef.current) {
-      const json = JSON.stringify(fabricRef.current.toJSON());
-      setUndoHistory(prev => [...prev, json]);
+      try {
+        const json = JSON.stringify(fabricRef.current.toJSON(['id', 'selectable']));
+        setUndoHistory(prev => [...prev, json]);
+        
+        // Also save to localStorage for persistence - but don't do this too frequently
+        if (undoHistory.length % 5 === 0) {
+          saveCanvasToLocalStorage();
+        }
+      } catch (error) {
+        console.error('Error saving canvas state:', error);
+      }
     }
   };
 
@@ -501,69 +662,220 @@ const Sketch: React.FC = () => {
     }
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center w-full h-full">
-      {/* Hidden file input for image upload */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept="image/*"
-        className="hidden"
-      />
+  // Add touch event prevention to avoid default gestures in mobile browsers
+  useEffect(() => {
+    const preventTouchDefault = (e: TouchEvent) => {
+      if (e.target instanceof HTMLCanvasElement) {
+        e.preventDefault();
+      }
+    };
+    
+    document.addEventListener('touchstart', preventTouchDefault, { passive: false });
+    document.addEventListener('touchmove', preventTouchDefault, { passive: false });
+    
+    return () => {
+      document.removeEventListener('touchstart', preventTouchDefault);
+      document.removeEventListener('touchmove', preventTouchDefault);
+    };
+  }, []);
+
+  // Add a window resize listener
+  useEffect(() => {
+    // Handle window resize events to ensure canvas adapts to new layout
+    const handleResize = () => {
+      if (fabricRef.current) {
+        // Give time for the layout to stabilize
+        setTimeout(resizeCanvas, 100);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Initial resize after component mounts
+    const initialSizeTimer = setTimeout(handleResize, 200);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(initialSizeTimer);
+    };
+  }, []);
+
+  // Fix the completeWarmUp function to use valid fill parameter
+  const completeWarmUp = () => {
+    if (!fabricRef.current) return;
+    
+    // Draw and immediately erase a path to get the engine ready
+    const canvas = fabricRef.current;
+    
+    // Force drawing mode
+    canvas.isDrawingMode = true;
+    
+    // Create a warm-up path programmatically (not visible to user)
+    const path = new fabric.Path('M 10 10 L 20 20 L 30 30', {
+      stroke: 'rgba(0,0,0,0.01)',
+      strokeWidth: 1,
+      fill: undefined
+    });
+    
+    canvas.add(path);
+    canvas.renderAll();
+    
+    // Remove the path right away
+    canvas.remove(path);
+    canvas.renderAll();
+    
+    // Force re-render once more
+    requestAnimationFrame(() => {
+      canvas.renderAll();
+    });
+  };
+
+  // Replace the aggressive canvas warm-up useEffect with a more effective version
+  useEffect(() => {
+    if (fabricRef.current) {
+      // Run the complete warm-up multiple times to ensure drawing is ready
+      completeWarmUp();
+      setTimeout(completeWarmUp, 100);
+      setTimeout(completeWarmUp, 300);
       
-      {/* Canvas with toolbar - make it responsive */}
+      // Force the canvas into drawing mode with the pencil tool
+      const canvas = fabricRef.current;
+      if (tool === 'pencil') {
+        canvas.isDrawingMode = true;
+        
+        // Get or create a pencil brush
+        let pencilBrush = canvas.freeDrawingBrush;
+        if (!(pencilBrush instanceof fabric.PencilBrush)) {
+          pencilBrush = new fabric.PencilBrush(canvas);
+        }
+        
+        // Configure for immediate responsiveness
+        pencilBrush.width = strokeWidth;
+        pencilBrush.color = "#000000";
+        pencilBrush.decimate = 1;
+        canvas.freeDrawingBrush = pencilBrush;
+        
+        // Ensure rendering is active
+        canvas.renderAll();
+      }
+    }
+  }, [fabricRef.current]);
+
+  // Add a high-priority first-load effect to ensure immediate drawing readiness
+  useEffect(() => {
+    // This runs once on component mount
+    const immediateInit = () => {
+      if (fabricRef.current) {
+        console.log('Immediate drawing initialization');
+        const canvas = fabricRef.current;
+        
+        // Force drawing mode
+        canvas.isDrawingMode = true;
+        
+        // Create a responsive brush
+        const pencilBrush = new fabric.PencilBrush(canvas);
+        pencilBrush.width = strokeWidth;
+        pencilBrush.color = "#000000";
+        pencilBrush.decimate = 1;
+        canvas.freeDrawingBrush = pencilBrush;
+        
+        // Force rendering
+        canvas.renderAll();
+        
+        // Schedule another render
+        requestAnimationFrame(() => canvas.renderAll());
+      } else {
+        // If canvas not available yet, try again shortly
+        setTimeout(immediateInit, 50);
+      }
+    };
+    
+    // Execute immediately and also after a short delay
+    immediateInit();
+    const timer = setTimeout(immediateInit, 300);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Fix the rendering optimization useEffect
+  useEffect(() => {
+    if (!fabricRef.current) return;
+    
+    const canvas = fabricRef.current;
+    
+    // Optimize canvas rendering
+    const optimizeRendering = () => {
+      canvas.renderAll();
+      
+      if (canvas.isDrawingMode) {
+        const brush = canvas.freeDrawingBrush;
+        if (brush && typeof brush.decimate !== 'undefined') {
+          // Set to lowest value for maximum responsiveness
+          brush.decimate = 1;
+        }
+      }
+    };
+    
+    // Run optimization
+    optimizeRendering();
+    
+    // Set up an interval to ensure canvas stays responsive
+    const renderInterval = setInterval(() => {
+      if (canvas.isDrawingMode) {
+        canvas.renderAll();
+      }
+    }, 30); // More frequent rendering (30ms instead of 100ms)
+    
+    return () => {
+      clearInterval(renderInterval);
+    };
+  }, []);
+
+  return (
+    <div className="flex flex-col h-full p-4">
       <div 
-        ref={containerRef}
-        className="animate-canvas-reveal relative w-full h-full flex items-center justify-center px-4"
+        ref={containerRef} 
+        className="flex-1 flex items-center justify-center relative bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden"
       >
-        {/* Buttons - top right */}
-        <div className="absolute top-6 right-6 flex gap-2 z-10">
-          {/* Undo button */}
-          <button
-            onClick={handleUndo}
-            disabled={undoHistory.length <= 1}
-            className={`bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm flex items-center gap-1 transition-colors ${undoHistory.length <= 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-            title="Undo"
-          >
-            <RotateLeft className="h-6 w-6"/>
-            Undo
-          </button>
-          
-          {/* Clear button */}
-          <button
-            onClick={handleClearCanvas}
-            className="bg-white hover:bg-gray-100 text-gray-800 font-medium py-1 px-3 border border-gray-300 rounded-md shadow-sm flex items-center gap-1 transition-colors"
-            title="Clear canvas"
-          >
-            <Trash className="h-6 w-6"/>
-            Clear
-          </button>
+        {/* Toolbar positioned absolutely inside the canvas container */}
+        <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
+          <Toolbar
+            activeTool={tool}
+            onToolChange={handleToolChange}
+            onSelectShape={handleShapeSelect}
+            selectedShape={selectedShape}
+            onChangeFillMode={handleFillModeChange}
+            fillMode={fillMode}
+            strokeWidth={strokeWidth}
+            onStrokeWidthChange={handleStrokeWidthChange}
+            onSelectIcon={handleIconPathSelect}
+            onClearCanvas={handleClearCanvas}
+            onUndoAction={handleUndo}
+          />
         </div>
         
-        <canvas 
-          ref={canvasRef} 
-          id="fabric-canvas"
-          tabIndex={0}  // Make canvas focusable
-          className="transition-all duration-300 rounded-2xl border object-contain"
-          style={{
-            width: `${canvasSize.width}px`,
-            height: `${canvasSize.height}px`,
-          }}
-        />
-        
-        {/* Toolbar positioned inside the canvas */}
-        <Toolbar
-          activeTool={tool}
-          onToolChange={handleToolChange}
-          strokeWidth={strokeWidth}
-          onStrokeWidthChange={handleStrokeWidthChange}
-          onSelectShape={handleShapeSelect}
-          onChangeFillMode={handleFillModeChange}
-          fillMode={fillMode}
-          onSelectIcon={handleIconPathSelect}
-        />
+        {/* Canvas wrapper with focus ring */}
+        <div 
+          className="flex-1 flex items-center justify-center w-full h-full focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 rounded-lg transition-all duration-150 ease-in-out"
+          tabIndex={0}
+          onTouchStart={(e) => e.currentTarget.focus()}
+          onMouseDown={(e) => e.currentTarget.focus()}
+          style={{ outline: 'none' }}
+        >
+          <canvas 
+            ref={canvasRef} 
+            className="touch-none"
+          />
+        </div>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
     </div>
   );
 };

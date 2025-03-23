@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Image as ImageIcon,
   RotateReverse,
+  Sparkles,
 } from "../../../public/icons/SvgIcons";
 import { api } from "@/lib/axios";
 import ImageModal from "./ImageModal";
@@ -139,7 +140,7 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
   };
 
   return (
-    <div className="w-[400px] bg-white rounded-2xl h-full border border-blue-100  flex flex-col py-6 overflow-y-auto">
+    <div className="w-full h-full bg-white rounded-2xl border border-blue-100 flex flex-col overflow-hidden shadow-sm">
       {/* Add ImageModal component */}
       <ImageModal 
         isOpen={isModalOpen} 
@@ -147,32 +148,22 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
         imageSrc={modalImageSrc} 
       />
       
-      {/* Rest of the component remains the same */}
-      {/* Logo Viewer Section */}
-      <div className="px-6 mb-6">
-        <div className="mb-4">
-          <h3 className="text-base font-medium text-gray-800">
-            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 mr-2 rounded">
-              Preview
-            </span>
-          </h3>
+      {/* Preview Section */}
+      <div className="px-6 py-5 flex-1 overflow-y-auto">
+        <div className="mb-4 flex items-center">
+          <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
+            Preview
+          </span>
         </div>
 
         {/* Loading state with blob animation */}
         {isGenerating && (
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="relative aspect-square bg-blue-50 rounded-md overflow-hidden">
-              <Skeleton variant="blob" className="w-full h-full" />
-            </div>
-            <div className="relative aspect-square bg-blue-50 rounded-md overflow-hidden">
-              <Skeleton variant="blob" className="w-full h-full" />
-            </div>
-            <div className="relative aspect-square bg-blue-50 rounded-md overflow-hidden">
-              <Skeleton variant="blob" className="w-full h-full" />
-            </div>
-            <div className="relative aspect-square bg-blue-50 rounded-md overflow-hidden">
-              <Skeleton variant="blob" className="w-full h-full" />
-            </div>
+            {[1, 2, 3, 4].map((index) => (
+              <div key={index} className="relative aspect-square bg-blue-50 rounded-lg overflow-hidden">
+                <Skeleton variant="blob" className="w-full h-full" />
+              </div>
+            ))}
           </div>
         )}
 
@@ -183,21 +174,26 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
               <div
                 key={index}
                 className={cn(
-                  "aspect-square bg-white rounded-md overflow-hidden transition-all cursor-pointer",
-                  selectedImage === index ? "ring-2 ring-blue-500" : ""
+                  "group aspect-square bg-white rounded-lg overflow-hidden border transition-all cursor-pointer hover:shadow-md",
+                  selectedImage === index 
+                    ? "ring-2 ring-blue-500 border-blue-500" 
+                    : "border-gray-200 hover:border-blue-200"
                 )}
                 onClick={() => {
                   setSelectedImage(index);
                   handleImageClick(image);
                 }}
               >
-                <Image
-                  width={100}
-                  height={100}
-                  src={image}
-                  alt={`Logo ${index + 1}`}
-                  className="w-full h-full object-contain"
-                />
+                <div className="relative w-full h-full">
+                  <Image
+                    width={200}
+                    height={200}
+                    src={image}
+                    alt={`Logo ${index + 1}`}
+                    className="w-full h-full object-contain p-2"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-200"></div>
+                </div>
               </div>
             ))}
           </div>
@@ -209,9 +205,12 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
             {[1, 2, 3, 4].map((index) => (
               <div
                 key={index}
-                className="aspect-square bg-blue-50 rounded-md flex items-center justify-center"
+                className="aspect-square bg-blue-50 rounded-lg flex flex-col items-center justify-center p-4 border border-dashed border-blue-200"
               >
-                <ImageIcon className="w-8 h-8 text-blue-200" />
+                <ImageIcon className="w-8 h-8 text-blue-200 mb-2" />
+                <span className="text-xs text-blue-300 text-center">
+                  Generated logo will appear here
+                </span>
               </div>
             ))}
           </div>
@@ -219,13 +218,11 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
       </div>
 
       {/* Prompt Section */}
-      <div className="px-6 mt-2">
-        <div className="mb-4">
-          <h3 className="text-base font-medium text-gray-800">
-            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 mr-2 rounded">
-              Create
-            </span>
-          </h3>
+      <div className="p-6 border-t border-blue-100 bg-gray-50">
+        <div className="mb-4 flex items-center">
+          <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
+            Create
+          </span>
         </div>
 
         <div className="space-y-4">
@@ -234,28 +231,34 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
               value={promptText}
               onChange={handlePromptChange}
               placeholder="Describe the logo you want to generate..."
-              className="min-h-[120px] resize-none rounded-lg border-gray-200 bg-white focus:border-blue-400 focus:ring-0"
+              className="min-h-[100px] resize-none rounded-lg border-gray-200 bg-white focus:border-blue-400 focus:ring-blue-100 text-gray-800"
             />
-            <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+            <div className="absolute bottom-3 right-3 text-xs text-gray-400 flex items-center">
+              <Sparkles className="w-3 h-3 mr-1" />
               Be descriptive for best results
             </div>
           </div>
 
           <Button
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg"
+            className={cn(
+              "w-full font-medium py-2 rounded-lg transition-all flex items-center justify-center gap-2",
+              isGenerating || !promptText.trim() 
+                ? "bg-blue-400 hover:bg-blue-400 text-white/80 cursor-not-allowed" 
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            )}
             onClick={handleGenerate}
             disabled={isGenerating || !promptText.trim()}
           >
             {isGenerating ? (
-              <span className="flex items-center justify-center">
-                <RotateReverse className="w-4 h-4 mr-2 animate-spin" />
+              <>
+                <RotateReverse className="w-4 h-4 animate-spin" />
                 Generating...
-              </span>
+              </>
             ) : (
-              <span className="flex items-center justify-center">
+              <>
                 Generate Logo
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </span>
+                <ArrowRight className="w-4 h-4" />
+              </>
             )}
           </Button>
         </div>
@@ -275,7 +278,9 @@ const Skeleton = ({
 }) => {
   return (
     <div className={`animate-pulse ${className}`}>
-      <div className="h-full w-full bg-gray-200 rounded-md" />
+      <div className="h-full w-full bg-gray-200 rounded-md relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer"></div>
+      </div>
     </div>
   );
 };

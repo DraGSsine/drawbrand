@@ -12,8 +12,16 @@ import {
   Pencil,
   PenNib,
   Shapes,
+  Palette,
+  Trash,
+  RotateLeft,
 } from "../../../public/icons/SvgIcons";
 import ToolButton from "./ToolButton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type Tool =
   | "pencil"
@@ -30,9 +38,12 @@ interface ToolbarProps {
   strokeWidth: number;
   onStrokeWidthChange: (width: number) => void;
   onSelectShape: (shape: ShapeType) => void;
+  selectedShape?: ShapeType;
   onChangeFillMode: (mode: "regular" | "solid") => void;
   fillMode: "regular" | "solid";
   onSelectIcon: (iconPath: string) => void;
+  onClearCanvas?: () => void;
+  onUndoAction?: () => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -41,9 +52,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
   strokeWidth,
   onStrokeWidthChange,
   onSelectShape,
+  selectedShape,
   onChangeFillMode,
   fillMode,
   onSelectIcon,
+  onClearCanvas,
+  onUndoAction,
 }) => {
   // Manage UI state locally in Toolbar
   const [showShapeOptions, setShowShapeOptions] = useState(false);
@@ -90,103 +104,223 @@ const Toolbar: React.FC<ToolbarProps> = ({
     setShowIconOptions(false);
     onSelectIcon(iconPath);
   };
+  
   const activeStyle = "[&>*:nth-child(2)]:fill-[#3b82f6] [&>*:nth-child(1)]:fill-[#3b82f630]";
+  
   return (
-    <div className="absolute border border-blue-900/20 left-[25px] top-1/2 -translate-y-1/2 flex flex-col items-center bg-white dark:bg-gray-900 rounded-xl  p-2 gap-2 z-10">
-      {/* Drawing tools section */}
-      <div className="flex flex-col gap-2">
-        <ToolButton
-          isActive={activeTool === "pencil"}
-          onClick={() => handleToolChange("pencil")}
-          ariaLabel="Pencil tool"
-        >
-          <Pencil className={activeTool === "pencil" ? activeStyle : ""} />
-        </ToolButton>
+    <TooltipProvider>
+      <div className="flex items-center justify-center mb-2">
+        {/* Main toolbar container */}
+        <div className="flex items-center bg-white dark:bg-gray-900 rounded-xl border border-blue-100 p-2 gap-2 shadow-sm">
+          {/* Drawing tools section */}
+          <div className="flex items-center gap-2 border-r border-gray-100 pr-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ToolButton
+                    isActive={activeTool === "pencil"}
+                    onClick={() => handleToolChange("pencil")}
+                    icon={<Pencil className="w-4 h-4" />}
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium text-xs">
+                Pencil Tool
+              </TooltipContent>
+            </Tooltip>
 
-        <ToolButton
-          isActive={activeTool === "select"}
-          onClick={() => handleToolChange("select")}
-          ariaLabel="Select tool"
-        >
-          <HandPointer className={activeTool === "select" ? activeStyle : ""}  />
-        </ToolButton>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ToolButton
+                    isActive={activeTool === "line"}
+                    onClick={() => handleToolChange("line")}
+                    icon={<PenNib className="w-4 h-4" />}
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium text-xs">
+                Line Tool
+              </TooltipContent>
+            </Tooltip>
 
-        <ToolButton
-          isActive={activeTool === "eraser"}
-          onClick={() => handleToolChange("eraser")}
-          ariaLabel="Eraser tool"
-        >
-          <Eraser className={activeTool === "eraser" ? activeStyle : ""}  />
-        </ToolButton>
-        <ToolButton
-          isActive={activeTool === "line"}
-          onClick={() => handleToolChange("line")}
-          ariaLabel="Line tool"
-        >
-          <PenNib className={activeTool === "line" ? activeStyle : ""}  />
-        </ToolButton>
-      </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ToolButton
+                    isActive={activeTool === "select"}
+                    onClick={() => handleToolChange("select")}
+                    icon={<HandPointer className="w-4 h-4" />}
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium text-xs">
+                Select Tool
+              </TooltipContent>
+            </Tooltip>
 
-      <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ToolButton
+                    isActive={activeTool === "eraser"}
+                    onClick={() => handleToolChange("eraser")}
+                    icon={<Eraser className="w-4 h-4" />}
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium text-xs">
+                Eraser Tool
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
-      {/* Creation tools section */}
-      <div className="flex flex-col gap-2">
+          {/* Shape and Icon section */}
+          <div className="flex items-center gap-2 border-r border-gray-100 pr-2">
+            <Popover open={showShapeOptions} onOpenChange={setShowShapeOptions}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <PopoverTrigger asChild>
+                      <div>
+                        <ToolButton
+                          isActive={activeTool === "shape"}
+                          onClick={toggleShapeOptions}
+                          icon={<Shapes className="w-4 h-4" />}
+                        />
+                      </div>
+                    </PopoverTrigger>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-medium text-xs">
+                  Shape Tool
+                </TooltipContent>
+              </Tooltip>
+              <PopoverContent side="bottom" className="p-1 w-auto" sideOffset={10}>
+                <ShapeSelector
+                  onSelectShape={handleShapeSelectAndClose}
+                  onChangeFillMode={onChangeFillMode}
+                  fillMode={fillMode}
+                  selectedShape={selectedShape}
+                />
+              </PopoverContent>
+            </Popover>
 
-        <ToolButton
-          isActive={activeTool === "shape"}
-          onClick={toggleShapeOptions}
-          ariaLabel="Shape tool"
-          hasDropdown={true}
-          dropdownContent={showShapeOptions && (
-            <ShapeSelector
-              onSelectShape={handleShapeSelectAndClose}
-              onChangeFillMode={onChangeFillMode}
-              fillMode={fillMode}
-            />
+            <Popover open={showIconOptions} onOpenChange={setShowIconOptions}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <PopoverTrigger asChild>
+                      <div>
+                        <ToolButton
+                          isActive={activeTool === "icon"}
+                          onClick={toggleIconOptions}
+                          icon={<Icons className="w-4 h-4" />}
+                        />
+                      </div>
+                    </PopoverTrigger>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-medium text-xs">
+                  Icon Tool
+                </TooltipContent>
+              </Tooltip>
+              <PopoverContent side="bottom" className="p-1 w-auto" sideOffset={10}>
+                <IconPicker onSelectIcon={handleIconSelectAndClose} />
+              </PopoverContent>
+            </Popover>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ToolButton
+                    isActive={activeTool === "image"}
+                    onClick={() => handleToolChange("image")}
+                    icon={<Image className="w-4 h-4" />}
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium text-xs">
+                Image Tool
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* Settings section */}
+          <div className="flex items-center gap-2">
+            <Popover open={showStrokeOptions} onOpenChange={setShowStrokeOptions}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <PopoverTrigger asChild>
+                      <div>
+                        <ToolButton
+                          isActive={showStrokeOptions}
+                          onClick={toggleStrokeOptions}
+                          icon={<Palette className="w-4 h-4" />}
+                        />
+                      </div>
+                    </PopoverTrigger>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-medium text-xs">
+                  Stroke Settings
+                </TooltipContent>
+              </Tooltip>
+              <PopoverContent side="bottom" className="p-1 w-auto" sideOffset={10}>
+                <StrokeWidthPicker
+                  strokeWidth={strokeWidth}
+                  onStrokeWidthChange={onStrokeWidthChange}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        {/* Actions toolbar */}
+        <div className="flex items-center bg-white dark:bg-gray-900 rounded-xl border border-blue-100 p-2 gap-2 shadow-sm">
+          {onUndoAction && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={onUndoAction}
+                    className="w-8 h-8 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                  >
+                    <RotateLeft className="w-4 h-4" />
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium text-xs">
+                Undo
+              </TooltipContent>
+            </Tooltip>
           )}
-        >
-          <Shapes className={activeTool === "shape" ? activeStyle : ""}/>
-        </ToolButton>
 
-        <ToolButton
-          isActive={activeTool === "icon"}
-          onClick={toggleIconOptions}
-          ariaLabel="Icon tool"
-          hasDropdown={true}
-          dropdownContent={showIconOptions && (
-            <IconPicker onSelectIcon={handleIconSelectAndClose} />
+          {onClearCanvas && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={onClearCanvas}
+                    className="w-8 h-8 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium text-xs">
+                Clear Canvas
+              </TooltipContent>
+            </Tooltip>
           )}
-        >
-          <Icons className={activeTool === "icon" ? activeStyle : ""} />
-        </ToolButton>
-
-        <ToolButton
-          isActive={activeTool === "image"}
-          onClick={() => handleToolChange("image")}
-          ariaLabel="Image tool"
-        >
-          <Image className={activeTool === "image" ? activeStyle : ""} />
-        </ToolButton>
+        </div>
       </div>
-
-      <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-1" />
-
-      {/* Stroke width picker */}
-      <ToolButton
-        isActive={showStrokeOptions}
-        onClick={toggleStrokeOptions}
-        ariaLabel="Adjust stroke width"
-        hasDropdown={true}
-        dropdownContent={showStrokeOptions && (
-          <StrokeWidthPicker
-            width={strokeWidth}
-            onChange={onStrokeWidthChange}
-          />
-        )}
-      >
-        <Gear className={showStrokeOptions ? activeStyle : ""} />
-      </ToolButton>
-    </div>
+    </TooltipProvider>
   );
 };
 

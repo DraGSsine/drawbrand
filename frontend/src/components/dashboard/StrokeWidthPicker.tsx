@@ -1,40 +1,70 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
+import React, { useState } from "react";
+import { Slider } from "@/components/ui/slider";
 
 interface StrokeWidthPickerProps {
-  width: number;
-  onChange: (width: number) => void;
+  strokeWidth: number;
+  onStrokeWidthChange: (width: number) => void;
 }
 
-export function StrokeWidthPicker({ width, onChange }: StrokeWidthPickerProps) {
-  // Define our 4 preset stroke width options
-  const strokeOptions = [4, 6, 8, 10];
+const StrokeWidthPicker: React.FC<StrokeWidthPickerProps> = ({
+  strokeWidth,
+  onStrokeWidthChange,
+}) => {
+  // Preset width options
+  const widthOptions = [1, 2, 4, 6, 8, 10];
+  
+  // Handle slider change
+  const handleSliderChange = (values: number[]) => {
+    onStrokeWidthChange(values[0]);
+  };
 
   return (
-    <div className="absolute top-[60%] left-[130%]">
-      <div className="flex flex-col items-center gap-4 rounded-lg bg-white/90 shadow-sm border border-gray-100 px-3 py-4">
-        <span className="text-xs font-medium text-gray-700">Size</span>
-        
-        <div className="flex flex-col justify-center items-center gap-5">
-          {strokeOptions.map((size) => (
-            <div
-              key={size}
-              onClick={() => onChange(size)}
-              className={cn(
-                "cursor-pointer rounded-full transition-all duration-200",
-                width === size ? "bg-primary" : "bg-zinc-400 hover:bg-zinc-500"
-              )}
-              style={{ 
-                width: `${size * 2}px`,
-                height: `${size * 2}px`,
-              }}
-              aria-label={`Set stroke width to ${size}`}
-            />
-          ))}
+    <div className="w-full space-y-4 p-3 w-[220px]">
+      <h3 className="text-sm font-medium mb-2">Stroke Width</h3>
+      
+      {/* Slider for continuous adjustment */}
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-gray-500">Thin</span>
+          <span className="text-xs font-medium">{strokeWidth}px</span>
+          <span className="text-xs text-gray-500">Thick</span>
         </div>
+        <Slider
+          defaultValue={[strokeWidth]}
+          min={1}
+          max={12}
+          step={1}
+          value={[strokeWidth]}
+          onValueChange={handleSliderChange}
+          className="w-full"
+        />
+      </div>
+      
+      {/* Preset width buttons */}
+      <div className="flex items-center justify-between gap-2 mt-2">
+        {widthOptions.map((width) => (
+          <button
+            key={width}
+            type="button"
+            onClick={() => onStrokeWidthChange(width)}
+            className={`relative flex items-center justify-center p-1 h-8 w-8 rounded-md transition-all ${
+              strokeWidth === width
+                ? "bg-blue-100 ring-2 ring-blue-500"
+                : "bg-gray-50 hover:bg-gray-100"
+            }`}
+          >
+            <div
+              className="bg-black rounded-full"
+              style={{
+                width: `${Math.min(width * 2, 16)}px`,
+                height: `${Math.min(width * 2, 16)}px`,
+              }}
+            />
+          </button>
+        ))}
       </div>
     </div>
   );
-}
+};
 
 export default StrokeWidthPicker;
