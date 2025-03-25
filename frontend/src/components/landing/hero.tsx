@@ -1,195 +1,261 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import Trusted from "./trusted";
-import { CircleCheck, Play, X } from "../../../public/icons/SvgIcons";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Upload, FileCheck } from "../../../public/icons/SvgIcons";
+import Image from "next/image";
 
-export function Hero() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const openModal = () => {
-    setIsModalOpen(true);
-    document.body.style.overflow = "hidden";
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    document.body.style.overflow = "auto";
-  };
-
-  // Close modal with escape key
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModal();
-    };
-
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
+const Hero = () => {
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFileName(e.target.files[0].name);
+      
+      // Simulate upload
+      setIsUploading(true);
+      setTimeout(() => {
+        setIsUploading(false);
+      }, 1500);
+    }
+  };
+
+  const showcaseImages = {
+    row1: [
+      "/showcase/after-airplane-basic.png",
+      "/showcase/after-balloon-messy.png",
+      "/showcase/after-brain-rough.png",
+      "/showcase/after-castle-pixel.png",
+      "/showcase/after-cat-flatGraphic.png",
+      "/showcase/after-coffee-badgeCrest.png",
+      "/showcase/after-compass-amateur.png",
+      "/showcase/after-compass-pop.png",
+      "/showcase/after-dragon-line.png"
+    ],
+    row2: [
+      "/showcase/after-hand-shaky.png",
+      "/showcase/after-hourglass-basic.png",
+      "/showcase/after-house-wobbly.png",
+      "/showcase/after-lantern-crude.png",
+      "/showcase/after-lightbulb-messy.png",
+      "/showcase/after-lighthouse-cartoon.png",
+      "/showcase/after-lion-kawaii.png",
+      "/showcase/after-moonboy-beginner.png",
+      "/showcase/after-mountain-mascot.png"
+    ],
+    row3: [
+      "/showcase/after-owl-iconEmoji.png",
+      "/showcase/after-rocket-rough.png",
+      "/showcase/after-rocket-watercolor.png",
+      "/showcase/after-ship-comic.png",
+      "/showcase/after-telescope-crude.png",
+      "/showcase/after-three-pictorial.png",
+      "/showcase/after-tree-manga.png",
+      "/showcase/after-treehouse-crude.png",
+      "/showcase/after-wolf-abstract.png"
+    ]
+  };
+
   return (
-    <div className="relative flex items-center justify-center py-20 md:py-24 min-h-screen overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-violet-50 to-pink-50 pointer-events-none" aria-hidden="true" />
-
-      {/* Floating shapes */}
-      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -left-4 top-20 w-36 md:w-72 h-36 md:h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob" />
-        <div className="absolute -right-4 top-40 w-36 md:w-72 h-36 md:h-72 bg-violet-200 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob animation-delay-2000" />
-        <div className="absolute left-20 bottom-20 w-36 md:w-72 h-36 md:h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob animation-delay-4000" />
-      </div>
-
-      <div className="relative w-full max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-center">
-          {/* Left Column - Text Content */}
-          <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
-            <div className="space-y-4 md:space-y-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-white/50 backdrop-blur-sm border border-blue-100 shadow-sm">
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" aria-hidden="true" />
-                <span className="text-xs md:text-sm font-medium text-zinc-800">
-                  Boost Your LinkedIn Game
-                </span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-zinc-800 leading-tight">
-                Supercharge Your{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                  LinkedIn
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent">
-                  Connections
-                </span>
+    <section className="pt-32 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8 max-w-xl mx-auto lg:mx-0 text-center lg:text-left opacity-0" style={{ animation: "fadeIn 1s forwards", animationDelay: "0.2s" }}>
+            <div>
+              <span className="px-4 py-1.5 rounded-full bg-blue-100 text-blue-600 font-medium text-sm inline-block mb-4 shadow-sm">
+                AI-Powered Logo Design
+              </span>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+                Create Your Perfect <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Brand Identity</span> with DrawBrand
               </h1>
-              <p className="text-base md:text-lg lg:text-xl text-zinc-800 max-w-xl mx-auto lg:mx-0">
-                Tired of blank stares at your LinkedIn messages? Our AI crafts
-                killer, personalized intros that grab attention and spark real
-                conversations no more crickets!
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Transform your ideas into stunning logos in seconds. Our AI-powered platform creates unique, professional designs that perfectly represent your brand.
               </p>
             </div>
-
-            <div className="mt-6 md:mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4">
-              <a
-                href="https://chromewebstore.google.com/detail/hfadoenckgoahdcacngfebieckmhemef?utm_source=item-share-cp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto h-10 md:h-12 px-4 md:px-6 text-sm md:text-base font-medium flex items-center justify-center gap-2 rounded-full border-2 hover:border-violet-200 bg-white/50 hover:bg-white/80 hover:text-violet-600 transition-all duration-500 text-zinc-800"
-                aria-label="Add to Chrome for free"
-              >
-                <span className="whitespace-nowrap">Add to Chrome</span>
-                <span className="hidden sm:inline ml-1">- Free!</span>
-              </a>
-              <button
-                onClick={openModal}
-                className="w-full sm:w-auto h-10 md:h-12 px-4 md:px-6 text-sm md:text-base rounded-full font-medium flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white  shadow-violet-200 hover:shadow-xl hover:shadow-violet-200 transition-all duration-500 group"
-                aria-label="Watch demo video"
-              >
-                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" aria-hidden="true" />
-                Demo
-              </button>
+            
+            <div className="max-w-md mx-auto lg:mx-0">
+              <div className="bg-white/90 backdrop-blur-md p-7 relative overflow-hidden rounded-xl shadow-xl border border-gray-100 dark:border-gray-800">
+                <label htmlFor="file-upload" className={`flex flex-col items-center justify-center p-6 border-2 border-dashed ${fileName ? 'border-blue-500' : 'border-gray-300'} rounded-xl cursor-pointer transition-all duration-300 h-40 hover:border-blue-500 hover:bg-blue-50/50`}>
+                  {!fileName && !isUploading && (
+                    <>
+                      <Upload className="w-10 h-10 mb-3 text-blue-600" />
+                      <span className="text-base font-medium text-gray-900">Upload your image or sketch</span>
+                      <span className="text-sm text-gray-500 mt-2">PNG, JPG, up to 5MB</span>
+                    </>
+                  )}
+                  
+                  {isUploading && (
+                    <div className="flex flex-col items-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      <span className="text-base font-medium text-gray-900 mt-3">Creating your logo...</span>
+                    </div>
+                  )}
+                  
+                  {fileName && !isUploading && (
+                    <div className="flex items-center space-x-3">
+                      <FileCheck className="w-6 h-6 text-blue-600" />
+                      <span className="text-base font-medium text-gray-900 truncate max-w-[200px]">{fileName}</span>
+                    </div>
+                  )}
+                  
+                  <input id="file-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                </label>
+                
+                <div className="mt-6">
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-6 text-lg font-medium rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <span>Generate Logo</span>
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </div>
+              </div>
             </div>
-
-            <div className="mt-8 md:mt-12">
-              <Trusted className="" />
+            
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-6 text-sm text-gray-500 mt-4">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                </svg>
+                <span>Instant results</span>
+              </div>
+              <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-300"></div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                </svg>
+                <span>Unique designs</span>
+              </div>
+              <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-300"></div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                </svg>
+                <span>Commercial license</span>
+              </div>
             </div>
           </div>
+          
+          <div className="relative opacity-0" style={{ animation: "fadeIn 1s forwards", animationDelay: "0.6s" }}>
+            <div className="relative z-10 overflow-hidden space-y-8">
+              {/* First row - Left to Right */}
+              <div className="relative w-full overflow-hidden">
+                <div className="flex" style={{ animation: "slideLeftToRight 25s linear infinite" }}>
+                  <div className="flex gap-8">
+                    {showcaseImages.row1.map((image, index) => (
+                      <div key={index} className="relative w-40 h-40 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
+                        <Image 
+                          src={image} 
+                          alt={`Logo example ${index + 1}`}
+                          fill
+                          className="object-contain bg-white rounded-xl shadow-lg p-2"
+                          sizes="(max-width: 160px) 100vw, 160px"
+                        />
+                      </div>
+                    ))}
+                    {showcaseImages.row1.map((image, index) => (
+                      <div key={`duplicate-${index}`} className="relative w-40 h-40 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
+                        <Image 
+                          src={image} 
+                          alt={`Logo example ${index + 1}`}
+                          fill
+                          className="object-contain bg-white rounded-xl shadow-lg p-2"
+                          sizes="(max-width: 160px) 100vw, 160px"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-          {/* Right Column - Chat UI */}
-          <div className="relative w-full max-w-lg md:max-w-2xl mx-auto lg:mx-0 mt-8 lg:mt-0">
-            <HeroLeft />
+              {/* Second row - Right to Left */}
+              <div className="relative w-full overflow-hidden">
+                <div className="flex" style={{ animation: "slideRightToLeft 25s linear infinite" }}>
+                  <div className="flex gap-8">
+                    {showcaseImages.row2.map((image, index) => (
+                      <div key={index} className="relative w-40 h-40 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
+                        <Image 
+                          src={image} 
+                          alt={`Logo example ${index + 9}`}
+                          fill
+                          className="object-contain bg-white rounded-xl shadow-lg p-2"
+                          sizes="(max-width: 160px) 100vw, 160px"
+                        />
+                      </div>
+                    ))}
+                    {showcaseImages.row2.map((image, index) => (
+                      <div key={`duplicate-${index}`} className="relative w-40 h-40 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
+                        <Image 
+                          src={image} 
+                          alt={`Logo example ${index + 9}`}
+                          fill
+                          className="object-contain bg-white rounded-xl shadow-lg p-2"
+                          sizes="(max-width: 160px) 100vw, 160px"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Third row - Left to Right */}
+              <div className="relative w-full overflow-hidden">
+                <div className="flex" style={{ animation: "slideLeftToRight 25s linear infinite" }}>
+                  <div className="flex gap-8">
+                    {showcaseImages.row3.map((image, index) => (
+                      <div key={index} className="relative w-40 h-40 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
+                        <Image 
+                          src={image} 
+                          alt={`Logo example ${index + 17}`}
+                          fill
+                          className="object-contain bg-white rounded-xl shadow-lg p-2"
+                          sizes="(max-width: 160px) 100vw, 160px"
+                        />
+                      </div>
+                    ))}
+                    {showcaseImages.row3.map((image, index) => (
+                      <div key={`duplicate-${index}`} className="relative w-40 h-40 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
+                        <Image 
+                          src={image} 
+                          alt={`Logo example ${index + 17}`}
+                          fill
+                          className="object-contain bg-white rounded-xl shadow-lg p-2"
+                          sizes="(max-width: 160px) 100vw, 160px"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Floating elements */}
+            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-blue-200/60 blur-3xl" style={{ animation: "float 6s ease-in-out infinite" }}></div>
+            <div className="absolute -bottom-8 -left-12 w-48 h-48 rounded-full bg-purple-200/60 blur-3xl" style={{ animation: "float 7s ease-in-out infinite", animationDelay: "1s" }}></div>
+            <div className="absolute top-1/2 left-1/4 w-24 h-24 rounded-full bg-green-200/40 blur-2xl" style={{ animation: "float 8s ease-in-out infinite", animationDelay: "2s" }}></div>
           </div>
         </div>
       </div>
 
-      {/* Video Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-          <div
-            className="absolute inset-0"
-            onClick={closeModal}
-            aria-hidden="true"
-          ></div>
-          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden animate-scaleIn">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-violet-600 flex items-center justify-center" aria-hidden="true">
-                  <Play className="w-6 h-6 text-white ml-0.5" />
-                </div>
-                <div>
-                  <h2 id="modal-title" className="text-2xl font-bold text-gray-900">
-                    Witness the LinkedIn Glow-Up
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    Discover how to make connections that click
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={closeModal}
-                className="p-2.5 rounded-full hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5 text-gray-500" aria-hidden="true" />
-              </button>
-            </div>
-
-            {/* Video Container */}
-            <div className="relative w-full aspect-video bg-black">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/atv88nZuP_s?si=ascLCj4TFw9GU_ea"
-                title="LinkedIn Message Product Demo"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              ></iframe>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-6 bg-gray-50">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" aria-hidden="true">
-                    <CircleCheck className="w-5 h-5 text-green-600" />
-                  </div>
-                  <p className="text-sm font-medium text-gray-700">
-                    I went from ignored to inbox hero landed a gig in weeks!
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={closeModal}
-                    className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                    aria-label="Close dialog"
-                  >
-                    Close
-                  </button>
-                  <a
-                    href="https://chromewebstore.google.com/detail/hfadoenckgoahdcacngfebieckmhemef?utm_source=item-share-cp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-5 py-2.5 text-sm font-medium text-white bg-violet-600 border border-transparent rounded-full hover:bg-violet-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                    aria-label="Install the extension from Chrome Web Store"
-                  >
-                    Grab It Now
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-const HeroLeft = () => {
-
-
-  return (
-    <div>
-      
-    </div>
+      {/* Add animation keyframes via style tag */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-20px); }
+        }
+        @keyframes slideLeftToRight {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0%); }
+        }
+        @keyframes slideRightToLeft {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+    </section>
   );
 };
+
+export default Hero;

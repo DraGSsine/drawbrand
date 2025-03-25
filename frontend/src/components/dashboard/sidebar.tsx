@@ -42,8 +42,8 @@ export interface LogoSettings {
     color: string | string[] | "anything"; // Can be a single color or array of colors
   };
   controls: {
-    creativity: number;
-    detail: number;
+    creativity: number | "anything";
+    detail: number | "anything";
   };
 }
 
@@ -354,7 +354,7 @@ const LogoSidebar = () => {
       } else if (section === 'controls') {
         setSettings({
           ...settings,
-          controls: { creativity: -1, detail: -1 }
+          controls: { creativity: "anything", detail: "anything" }
         });
       }
     } else {
@@ -849,7 +849,7 @@ const LogoSidebar = () => {
                     <span className="text-xs text-slate-600 font-medium">Conservative</span>
                   </div>
                   <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-200">
-                    {settings.controls.creativity}%
+                    {typeof settings.controls.creativity === "number" ? `${settings.controls.creativity}%` : "Anything"}
                   </span>
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-slate-600 font-medium">Creative</span>
@@ -859,8 +859,9 @@ const LogoSidebar = () => {
                   min={0}
                   max={100}
                   step={1}
-                  value={[settings.controls.creativity]}
+                  value={[typeof settings.controls.creativity === "number" ? settings.controls.creativity : 100]}
                   onValueChange={(values) => handleControlChange("creativity", values[0])}
+                  disabled={settings.controls.creativity === "anything"}
                   className="mt-2"
                 />
               </div>
@@ -873,7 +874,7 @@ const LogoSidebar = () => {
                     <span className="text-xs text-slate-600 font-medium">Minimal</span>
                   </div>
                   <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-200">
-                    {settings.controls.detail}%
+                    {typeof settings.controls.detail === "number" ? `${settings.controls.detail}%` : "Anything"}
                   </span>
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-slate-600 font-medium">Detailed</span>
@@ -883,8 +884,9 @@ const LogoSidebar = () => {
                   min={0}
                   max={100}
                   step={1}
-                  value={[settings.controls.detail]}
+                  value={[typeof settings.controls.detail === "number" ? settings.controls.detail : 100]}
                   onValueChange={(values) => handleControlChange("detail", values[0])}
+                  disabled={settings.controls.detail === "anything"}
                   className="mt-2"
                 />
               </div>

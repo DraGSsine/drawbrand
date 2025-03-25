@@ -1,206 +1,120 @@
+"use client";
+
 import React from "react";
-import Link from "next/link";
-import { Check, Diamond, Fire, UserGroupCrown } from "../../../public/icons/SvgIcons";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { CircleCheck } from "../../../public/icons/SvgIcons";
 
-interface PricingCardProps {
-  price: string;
-  planName: string;
-  description: string;
-  features: string[];
-  isPopular?: boolean;
-  icon: React.ReactNode;
-}
-
-const PricingCard: React.FC<PricingCardProps> = ({
-  price,
-  planName,
-  description,
-  features,
-  isPopular = false,
-  icon,
-}) => {
-  return (
-    <div
-      className={`relative rounded-xl transition-all duration-500 hover:scale-105 ${
-        isPopular
-          ? "bg-violet-600 text-white ring-2 ring-violet-500"
-          : "bg-white border border-zinc-100 hover:border-violet-200 hover:"
-      }`}
-    >
-      {isPopular && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="px-3 py-1 rounded-full bg-zinc-800 text-white text-xs font-medium ">
-            Most Popular
-          </span>
-        </div>
-      )}
-
-      <div className="p-6">
-        <div className="mb-6">
-          <div
-            className={`w-12 h-12 rounded-lg mb-4 flex items-center justify-center transform transition-transform duration-500 hover:rotate-12 ${
-              isPopular
-                ? "bg-violet-500 text-white"
-                : "bg-violet-50 text-violet-500"
-            }`}
-          >
-            {icon}
-          </div>
-
-          <h3
-            className={`text-lg font-bold ${
-              isPopular ? "text-white" : "text-zinc-800"
-            }`}
-          >
-            {planName}
-          </h3>
-          <p
-            className={`mt-2 text-sm ${
-              isPopular ? "text-zinc-100" : "text-zinc-500"
-            }`}
-          >
-            {description}
-          </p>
-
-          <div className="mt-5 flex items-baseline">
-            <span
-              className={`text-4xl font-bold ${
-                isPopular ? "text-white" : "text-zinc-800"
-              }`}
-            >
-              ${price}
-            </span>
-            <span
-              className={`ml-2 text-sm ${
-                isPopular ? "text-zinc-100" : "text-zinc-500"
-              }`}
-            >
-              /month
-            </span>
-          </div>
-        </div>
-
-        <ul className="space-y-3 mb-6">
-          {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-3">
-              <div
-                className={`mt-1 rounded-full p-1 ${
-                  isPopular ? "bg-violet-500" : "bg-violet-50"
-                }`}
-              >
-                <Check
-                  className={`w-3 h-3 ${
-                    isPopular ? "text-white" : "text-violet-600"
-                  }`}
-                />
-              </div>
-              <span
-                className={`text-sm leading-relaxed ${
-                  isPopular ? "text-zinc-100" : "text-zinc-600"
-                }`}
-              >
-                {feature}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <Link
-          href='/auth/signup'
-          className={`w-full py-3 block text-center rounded-lg font-medium transition-all duration-300 transform hover:scale-[1.02] ${
-            isPopular
-              ? "bg-white text-violet-600 hover:bg-zinc-50"
-              : "bg-violet-600 text-white hover:bg-violet-700"
-          }`}
-        >
-          Get Started
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-const PricingSection = () => {
-  const pricingData = [
+const Pricing = () => {
+  const plans = [
     {
-      price: "3.99",
-      planName: "Starter",
-      description:
-        "Get started for just $3.99! Perfect for occasional LinkedIn users needing message help. Up to 200 messages.",
-      icon: <Fire className={`w-7 h-7`} />,
+      name: "Free",
+      price: "$0",
+      description: "Perfect for trying out our AI logo creator",
       features: [
-        "200 messages per month",
-        "Generate new responses",
-        "Refine draft messages",
-        "24/7 customer support",
+        "5 logo generations",
+        "Basic customization",
+        "JPG downloads",
+        "Standard quality"
       ],
-      isPopular: false,
+      buttonText: "Start Free",
+      buttonVariant: "outline",
+      delay: "0.2s"
     },
     {
-      price: "7.99",
-      planName: "Growth",
-      description:
-        "Our most popular plan offering great value! Ideal for daily LinkedIn engagement. Up to 750 messages.",
-      icon: <UserGroupCrown className={`w-7 h-7`} />,
+      name: "Pro",
+      price: "$19",
+      period: "/month",
+      description: "Ideal for businesses and professionals",
       features: [
-        "750 messages per month",
-        "Generate new responses",
-        "Refine draft messages",
-        "24/7 customer support",
+        "Unlimited logo generations",
+        "Advanced customization",
+        "PNG & SVG downloads",
+        "High resolution",
+        "Commercial license",
+        "Priority processing"
       ],
-      isPopular: true,
+      buttonText: "Get Started",
+      buttonVariant: "primary",
+      popular: true,
+      delay: "0.4s"
     },
     {
-      price: "12.99",
-      planName: "Pro",
-      description:
-        "Unlock unlimited potential! For serious LinkedIn networkers who demand the best. Truly unlimited messages.",
-      icon: <Diamond className={`w-7 h-7`} />,
+      name: "Enterprise",
+      price: "$49",
+      period: "/month",
+      description: "For teams and agencies with advanced needs",
       features: [
-        "Unlimited messages per month",
-        "Generate new responses",
-        "Refine draft messages",
-        "24/7 customer support",
+        "Everything in Pro",
+        "API access",
+        "Batch processing",
+        "Team collaboration",
+        "Dedicated support",
+        "Custom integrations"
       ],
-      isPopular: false,
-    },
+      buttonText: "Contact Sales",
+      buttonVariant: "outline",
+      delay: "0.6s"
+    }
   ];
 
   return (
-    <section className="py-20 px-4 bg-white" id="pricing">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-bold text-zinc-800 sm:text-4xl">
-            Simple, transparent pricing
+    <section id="pricing" className="section-padding bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/20 dark:to-violet-950/20">
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-16 opacity-0 animate-fade-in" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
+          <h2 className="text-4xl font-extrabold mb-6">
+            Simple, <span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">Transparent</span> Pricing
           </h2>
-          <p className="text-base text-zinc-600 max-w-2xl mx-auto">
-            No hidden fees. No surprises. Choose the plan that works best for
-            you.
+          <p className="text-lg max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
+            Choose the plan that fits your needs. No hidden fees or long-term commitments.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {pricingData.map((plan, index) => (
-            <PricingCard
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+          {plans.map((plan, index) => (
+            <div 
               key={index}
-              price={plan.price}
-              planName={plan.planName}
-              description={plan.description}
-              features={plan.features}
-              isPopular={plan.isPopular}
-              icon={plan.icon}
-            />
+              className="opacity-0 animate-fade-in flex"
+              style={{ animationDelay: plan.delay, animationFillMode: "forwards" }}
+            >
+              <Card className={`glass-card relative flex flex-col w-full ${plan.popular ? 'border-indigo-500 shadow-lg' : ''}`}>
+                {plan.popular && (
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-indigo-500 text-white text-xs px-3 py-1 rounded-full font-medium">
+                    Most Popular
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-200">{plan.name}</CardTitle>
+                  <div className="mt-2 flex items-baseline">
+                    <span className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{plan.price}</span>
+                    {plan.period && <span className="text-gray-600 dark:text-gray-400 ml-1">{plan.period}</span>}
+                  </div>
+                  <CardDescription className="mt-2 text-gray-700 dark:text-gray-300">{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start">
+                        <CircleCheck className="h-5 w-5 text-indigo-500 dark:text-indigo-400 flex-shrink-0 mr-2" />
+                        <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className={`w-full ${plan.buttonVariant === 'primary' ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'border-indigo-600 text-indigo-600 hover:bg-indigo-50'}`}
+                  >
+                    {plan.buttonText}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
           ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <p className="text-sm text-zinc-500">
-            Try scrive for free. No credit card required.
-          </p>
         </div>
       </div>
     </section>
   );
 };
 
-export default PricingSection;
+export default Pricing;

@@ -17,7 +17,7 @@ const Logo = ({
       {/* Logo Icon */}
       <Image
         src={mode === "dark" ? "/logo.svg" : "/logo-white.svg"}
-        alt="TrendSpark Logo"
+        alt="DrawBrand Logo"
         width={size}
         height={size}
         className="object-contain rounded-[5px] overflow-hidden"
@@ -25,11 +25,11 @@ const Logo = ({
       {/* Logo Title */}
       <span
         className={cn(
-          "text-2xl font-bold bg-clip-text text-transparent text-zinc-800 ",
+          "text-2xl font-bold bg-gradient-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent",
           textClass
         )}
       >
-        Scrive
+        DrawBrand
       </span>
     </Link>
   );
