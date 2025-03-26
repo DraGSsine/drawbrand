@@ -11,9 +11,9 @@ const Footer = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Brand Column */}
             <div className="space-y-6">
-              <Logo size={36} mode="dark" />
+              <Logo size={36} />
               <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed max-w-sm">
-                Transform your ideas into stunning logos with DrawBrand's AI-powered platform. Create unique, professional designs that perfectly represent your brand.
+                Transform your ideas into stunning logos with DrawBrand&apos;s AI-powered platform. Create unique, professional designs that perfectly represent your brand.
               </p>
             </div>
 

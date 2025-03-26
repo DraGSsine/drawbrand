@@ -14,8 +14,8 @@ const StrokeWidthControl: React.FC<StrokeWidthControlProps> = ({
     <div className="flex flex-col gap-2">
       <h3 className="text-sm font-medium text-gray-700">Stroke Width</h3>
       <StrokeWidthPicker
-        value={value}
-        onChange={onChange}
+        strokeWidth={value}
+        onStrokeWidthChange={onChange}
       />
     </div>
   );

@@ -6,7 +6,6 @@ import RightSideBar from "@/components/dashboard/RightSideBar";
 import Sidebar from "@/components/dashboard/sidebar";
 import { Button } from "@/components/ui/button";
 import { 
-  X, 
   Bars,
   SquareArrowLeft,
   ChevronLeft, 

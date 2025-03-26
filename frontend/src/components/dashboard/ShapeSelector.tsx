@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ShapeType } from '@/utils/drawing/ShapeTool';
  
 interface ShapeSelectorProps {
   onSelectShape: (shape: ShapeType) => void;
   onChangeFillMode: (mode: 'regular' | 'solid') => void;
   fillMode: 'regular' | 'solid';
-  selectedShape?: ShapeType;
 }
 
 const ShapeSelector: React.FC<ShapeSelectorProps> = ({
   onSelectShape,
   onChangeFillMode,
   fillMode,
-  selectedShape,
 }) => {
   // We'll control how SVGs should render based on fillMode
   const isSolid = fillMode === 'solid';

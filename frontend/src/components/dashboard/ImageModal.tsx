@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { X, Download, PenNib, Share } from "../../../public/icons/SvgIcons";
+import { X, Download } from "../../../public/icons/SvgIcons";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -41,29 +41,6 @@ const ImageModal = ({ isOpen, onClose, imageSrc }: ImageModalProps) => {
     document.body.removeChild(link);
   };
 
-  // Share image function
-  const handleShare = async () => {
-    try {
-      // Convert the data URL to a blob
-      const response = await fetch(imageSrc);
-      const blob = await response.blob();
-      
-      // If Web Share API is available
-      if (navigator.share) {
-        const file = new File([blob], `logo-${Date.now()}.png`, { type: 'image/png' });
-        await navigator.share({
-          title: 'My Generated Logo',
-          text: 'Check out this logo I created with AI',
-          files: [file]
-        });
-      } else {
-        // Fallback for browsers without Web Share API
-        handleDownload();
-      }
-    } catch (error) {
-      console.error('Error sharing the image', error);
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

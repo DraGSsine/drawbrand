@@ -4,11 +4,10 @@ import IconPicker from "./IconPicker";
 import ShapeSelector from "./ShapeSelector";
 import StrokeWidthPicker from "./StrokeWidthPicker";
 import {
-  Gear,
   Eraser,
   HandPointer,
   Icons,
-  Image,
+  Image as ImageIcon,
   Pencil,
   PenNib,
   Shapes,
@@ -52,7 +51,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
   strokeWidth,
   onStrokeWidthChange,
   onSelectShape,
-  selectedShape,
   onChangeFillMode,
   fillMode,
   onSelectIcon,
@@ -216,7 +214,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
               <PopoverContent side="bottom" className="p-1 w-auto" sideOffset={10}>
                 <ShapeSelector
                   onSelectShape={handleShapeSelectAndClose}
-                  selectedShape={selectedShape}
                   onChangeFillMode={onChangeFillMode}
                   fillMode={fillMode}
                 />
@@ -255,7 +252,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                   <ToolButton
                     isActive={activeTool === "image"}
                     onClick={() => handleToolChange("image")}
-                    icon={<Image className={cn(`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`, activeTool === "image" ? activeStyle : "")} iconPrimary="#1E3050" iconSecondary="#1E305030"/>}
+                    icon={<ImageIcon className={cn(`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`, activeTool === "image" ? activeStyle : "")} iconPrimary="#1E3050" iconSecondary="#1E305030"/>}
                   />
                 </div>
               </TooltipTrigger>

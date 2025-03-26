@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Paintbrush } from "../../../public/icons/SvgIcons";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -13,7 +12,6 @@ interface LogoProps {
 
 const Logo = ({
   textClass,
-  size = 32,
   variant = "default"
 }: LogoProps) => {
   return (

@@ -1,6 +1,6 @@
 "use client"
-import React, { useState, useEffect } from 'react';
-import { Check, Bolt, Gem, Fire, Diamond } from '../../../public/icons/SvgIcons';
+import React, { useState } from 'react';
+import { Check, Bolt, Gem, Fire } from '../../../public/icons/SvgIcons';
 import { api } from '@/lib/axios';
 import { useUserInfo } from '@/lib/queries';
 
@@ -19,7 +19,6 @@ interface PricingCardProps {
   onSelect: (plan: string) => void;
   isLoading: boolean;
   selectedPlan: string;
-  subscriptionType: "monthly" | "yearly";
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
@@ -27,7 +26,6 @@ const PricingCard: React.FC<PricingCardProps> = ({
   onSelect,
   isLoading,
   selectedPlan,
-  subscriptionType,
 }) => {
   const isSelected = selectedPlan === plan.name;
 
@@ -102,7 +100,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
 
           <div className="mt-8">
             <button
-              onClick={() => onSelect(plan.name)}
+              onClick={() => {onSelect(plan.name)}}
               disabled={isLoading}
               className={`w-full py-3 rounded-xl text-base font-medium transition-all duration-300 ${
                 plan.buttonVariant === 'primary'
@@ -144,7 +142,6 @@ const SubscriptionDialog = () => {
   const [selectedPlan, setSelectedPlan] = useState<string>("Growth");
   const [isPending, setIsPending] = useState(false);
   const {data , isLoading} = useUserInfo()
-  const [subscriptionType, setSubscriptionType] = useState<"monthly" | "yearly">("monthly");
   if (data?.subscription?.status !== "none" || isLoading)
     return null;
 
@@ -155,7 +152,7 @@ const SubscriptionDialog = () => {
     try {
       const response = await api.post("/payments/create-checkout-session", {
         plan,
-        subscriptionType,
+        subscriptionType: plan === "Pro" ? "yearly" : "monthly"
       });
       window.location.href = response.data.url;
     } catch (error) {
@@ -242,7 +239,6 @@ const SubscriptionDialog = () => {
               onSelect={handlePlanSelection}
               isLoading={isPending}
               selectedPlan={selectedPlan}
-              subscriptionType={subscriptionType}
             />
           ))}
         </div>

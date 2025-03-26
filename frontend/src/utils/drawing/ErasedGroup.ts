@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { fabric } from 'fabric';
 
 // Custom ErasedGroup class for handling erased objects

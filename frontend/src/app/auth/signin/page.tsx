@@ -11,7 +11,7 @@ import { AxiosError } from "axios";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { api } from "@/lib/axios";
-import { Loader, Lock, Envelope, Mailbox } from "../../../../public/icons/SvgIcons";
+import { Loader, Lock, Envelope } from "../../../../public/icons/SvgIcons";
 
 const signinSchema = z.object({
   email: z.string().email("Invalid email address"),

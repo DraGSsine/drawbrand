@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import {
-  ArrowRight,
   Image as ImageIcon,
   RotateReverse,
   Sparkles,
@@ -18,7 +17,6 @@ const SETTINGS_STORAGE_KEY = "logo-generator-settings";
 const DRAWING_STORAGE_KEY = "logo-generator-canvas";
 
 type LogoSettings = {
-  // Updated to match backend expectations
   styles?: {
     type?: string;
     style?: string;
@@ -30,7 +28,7 @@ type LogoSettings = {
     creativity?: number;
     detail?: number;
   };
-  [key: string]: any;
+  [key: string]: Record<string, unknown> | undefined
 };
 
 interface RightSideBarProps {
@@ -43,38 +41,27 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
   const [promptText, setPromptText] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  
+
   // Add these two lines for modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState<string | null>(null);
 
-  // Check for mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    // Initial check
-    checkMobile();
-    
-    // Add event listener for resize
-    window.addEventListener('resize', checkMobile);
-    
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // TanStack Query mutation with real API call
   const logoMutation = useMutation({
-    mutationFn: async (generationData: any) => {
+    mutationFn: async (generationData: {
+      prompt: string;
+      settings: LogoSettings | null;
+      sketch: string | null;
+      timestamp: string
+    }) => {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await api.post(`${apiUrl}/ai/generate`, generationData);
       return response.data;
     },
     onSuccess: (data) => {
       console.log("Logo generation response:", data);
-      
+
       // Handle different possible response formats
       if (Array.isArray(data) && data.length > 0) {
         // Response is directly an array of base64 images
@@ -149,7 +136,7 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
     // Set modal image and open the modal
     setModalImageSrc(image);
     setIsModalOpen(true);
-    
+
     // Also call the external onImageClick if provided
     if (onImageClick) {
       onImageClick(image);
@@ -159,12 +146,12 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
   return (
     <div className="w-full h-full bg-white rounded-2xl border border-blue-100 flex flex-col overflow-hidden shadow-sm">
       {/* Add ImageModal component */}
-      <ImageModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        imageSrc={modalImageSrc} 
+      <ImageModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        imageSrc={modalImageSrc}
       />
-      
+
       {/* Preview Section */}
       <div className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-5 flex-1 overflow-y-auto">
         <div className="mb-3 md:mb-4 flex items-center">
@@ -192,8 +179,8 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
                 key={index}
                 className={cn(
                   "group aspect-square bg-white rounded-lg overflow-hidden border transition-all cursor-pointer hover:shadow-md",
-                  selectedImage === index 
-                    ? "ring-2 ring-blue-600 border-blue-600" 
+                  selectedImage === index
+                    ? "ring-2 ring-blue-600 border-blue-600"
                     : "border-gray-200 hover:border-blue-200"
                 )}
                 onClick={() => {
@@ -259,8 +246,8 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
           <Button
             className={cn(
               "w-full font-medium py-1.5 md:py-2 rounded-lg transition-all flex items-center justify-center gap-1 md:gap-2 text-sm md:text-base",
-              isGenerating || !promptText.trim() 
-                ? "bg-blue-400 hover:bg-blue-400 text-white/80 cursor-not-allowed" 
+              isGenerating || !promptText.trim()
+                ? "bg-blue-400 hover:bg-blue-400 text-white/80 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 text-white"
             )}
             onClick={handleGenerate}

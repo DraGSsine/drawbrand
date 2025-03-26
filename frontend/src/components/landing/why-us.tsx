@@ -48,7 +48,7 @@ const WhyUs = () => {
               Why Choose <span className="text-blue-600">DrawBrand AI</span> Image to Logo?
             </h2>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6">
-              Take your logo to the next level with our AI-powered platform. Whether you're a startup, small business, or established brand, our tool transforms your ideas into professional logos instantly.
+              Take your logo to the next level with our AI-powered platform. Whether you&apos;re a startup, small business, or established brand, our tool transforms your ideas into professional logos instantly.
             </p>
             <div className="flex flex-col space-y-3">
               <div className="flex items-start">

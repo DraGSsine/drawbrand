@@ -8,7 +8,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { HexColorPicker } from "react-colorful";
@@ -344,12 +343,12 @@ const LogoSidebar = () => {
       if (section === 'styles') {
         setSettings({
           ...settings,
-          styles: { type: "anything" as any, style: "anything" }
+          styles: { type: "anything", style: "anything" }
         });
       } else if (section === 'colors') {
         setSettings({
           ...settings,
-          colors: { type: "anything" as any, color: "anything" }
+          colors: { type: "anything", color: "anything" }
         });
       } else if (section === 'controls') {
         setSettings({

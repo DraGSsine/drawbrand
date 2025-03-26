@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -53,7 +53,7 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error, refetch } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useInfiniteQuery({
     queryKey: ["icons", selectedCategory, debouncedSearch],
     queryFn: async ({ pageParam = 1 }) => {
       console.log(`Fetching icons: category=${selectedCategory}, page=${pageParam}, search=${debouncedSearch}`);
@@ -66,7 +66,7 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
         queryParams.append("search", debouncedSearch);
       }
       
-      const res = await fetch(`http://localhost:5000/users/svgs?${queryParams.toString()}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/svgs?${queryParams.toString()}`);
       if (!res.ok) {
         console.error("API Error:", res.status, res.statusText);
         throw new Error("Failed to fetch icons");
@@ -86,10 +86,6 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
     setSelectedCategory(categoryId);
   };
 
-  // Clear search function
-  const clearSearch = () => {
-    setSearchQuery("");
-  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -249,7 +245,7 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
               >
                 <div className="h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Image 
-                    src={`http://localhost:5000${src}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${src}`}
                     width={24}
                     height={24}
                     alt={`Icon ${index}`} 

@@ -30,7 +30,7 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <Logo size={30} mode={isScrolled ? "dark" : "light"} />
+        <Logo size={30} />
 
         <nav className="hidden md:flex items-center space-x-6">
           <Link href="/#testimonials" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">

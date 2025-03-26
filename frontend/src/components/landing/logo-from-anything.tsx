@@ -1,6 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CurvedArrowRight } from "../../../public/icons/SvgIcons";
+import { CurvedArrowRight } from "../../../public/icons/SvgIcons";
 import Image from "next/image";
 
 const LogoFromAnything = () => {
