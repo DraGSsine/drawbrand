@@ -6,6 +6,7 @@ import { User } from 'src/model/UserSchema';
 import { GenerateDto } from './dto/generate.dto';
 import { GoogleGenerativeAI, GenerationConfig } from '@google/generative-ai';
 import { LogoSettings } from 'src/types/interface';
+import { UsersService } from 'src/users/users.service';
 
 // Creativity level descriptions
 const CREATIVITY_LEVELS = {
@@ -91,7 +92,7 @@ export class AiService {
   }
 
   // Main function
-  async generate(data: GenerateDto) {
+  async generate(data: GenerateDto, userEmail: string) {
     // Step 1: Extract the core intent and subject matter from the sketch and prompt
     const logoPrompt = await this.generateLogoPrompt(
       data.sketch,
@@ -102,8 +103,27 @@ export class AiService {
     
     // Step 2: Generate text-free image designs based on the extracted intent
     const logoVariations = await this.generateLogoImages(logoPrompt, data.settings);
+    
+    // Step 3: Update user credits if user information is provided
+    await this.updateUserCredits(userEmail);
 
     return logoVariations;
+  }
+
+  // Helper method to update user credits
+  private async updateUserCredits(userEmail: string): Promise<void> {
+    try {
+      // Get current user info
+      const userInfo = await this.userModel.findOne({ email: userEmail });
+      
+      if (userInfo) {
+        // Update the user's credits used count by 1
+        await this.userModel.updateOne({ email: userEmail }, { $inc: { creditsUsed: 1 } });
+      }
+    } catch (error) {
+      this.logger.error(`Error updating user credits:`, error);
+      // Continue with the response even if credits update fails
+    }
   }
 
   // Function for generating the prompt
@@ -225,7 +245,7 @@ export class AiService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.0-pro-exp-02-05:free',
+          model:"qwen/qwen2.5-vl-72b-instruct:free",
           messages: [
             {
               role: 'user',
@@ -260,6 +280,7 @@ export class AiService {
     ).then((res) => res.json());
 
     // Extract just the prompt text from the response
+    console.log('Result:', result);
     let promptText = result?.choices[0]?.message?.content || '';
 
     // Remove any potential markdown formatting or explanatory text

@@ -15,7 +15,7 @@ export class AiController {
     @Req() req,
     @Body() generateDto: GenerateDto
   ): Promise<any> {
-    return await this.aiService.generate(generateDto);
+    return await this.aiService.generate(generateDto, req.user.email);
     
   }
 }

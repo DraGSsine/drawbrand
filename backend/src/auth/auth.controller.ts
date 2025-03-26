@@ -18,7 +18,7 @@ import { MailService } from 'src/mail/mail.service';
 @Controller('auth')
 export class AuthController {
   private resHeaders: CookieOptions = {
-    domain: process.env.PROD === 'true' ? '.scrive.pro' : 'localhost',
+    domain: process.env.PROD === 'true' ? '.drawbrand.art' : 'localhost',
     sameSite: process.env.PROD === 'true' ? 'none' : 'lax',
     secure: process.env.PROD === 'true' ? true : false,
     httpOnly: true,

@@ -3,6 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 // Props interface for the main IconPicker component
 interface FullIconPickerProps {
@@ -24,7 +25,24 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
   const [selectedCategory, setSelectedCategory] = useState("solid");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); 
+  const [isMobile, setIsMobile] = useState(false);
   const loader = useRef<HTMLDivElement | null>(null);
+
+  // Check for mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add event listener for resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Debounce search input to avoid excessive API calls
   useEffect(() => {
@@ -93,13 +111,13 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
   };
 
   return (
-    <div className="w-[380px] top-[-5%] left-[120%] absolute bg-white z-10 rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
+    <div className={`${isMobile ? 'w-[90vw] max-w-[350px]' : 'w-[380px]'} top-[-5%] ${isMobile ? 'left-[5%]' : 'left-[120%]'} absolute bg-white z-10 rounded-xl shadow-dropdown p-3 sm:p-4 animate-scale-in border border-gray-100`}>
       {/* Search Box */}
-      <div className="relative mb-4">
+      <div className="relative mb-3 sm:mb-4">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg 
-            width="16" 
-            height="16" 
+            width="14" 
+            height="14"
             viewBox="0 0 24 24" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
@@ -117,22 +135,22 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
         <input
           type="text"
           placeholder="Search icons..."
-          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-icon-active/20 focus:border-icon-active transition-all text-sm"
+          className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-icon-active/20 focus:border-icon-active transition-all"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
-      {/* Category Pills - Wider layout to avoid horizontal scrolling */}
-      <div className="grid grid-cols-6 gap-2 mb-4">
+      {/* Category Pills - Adjust for mobile */}
+      <div className={`grid ${isMobile ? 'grid-cols-3' : 'grid-cols-6'} gap-1 sm:gap-2 mb-3 sm:mb-4`}>
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleCategoryChange(cat.id)}
             className={cn(
-              "px-2 py-1.5 text-xs font-medium rounded-full text-center transition-all",
+              "px-1 sm:px-2 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-full text-center transition-all",
               selectedCategory === cat.id
-                ? " bg-primary text-white shadow-sm"
+                ? " bg-blue-600 text-white shadow-sm"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             )}
           >
@@ -143,13 +161,13 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
 
       {/* Error State */}
       {error && (
-        <div className="p-4 rounded-lg bg-red-50 text-red-500 text-sm mb-2 animate-fade-in">
+        <div className="p-3 sm:p-4 rounded-lg bg-red-50 text-red-500 text-xs sm:text-sm mb-2 animate-fade-in">
           <p className="font-medium">Failed to load icons</p>
-          <p className="text-xs mt-1 mb-2 text-red-400">Please check your connection and try again</p>
+          <p className="text-[10px] sm:text-xs mt-1 mb-2 text-red-400">Please check your connection and try again</p>
           <Button 
             variant="outline" 
             size="sm" 
-            className="mt-1 bg-white border-red-200 hover:bg-red-50 text-red-500 text-xs"
+            className="mt-1 bg-white border-red-200 hover:bg-red-50 text-red-500 text-[10px] sm:text-xs"
             onClick={() => window.location.reload()}
           >
             Retry
@@ -158,11 +176,11 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
       )}
 
       {/* Icon Grid Container */}
-      <ScrollArea className="h-[300px] pr-2">
+      <ScrollArea className="h-[250px] sm:h-[300px] pr-2">
         {/* Loading State */}
         {isLoading && (
-          <div className="flex flex-col items-center justify-center h-48 animate-fade-in">
-            <div className="w-8 h-8 mb-3 relative">
+          <div className="flex flex-col items-center justify-center h-32 sm:h-48 animate-fade-in">
+            <div className="w-6 sm:w-8 h-6 sm:h-8 mb-2 sm:mb-3 relative">
               <svg 
                 className="animate-spinner text-icon-active w-full h-full"
                 viewBox="0 0 24 24"
@@ -184,21 +202,21 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
                 />
               </svg>
             </div>
-            <p className="text-sm text-gray-500 font-medium">Loading icons</p>
-            <p className="text-xs text-gray-400 mt-1">Please wait a moment</p>
+            <p className="text-xs sm:text-sm text-gray-500 font-medium">Loading icons</p>
+            <p className="text-[10px] sm:text-xs text-gray-400 mt-1">Please wait a moment</p>
           </div>
         )}
 
         {/* No Results */}
         {!isLoading && allIcons.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-48 text-gray-500 animate-fade-in">
+          <div className="flex flex-col items-center justify-center h-32 sm:h-48 text-gray-500 animate-fade-in">
             <svg 
-              width="40" 
-              height="40" 
+              width="30" 
+              height="30" 
               viewBox="0 0 24 24" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
-              className="text-gray-300 mb-3"
+              className="text-gray-300 mb-2 sm:mb-3"
             >
               <path 
                 d="M9.172 14.828C10.3291 16.2466 11.8358 17.3579 13.0984 17.3638C14.361 17.3697 16.3299 16.2735 17.4966 14.8493M12.01 15.5H12" 
@@ -214,26 +232,28 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
                 strokeLinejoin="round"
               />
             </svg>
-            <p className="text-sm font-medium">No icons found</p>
+            <p className="text-xs sm:text-sm font-medium">No icons found</p>
             {searchQuery && (
-              <p className="text-xs mt-1 text-gray-400">Try a different search term or category</p>
+              <p className="text-[10px] sm:text-xs mt-1 text-gray-400">Try a different search term or category</p>
             )}
           </div>
         )}
 
-        {/* Icon Grid - wider layout with 5 columns instead of 4 */}
-        <div className="grid grid-cols-5 gap-2">
+        {/* Icon Grid - Adjust column count based on screen size */}
+        <div className={`grid ${isMobile ? 'grid-cols-4' : 'grid-cols-5'} gap-1 sm:gap-2`}>
             {allIcons.map((src: string, index: number) => (
               <div 
                 key={index} 
-                className="aspect-square rounded-lg hover:bg-icon-hover border border-transparent hover:border-gray-200 transition-all cursor-pointer flex flex-col items-center justify-center p-2 group"
+                className="aspect-square rounded-lg hover:bg-icon-hover border border-transparent hover:border-gray-200 transition-all cursor-pointer flex flex-col items-center justify-center p-1 sm:p-2 group"
                 onClick={() => handleIconClick(src)}
               >
-                <div className="h-8 w-8 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <img 
-                    src={`http://localhost:5000${src}`} 
+                <div className="h-6 w-6 sm:h-8 sm:w-8 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Image 
+                    src={`http://localhost:5000${src}`}
+                    width={24}
+                    height={24}
                     alt={`Icon ${index}`} 
-                    className="w-6 h-6 object-contain" 
+                    className="w-4 h-4 sm:w-6 sm:h-6 object-contain" 
                   />
                 </div>
               </div>
@@ -242,9 +262,9 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
 
         {/* Loading More Indicator */}
         {isFetchingNextPage && (
-          <div className="flex justify-center py-4">
+          <div className="flex justify-center py-3 sm:py-4">
             <svg 
-              className="animate-spinner text-icon-active w-5 h-5"
+              className="animate-spinner text-icon-active w-4 h-4 sm:w-5 sm:h-5"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -272,7 +292,7 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
       
       {/* Footer with stats */}
       {!isLoading && allIcons.length > 0 && (
-        <div className="mt-3 pt-2 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+        <div className="mt-2 sm:mt-3 pt-2 border-t border-gray-100 flex justify-between items-center text-[10px] sm:text-xs text-gray-400">
           <span>{allIcons.length} icons</span>
           <span className="text-icon-active">{selectedCategory}</span>
         </div>

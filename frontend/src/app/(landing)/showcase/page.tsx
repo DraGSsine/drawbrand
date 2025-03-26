@@ -13,7 +13,7 @@ const showcaseItems = [
       { name: "Minimalist", color: "blue" as const },
       { name: "Clean", color: "green" as const }
     ],
-    gradient: "bg-gradient-to-br from-blue-50 to-indigo-100"
+    gradient: "bg-gradient-to-br from-blue-50 to-blue-100"
   },
   {
     id: 2,
@@ -85,7 +85,7 @@ const showcaseItems = [
       { name: "Professional", color: "blue" as const },
       { name: "Clean", color: "green" as const }
     ],
-    gradient: "bg-gradient-to-br from-blue-50 to-indigo-100"
+    gradient: "bg-gradient-to-br from-blue-50 to-blue-100"
   },
   {
     id: 8,
@@ -109,7 +109,7 @@ const showcaseItems = [
       { name: "Dynamic", color: "purple" as const },
       { name: "Detailed", color: "blue" as const }
     ],
-    gradient: "bg-gradient-to-br from-purple-50 to-indigo-100"
+    gradient: "bg-gradient-to-br from-purple-50 to-blue-100"
   },
   {
     id: 10,
@@ -169,7 +169,7 @@ const showcaseItems = [
       { name: "Clean", color: "blue" as const },
       { name: "Modern", color: "purple" as const }
     ],
-    gradient: "bg-gradient-to-br from-blue-50 to-indigo-100"
+    gradient: "bg-gradient-to-br from-blue-50 to-blue-100"
   },
   {
     id: 15,
@@ -205,7 +205,7 @@ const showcaseItems = [
       { name: "Playful", color: "blue" as const },
       { name: "Modern", color: "purple" as const }
     ],
-    gradient: "bg-gradient-to-br from-blue-50 to-indigo-100"
+    gradient: "bg-gradient-to-br from-blue-50 to-blue-100"
   },
   {
     id: 18,
@@ -241,7 +241,7 @@ const showcaseItems = [
       { name: "Dynamic", color: "blue" as const },
       { name: "Modern", color: "purple" as const }
     ],
-    gradient: "bg-gradient-to-br from-blue-50 to-indigo-100"
+    gradient: "bg-gradient-to-br from-blue-50 to-blue-100"
   },
   {
     id: 21,
@@ -277,7 +277,7 @@ const showcaseItems = [
       { name: "Scientific", color: "purple" as const },
       { name: "Modern", color: "blue" as const }
     ],
-    gradient: "bg-gradient-to-br from-purple-50 to-indigo-100"
+    gradient: "bg-gradient-to-br from-purple-50 to-blue-100"
   },
   {
     id: 24,
@@ -325,7 +325,7 @@ const showcaseItems = [
       { name: "Bold", color: "purple" as const },
       { name: "Modern", color: "blue" as const }
     ],
-    gradient: "bg-gradient-to-br from-purple-50 to-indigo-100"
+    gradient: "bg-gradient-to-br from-purple-50 to-rose-100"
   }
 ];
 

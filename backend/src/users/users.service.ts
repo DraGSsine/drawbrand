@@ -66,4 +66,17 @@ export class UsersService {
       creditsUsed: userExist.creditsUsed,
     };
   }
+  
+  async updateUserCredits(userId: string, creditsUsed: number): Promise<boolean> {
+    try {
+      const result = await this.userModel.updateOne(
+        { _id: userId },
+        { $set: { creditsUsed } }
+      );
+      return result.modifiedCount > 0;
+    } catch (error) {
+      console.error('Error updating user credits:', error);
+      return false;
+    }
+  }
 }

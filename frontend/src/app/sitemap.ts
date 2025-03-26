@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE_URL = 'https://scrive.pro'
+const BASE_URL = 'https://drawbrand.art'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

@@ -14,7 +14,7 @@ pnpm dev
 bun dev
 ```
 
-Open [https://scrive.pro](https://scrive.pro) with your browser to see the result.
+Open [https://drawbrand.art](https://drawbrand.art) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

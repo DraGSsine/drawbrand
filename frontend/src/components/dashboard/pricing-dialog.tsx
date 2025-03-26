@@ -1,271 +1,253 @@
-"use client";
-import React, { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useUserInfo } from "@/lib/queries";
-import { api } from "@/lib/axios";
-import { toast } from "@/hooks/use-toast";
+"use client"
+import React, { useState, useEffect } from 'react';
+import { Check, Bolt, Gem, Fire, Diamond } from '../../../public/icons/SvgIcons';
+import { api } from '@/lib/axios';
+import { useUserInfo } from '@/lib/queries';
 
 interface PricingCardProps {
-  price: string;
-  planName: string;
-  description: string;
-  features: string[];
-  isPopular?: boolean;
-  icon: React.ReactNode;
-  onSelect: () => void;
-  isLoading?: boolean;
-  selectedPlan?: string;
+  plan: {
+    name: string;
+    price: string;
+    period: string;
+    description: string;
+    features: string[];
+    buttonText: string;
+    buttonVariant: string;
+    popular?: boolean;
+    delay: string;
+  };
+  onSelect: (plan: string) => void;
+  isLoading: boolean;
+  selectedPlan: string;
+  subscriptionType: "monthly" | "yearly";
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
-  price,
-  planName,
-  description,
-  features,
-  isPopular = false,
-  icon,
+  plan,
   onSelect,
   isLoading,
   selectedPlan,
+  subscriptionType,
 }) => {
-  const isSelected = selectedPlan === planName;
+  const isSelected = selectedPlan === plan.name;
 
   return (
-    <div
-      className={`relative rounded-xl transition-all duration-500 hover:scale-105 ${
-        isPopular
-          ? "bg-violet-600 text-white ring-2 ring-violet-500"
-          : "bg-white border border-zinc-100 hover:border-violet-200 hover:"
-      }`}
+    <div 
+      className="opacity-0 animate-fade-in flex h-full"
+      style={{ animationDelay: plan.delay, animationFillMode: "forwards" }}
     >
-      {isPopular && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="px-3 py-1 rounded-full bg-zinc-800 text-white text-xs font-medium ">
-            Most Popular
-          </span>
-        </div>
-      )}
-
-      <div className="p-6">
-        <div className="mb-6">
-          <div
-            className={`w-12 h-12 rounded-lg mb-4 flex items-center justify-center transform transition-transform duration-500 hover:rotate-12 ${
-              isPopular
-                ? "bg-violet-500 text-white"
-                : "bg-violet-50 text-violet-500"
-            }`}
-          >
-            {icon}
+      <div className={`glass-card relative flex flex-col w-full rounded-2xl transition-all duration-500 hover:scale-[1.02] ${
+        plan.popular ? 'bg-gradient-to-br from-blue-600 to-blue-600 text-white shadow-xl shadow-blue-200' : 'bg-white border border-blue-100 shadow-lg shadow-blue-50'
+      }`}>
+        {plan.popular && (
+          <div className="absolute border bg-white text-blue-600 border-zinc-300 py-1 text-xs px-2 font-bold rounded-full left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              Most Popular
           </div>
+        )}
+        
+        <div className="p-6 md:p-8 flex flex-col h-full">
+          <div>
+            <div className={`w-12 h-12 rounded-xl mb-4 flex items-center justify-center transform transition-transform duration-500 hover:rotate-12 ${
+              plan.popular ? "bg-blue-600/30 text-white" : "bg-blue-50 text-blue-600"
+            }`}>
+              {plan.name === "Starter" ? <Fire className="w-6 h-6" /> :
+               plan.name === "Growth" ? <Bolt className="w-6 h-6" iconSecondary='#fff' iconPrimary='#fff' /> :
+               <Gem className="w-6 h-6" />}
+            </div>
 
-          <h3
-            className={`text-lg font-bold ${
-              isPopular ? "text-white" : "text-zinc-800"
-            }`}
-          >
-            {planName}
-          </h3>
-          <p
-            className={`mt-2 text-sm ${
-              isPopular ? "text-zinc-100" : "text-zinc-500"
-            }`}
-          >
-            {description}
-          </p>
-
-          <div className="mt-5 flex items-baseline">
-            <span
-              className={`text-4xl font-bold ${
-                isPopular ? "text-white" : "text-zinc-800"
-              }`}
-            >
-              ${price}
-            </span>
-            <span
-              className={`ml-2 text-sm ${
-                isPopular ? "text-zinc-100" : "text-zinc-500"
-              }`}
-            >
-              /month
-            </span>
-          </div>
-        </div>
-
-        <ul className="space-y-3 mb-6">
-          {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-3">
-              <div
-                className={`mt-1 rounded-full p-1 ${
-                  isPopular ? "bg-violet-500" : "bg-violet-50"
-                }`}
-              >
-                <img
-                  src="/icons/duotone/check.svg"
-                  alt="Check"
-                  className={`w-3 h-3 ${
-                    isPopular ? "text-white" : "text-violet-600"
-                  }`}
-                />
-              </div>
-              <span
-                className={`text-sm leading-relaxed ${
-                  isPopular ? "text-zinc-100" : "text-zinc-600"
-                }`}
-              >
-                {feature}
+            <h3 className={`text-xl font-bold mb-2 ${
+              plan.popular ? "text-white" : "text-blue-900"
+            }`}>
+              {plan.name}
+            </h3>
+            
+            <div className="mt-2 flex items-baseline">
+              <span className={`text-3xl md:text-4xl font-bold ${
+                plan.popular ? "text-white" : "text-blue-600"
+              }`}>
+                {plan.price}
               </span>
-            </li>
-          ))}
-        </ul>
+              <span className={`ml-1 text-sm ${
+                plan.popular ? "text-blue-50" : "text-blue-600"
+              }`}>
+                {plan.period}
+              </span>
+            </div>
 
-        <button
-          onClick={onSelect}
-          disabled={isLoading}
-          className={`w-full py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center ${
-            isPopular
-              ? "bg-white text-violet-600 hover:bg-zinc-50"
-              : "bg-violet-600 text-white hover:bg-violet-700"
-          } ${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
-        >
-          {isLoading && isSelected ? (
-            <img
-              src="/icons/duotone/spinner.svg"
-              alt="Loading"
-              className="w-5 h-5 animate-spin mr-2"
-            />
-          ) : null}
-          {isLoading && isSelected ? "Processing..." : "Get Started"}
-        </button>
+            <p className={`mt-2 text-sm ${
+              plan.popular ? "text-blue-50" : "text-blue-600"
+            }`}>
+              {plan.description}
+            </p>
+          </div>
+
+          <div className="flex-grow mt-8">
+            <ul className="space-y-3">
+              {plan.features.map((feature, featureIndex) => (
+                <li key={featureIndex} className="flex items-start gap-3">
+                  <div className={`mt-1 ${
+                    plan.popular ? "text-white" : "text-blue-600"
+                  }`}>
+                    <Check className="h-5 w-5" iconPrimary={plan.popular ? "#fff" : "#2563eb"} />
+                  </div>
+                  <span className={`text-sm leading-relaxed ${
+                    plan.popular ? "text-blue-50" : "text-blue-700"
+                  }`}>
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-8">
+            <button
+              onClick={() => onSelect(plan.name)}
+              disabled={isLoading}
+              className={`w-full py-3 rounded-xl text-base font-medium transition-all duration-300 ${
+                plan.buttonVariant === 'primary'
+                  ? "bg-white text-blue-600 hover:bg-blue-50"
+                  : "bg-blue-600 text-white hover:bg-blue-600"
+              } ${isLoading ? "opacity-75 cursor-not-allowed" : ""} flex items-center justify-center`}
+            >
+              {isLoading && isSelected ? (
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              ) : null}
+              {isLoading && isSelected ? "Processing..." : plan.buttonText}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
 const SubscriptionDialog = () => {
-  const [planName, setPlanName] = useState<string>("Starter");
-  const { data } = useUserInfo();
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (plan: string) => {
+  const [selectedPlan, setSelectedPlan] = useState<string>("Growth");
+  const [isPending, setIsPending] = useState(false);
+  const {data , isLoading} = useUserInfo()
+  const [subscriptionType, setSubscriptionType] = useState<"monthly" | "yearly">("monthly");
+  if (data?.subscription?.status !== "none" || isLoading)
+    return null;
+
+  const handlePlanSelection = async (plan: string) => {
+    setSelectedPlan(plan);
+    setIsPending(true);
+    
+    try {
       const response = await api.post("/payments/create-checkout-session", {
         plan,
+        subscriptionType,
       });
-      return response.data;
-    },
-    onSuccess: (data: {url:string}) => {
-      window.location.href = data.url;
-    },
-    onError: (error) => {
+      window.location.href = response.data.url;
+    } catch (error) {
       console.error(error);
-      toast({
-        variant: "destructive",
-        description:
-          "An error occurred while processing your request. Please try again later.",
-      });
-    },
-  });
-  if (data?.plan !== "none") return null;
-
-  const handlePlanSelection = (selectedPlan: string) => {
-    setPlanName(selectedPlan);
-    mutate(selectedPlan);
+      // Add your toast notification here
+      setIsPending(false);
+    }
   };
 
+  const plans = [
+    {
+      name: "Starter",
+      price: "$9.99",
+      period: "/month",
+      description: "Perfect for getting started",
+      features: [
+        "100 logo generations per month",
+        "12,000+ icons library",
+        "24/7 support",
+        "High resolution downloads",
+        "PNG downloads"
+      ],
+      buttonText: "Get Started",
+      buttonVariant: "outline", 
+      delay: "0.2s",
+      subscriptionType: "monthly"
+    },
+    {
+      name: "Growth",
+      price: "$14.99",
+      period: "/month",
+      description: "Ideal for growing businesses",
+      features: [
+        "unlimited logo generations",
+        "12,000+ icons library",
+        "24/7 support", 
+        "High resolution downloads",
+        "PNG downloads",
+        
+      ],
+      buttonText: "Get Started",
+      buttonVariant: "primary",
+      popular: true,
+      delay: "0.4s",
+      subscriptionType: "monthly"
+    },
+    {
+      name: "Pro",
+      price: "$149",
+      period: "/year",
+      description: "Best value for professionals",
+      features: [
+        "Unlimited logo generations",
+        "2 months free",
+        "12,000+ icons library",
+        "24/7 support",
+        "High resolution downloads", 
+        "PNG downloads"
+      ],
+      buttonText: "Get Annual Plan",
+      buttonVariant: "outline",
+      delay: "0.6s",
+      subscriptionType: "yearly"
+    }
+  ];
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-6 md:p-8 max-w-6xl w-full mx-auto max-h-[90vh] overflow-y-auto">
         <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-bold text-zinc-800">
+          <h2 className="text-3xl font-bold text-slate-800">
             Your subscription has expired
           </h2>
-          <p className="text-zinc-600">
+          <p className="text-base text-slate-600 max-w-2xl mx-auto">
             Select a plan to continue using all features
           </p>
         </div>
 
-        <PricingSection
-          onPlanSelect={handlePlanSelection}
-          isLoading={isPending}
-          selectedPlan={planName}
-          showTitle={false}
-        />
-      </div>
-    </div>
-  );
-};
-
-interface PricingSectionProps {
-  onPlanSelect?: (plan: string) => void;
-  isLoading?: boolean;
-  selectedPlan?: string;
-  showTitle?: boolean;
-}
-
-const PricingSection: React.FC<PricingSectionProps> = ({
-  onPlanSelect,
-  isLoading,
-  selectedPlan,
-}) => {
-  const pricingData = [
-    {
-      price: "3.99",
-      planName: "Starter",
-      description:
-        "Get started for just $3.99! Perfect for occasional LinkedIn users needing message help. Up to 200 messages.",
-      icon: <img src="/icons/duotone/fire.svg" alt="Starter" className="w-7 h-7" />,
-      features: [
-        "200 messages per month",
-        "Generate new responses",
-        "Refine draft messages",
-        "24/7 customer support",
-      ],
-      isPopular: false,
-    },
-    {
-      price: "7.99",
-      planName: "Growth",
-      description:
-        "Our most popular plan offering great value! Ideal for daily LinkedIn engagement. Up to 750 messages.",
-      icon: <img src="/icons/duotone/bolt.svg" alt="Growth" className="w-7 h-7" />,
-      features: [
-        "750 messages per month",
-        "Generate new responses",
-        "Refine draft messages",
-        "24/7 customer support",
-      ],
-      isPopular: true,
-    },
-    {
-      price: "12.99",
-      planName: "Pro",
-      description:
-        "Unlock unlimited potential! For serious LinkedIn networkers who demand the best. Truly unlimited messages.",
-      icon: <img src="/icons/duotone/diamond.svg" alt="Pro" className="w-7 h-7" />,
-      features: [
-        "Unlimited messages per month",
-        "Generate new responses",
-        "Refine draft messages",
-        "24/7 customer support",
-      ],
-      isPopular: false,
-    },
-  ];
-
-  return (
-    <section className="py-8 px-4 bg-white" id="pricing">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {pricingData.map((plan, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {plans.map((plan, index) => (
             <PricingCard
               key={index}
-              {...plan}
-              onSelect={() => onPlanSelect?.(plan.planName)}
-              isLoading={isLoading}
+              plan={plan}
+              onSelect={handlePlanSelection}
+              isLoading={isPending}
               selectedPlan={selectedPlan}
+              subscriptionType={subscriptionType}
             />
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

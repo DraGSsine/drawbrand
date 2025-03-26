@@ -1,4 +1,4 @@
 User-Agent: *
 Allow: /
 
-Sitemap: https://scrive.pro/sitemap.xml
+Sitemap: https://drawbrand.art/sitemap.xml

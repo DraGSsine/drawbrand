@@ -11,26 +11,26 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Scrive | LinkedIn Message Assistant - Craft Messages That Get Responses",
-    template: "%s | Scrive - LinkedIn Messaging Tool",
+    default: "DrawBrand | Sketch to Logo Converter",
+    template: "%s | DrawBrand - Sketch to Logo AI Tool",
   },
   description:
-    "Scrive helps you craft compelling LinkedIn messages that drive 3X higher response rates. Our Chrome extension uses AI to optimize your outreach, personalize templates, and improve networking results.",
+    "DrawBrand transforms your sketches and images into professional logos using AI. Convert your design ideas into stunning, ready-to-use logos with our powerful conversion tool.",
   keywords: [
-    "LinkedIn message assistant",
-    "LinkedIn outreach tool",
-    "LinkedIn message templates",
-    "Chrome extension for LinkedIn",
-    "LinkedIn response rates",
-    "AI LinkedIn messages",
-    "professional networking tool",
-    "LinkedIn cold outreach",
-    "message optimization",
-    "LinkedIn messaging extension",
+    "sketch to logo",
+    "AI logo generator",
+    "image to logo converter",
+    "logo design tool",
+    "AI design converter",
+    "professional logo maker",
+    "drawing to logo",
+    "logo transformation",
+    "brand design tool",
+    "AI branding assistant",
   ],
-  authors: [{ name: "Scrive" }],
-  creator: "Scrive",
-  publisher: "Scrive",
+  authors: [{ name: "DrawBrand" }],
+  creator: "DrawBrand",
+  publisher: "DrawBrand",
   formatDetection: {
     email: false,
     address: false,
@@ -50,27 +50,27 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://scrive.pro",
-    siteName: "Scrive - LinkedIn Message Assistant",
-    title: "Scrive | Craft Better LinkedIn Messages & Boost Response Rates",
+    url: "https://drawbrand.art",
+    siteName: "DrawBrand - Sketch to Logo Converter",
+    title: "DrawBrand | Transform Sketches into Professional Logos",
     description:
-      "Transform your LinkedIn outreach with Scrive. Our Chrome extension helps you write personalized messages that get results, with AI-powered templates and message optimization.",
+      "Turn your sketches and images into professional logos with DrawBrand. Our AI-powered tool helps you create stunning logos from your design ideas quickly and efficiently.",
     images: [
       {
-        url: "https://scrive.pro/og-image.png",
+        url: "https://drawbrand.art/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Scrive LinkedIn Message Assistant Preview",
+        alt: "DrawBrand Sketch to Logo Converter Preview",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Scrive | LinkedIn Message Assistant - Get More Responses",
+    title: "DrawBrand | AI-Powered Sketch to Logo Converter",
     description:
-      "Write better LinkedIn messages and boost your response rates with Scrive. Our Chrome extension makes networking and outreach more effective with AI-powered assistance.",
+      "Transform your sketches and images into professional logos with DrawBrand. Create stunning brand identities with our AI-powered conversion tool.",
     creator: "@yassin_ouchen",
-    images: ["https://scrive.pro/twitter-image.png"],
+    images: ["https://drawbrand.art/twitter-image.png"],
   },
   viewport: {
     width: "device-width",
@@ -78,9 +78,9 @@ export const metadata: Metadata = {
     maximumScale: 1,
   },
   alternates: {
-    canonical: "https://scrive.pro",
+    canonical: "https://drawbrand.art",
     languages: {
-      "en-US": "https://scrive.pro",
+      "en-US": "https://drawbrand.art",
     },
   },
   category: "productivity",

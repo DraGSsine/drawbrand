@@ -467,7 +467,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
             <button
               className={`${
                 fillMode === 'regular'
-                  ? 'text-xs px-2 py-1 rounded bg-blue-500 text-white shadow-sm'
+                  ? 'text-xs px-2 py-1 rounded bg-blue-600 text-white shadow-sm'
                   : 'text-xs px-2 py-1 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
               onClick={() => onChangeFillMode('regular')}
@@ -477,7 +477,7 @@ const ShapeSelector: React.FC<ShapeSelectorProps> = ({
             <button
               className={`${
                 fillMode === 'solid'
-                  ? 'text-xs px-2 py-1 rounded bg-blue-500 text-white shadow-sm'
+                  ? 'text-xs px-2 py-1 rounded bg-blue-600 text-white shadow-sm'
                   : 'text-xs px-2 py-1 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
               onClick={() => onChangeFillMode('solid')}

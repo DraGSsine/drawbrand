@@ -25,6 +25,8 @@ const Sketch: React.FC = () => {
   const [history, setHistory] = useState<fabric.Object[]>([]);
   const [undoHistory, setUndoHistory] = useState<string[]>([]);
   const [canvasSize, setCanvasSize] = useState({ width: 600, height: 600 });
+  const [isMobile, setIsMobile] = useState(false);
+  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Selected shape and icon state
   const [selectedShape, setSelectedShape] = useState<ShapeType>(ShapeType.RECTANGLE);
@@ -36,6 +38,22 @@ const Sketch: React.FC = () => {
   // Add constants for both storage keys
   const DRAWING_STORAGE_KEY = 'logo-generator-canvas';
   const DRAWING_JSON_STORAGE_KEY = 'logo-generator-canvas-json';
+
+  // Check for mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add event listener for resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Resize canvas to fit container
   const resizeCanvas = () => {
@@ -54,9 +72,12 @@ const Sketch: React.FC = () => {
     const availableWidth = rect.width - paddingX;
     const availableHeight = rect.height - paddingY;
     
+    // For mobile, ensure we don't create a canvas that's too tall
+    const maxHeight = isMobile ? Math.min(availableHeight, window.innerHeight * 0.6) : availableHeight;
+    
     const newSize = {
       width: availableWidth,
-      height: availableHeight
+      height: maxHeight
     };
     
     // Update state
@@ -68,7 +89,26 @@ const Sketch: React.FC = () => {
     
     // Fix: Need to refresh zoom/pan
     canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+    
+    // Adjust rendering quality on mobile for better performance
+    if (isMobile) {
+      canvas.enableRetinaScaling = false;
+    } else {
+      canvas.enableRetinaScaling = true;
+    }
+    
     canvas.requestRenderAll();
+  };
+
+  // Add a debounced resize handler for smoother resizing
+  const debouncedResize = () => {
+    if (resizeTimeoutRef.current) {
+      clearTimeout(resizeTimeoutRef.current);
+    }
+    
+    resizeTimeoutRef.current = setTimeout(() => {
+      resizeCanvas();
+    }, 100); // 100ms debounce time
   };
 
   // Replace the warm-up function with a more effective version
@@ -84,7 +124,7 @@ const Sketch: React.FC = () => {
     const pencilBrush = new fabric.PencilBrush(canvas);
     pencilBrush.width = strokeWidth;
     pencilBrush.color = "#000000";
-    pencilBrush.decimate = 1; // Minimum value for maximum responsiveness
+    pencilBrush.decimate = isMobile ? 2 : 1; // Higher value for mobile for better performance
     canvas.freeDrawingBrush = pencilBrush;
     
     // Pre-initialize the brush by drawing short paths
@@ -138,7 +178,7 @@ const Sketch: React.FC = () => {
         backgroundColor: "#ffffff",
         isDrawingMode: true,
         selection: false,
-        enableRetinaScaling: true,
+        enableRetinaScaling: !isMobile, // Disable on mobile for better performance
         renderOnAddRemove: true,
         stateful: true,  // Changed to true for better state persistence
       });
@@ -150,7 +190,7 @@ const Sketch: React.FC = () => {
       const pencilBrush = new fabric.PencilBrush(canvas);
       pencilBrush.width = strokeWidth;
       pencilBrush.color = "#000000";
-      pencilBrush.decimate = 1; // Minimum value for maximum responsiveness
+      pencilBrush.decimate = isMobile ? 2 : 1; // Higher value for mobile for better performance
       canvas.freeDrawingBrush = pencilBrush;
       
       // Pre-render the canvas for drawing
@@ -197,6 +237,14 @@ const Sketch: React.FC = () => {
         saveCanvasState();
       });
 
+      // Setup touch events for mobile
+      canvas.on('touch:gesture', function(opt) {
+        if (opt.e.touches && opt.e.touches.length > 1) {
+          // Prevent default to avoid page scaling during touch drawing
+          opt.e.preventDefault();
+        }
+      });
+
       // Setup complete - now check for saved canvas data
       console.log('Canvas initialized successfully, loading saved data...');
       
@@ -232,7 +280,7 @@ const Sketch: React.FC = () => {
     initializeCanvas();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Delete" || e.key === "Backspace") {
+      if (e.key === "Delete") {
         const canvas = fabricRef.current;
         if (canvas) {
           const activeObject = canvas.getActiveObject();
@@ -286,6 +334,17 @@ const Sketch: React.FC = () => {
         
         fabricRef.current.dispose();
         fabricRef.current = null;
+      }
+    };
+  }, []);
+
+  // Modify the window resize event listener to use debounced resize
+  useEffect(() => {
+    window.addEventListener('resize', debouncedResize);
+    return () => {
+      window.removeEventListener('resize', debouncedResize);
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
       }
     };
   }, []);

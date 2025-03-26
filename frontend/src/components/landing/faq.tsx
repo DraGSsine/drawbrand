@@ -4,8 +4,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const FAQ = () => {
   const faqs = [
     {
-      question: "Is logoMagic AI free to use?",
-      answer: "LogoMagic offers a free tier with limited features to help you get started. For more advanced capabilities and commercial use, we offer affordable paid plans."
+      question: "Is DrawBrand AI free to use?",
+      answer: "DrawBrand offers a free tier with limited features to help you get started. For more advanced capabilities and commercial use, we offer affordable paid plans."
     },
     {
       question: "What types of images can I upload?",
@@ -38,13 +38,13 @@ const FAQ = () => {
   ];
 
   return (
-    <section className="section-padding bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/20 dark:to-violet-950/20">
+    <section className="py-16 md:py-20 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16 opacity-0 animate-fade-in" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
-          <h2 className="text-4xl font-extrabold mb-6">
-            Frequently Asked <span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">Questions</span>
+        <div className="text-center mb-12 opacity-0 animate-fade-in" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-5">
+            Frequently Asked <span className="text-blue-600">Questions</span>
           </h2>
-          <p className="text-lg max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
+          <p className="text-base md:text-lg max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
             Find answers to common questions about our AI logo generator.
           </p>
         </div>
@@ -53,10 +53,10 @@ const FAQ = () => {
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-300 dark:border-gray-700 last:border-0">
-                <AccordionTrigger className="text-left text-lg font-medium py-4 text-gray-800 dark:text-gray-200">
+                <AccordionTrigger className="text-left text-base md:text-lg font-medium py-4 text-gray-800 dark:text-gray-200">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-gray-600 dark:text-gray-400 pb-4">
+                <AccordionContent className="text-sm md:text-base text-gray-600 dark:text-gray-400 pb-4">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

@@ -41,14 +41,11 @@ const ShowcaseCard: React.FC<ShowcaseCardProps> = ({ item }) => {
                 className="object-contain p-4 transition-transform duration-500 hover:scale-110"
               />
             </div>
-            <div className="absolute top-2 left-2 px-2 py-1 bg-gray-900/80 text-white text-xs font-medium rounded-md backdrop-blur-sm">
-              Before
-            </div>
           </div>
 
           {/* Arrow */}
           <div className="flex items-center justify-center">
-            <CurvedArrowRight className="w-14 h-14 text-blue-500/70" />
+            <CurvedArrowRight className="w-14 h-14 text-blue-600/70" />
           </div>
 
           {/* After Image */}
@@ -60,9 +57,6 @@ const ShowcaseCard: React.FC<ShowcaseCardProps> = ({ item }) => {
                 alt={`Generated logo for ${item.title}`}
                 className="object-contain rounded-2xl transition-transform duration-500 hover:scale-110"
               />
-            </div>
-            <div className="absolute top-2 left-2 px-2 py-1 bg-blue-600/80 text-white text-xs font-medium rounded-md backdrop-blur-sm">
-              After
             </div>
           </div>
         </div>

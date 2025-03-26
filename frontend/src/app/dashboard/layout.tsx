@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import PricingDialog from "@/components/dashboard/pricing-dialog";
 import NavBar from "@/components/dashboard/NavBar";
-import RigthSideBar from "@/components/dashboard/RigthSideBar";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (

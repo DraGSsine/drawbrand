@@ -1,36 +1,40 @@
+"use client";
+
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import { Paintbrush } from "../../../public/icons/SvgIcons";
 import Link from "next/link";
-import React from "react";
+import Image from "next/image";
+
+interface LogoProps {
+  textClass?: string;
+  size?: number;
+  variant?: "default" | "minimal";
+}
 
 const Logo = ({
   textClass,
-  mode,
-  size = 40,
-}: {
-  textClass?: string;
-  mode: string;
-  size: number;
-}) => {
+  size = 32,
+  variant = "default"
+}: LogoProps) => {
   return (
-    <Link href="/" className="flex items-center space-x-3">
-      {/* Logo Icon */}
+    <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
       <Image
-        src={mode === "dark" ? "/logo.svg" : "/logo-white.svg"}
-        alt="DrawBrand Logo"
-        width={size}
-        height={size}
-        className="object-contain rounded-[5px] overflow-hidden"
+        width={40}
+        height={40}
+      src="/logo.png"
+      alt="Website logo"
       />
-      {/* Logo Title */}
-      <span
-        className={cn(
-          "text-2xl font-bold bg-gradient-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent",
-          textClass
-        )}
-      >
-        DrawBrand
-      </span>
+      
+      {variant === "default" && (
+        <div
+          className={cn(
+            "text-xl font-extrabold",
+            textClass
+          )}
+        >
+          Draw<span className="text-[#2563eb]">Brand</span>
+        </div>
+      )}
     </Link>
   );
 };

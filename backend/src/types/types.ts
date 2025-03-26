@@ -1,2 +1,2 @@
-export type planType = 'free' | 'Starter' | 'Growth';
+export type planType = 'free' | 'Starter'| 'Pro' | 'Growth';
 

@@ -48,7 +48,7 @@ const LogoFeatures = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 opacity-0 animate-fade-in" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
           <h2 className="heading-lg mb-4">
-            Why Choose <span className="bg-blue-purple-gradient bg-clip-text text-transparent">LogoMagic AI</span>
+            Why Choose <span className="bg-blue-purple-gradient bg-clip-text text-transparent">DrawBrand AI</span>
           </h2>
           <p className="paragraph max-w-2xl mx-auto">
             Our AI logo generator combines advanced technology with design expertise to deliver outstanding results.
@@ -62,7 +62,7 @@ const LogoFeatures = () => {
               className="glass-card p-6 opacity-0 animate-fade-in"
               style={{ animationDelay: feature.delay, animationFillMode: "forwards" }}
             >
-              <div className="bg-primary/10 rounded-xl w-16 h-16 flex items-center justify-center mb-4">
+              <div className="bg-blue-600/10 rounded-xl w-16 h-16 flex items-center justify-center mb-4">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-bold mb-2">{feature.title}</h3>

@@ -15,7 +15,7 @@ export class MailService {
 
   async sendOtp(email: string, otp: string) {
     const { data, error } = await this.resend.emails.send({
-      from: 'youchen@scrive.pro',
+      from: 'youchen@drawbrand.art',
       to: [email],
       subject: 'Your Verification Code',
       html: `
@@ -42,13 +42,13 @@ export class MailService {
                 font-weight: 600;
                 margin-bottom: 24px;
                 color: #1a1a1a;
-              ">Scrive</h1>
+              ">DrawBrand</h1>
               
               <p style="
                 font-size: 16px;
                 color: #4a4a4a;
                 margin-bottom: 32px;
-              ">Here's your verification code:</p>
+              ">Welcome to DrawBrand! Here's your verification code to get started with transforming your sketches and images into stunning logos:</p>
               
               <div style="
                 font-size: 32px;
@@ -73,7 +73,7 @@ export class MailService {
                 font-size: 12px;
                 color: #9ca3af;
               ">
-                © 2025 Scrive. All rights reserved.
+                © ${new Date().getFullYear()} DrawBrand. All rights reserved.
               </p>
             </div>
           </body>

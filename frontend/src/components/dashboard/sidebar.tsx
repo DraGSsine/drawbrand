@@ -374,7 +374,7 @@ const LogoSidebar = () => {
 
   return (
     <div className="w-full h-full overflow-auto bg-white border border-blue-100 rounded-2xl">
-      <div className="p-6 space-y-6">
+      <div className="p-6 pb-20 space-y-14">
         {/* Styles Section */}
         <div className="space-y-4">
           <div className="mb-4 flex items-center justify-between">
@@ -507,7 +507,7 @@ const LogoSidebar = () => {
               <Switch
                 checked={enabledSections.colors}
                 onCheckedChange={() => toggleSection('colors')}
-                className="data-[state=checked]:bg-indigo-600"
+                className="data-[state=checked]:bg-blue-600"
               />
             </div>
           </div>
@@ -530,7 +530,7 @@ const LogoSidebar = () => {
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
                   settings.colors.type === "solid" && enabledSections.colors 
-                    ? "!bg-indigo-600 !text-white shadow-md" 
+                    ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
               >
@@ -541,7 +541,7 @@ const LogoSidebar = () => {
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
                   settings.colors.type === "palette" && enabledSections.colors 
-                    ? "!bg-indigo-600 !text-white shadow-md" 
+                    ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
               >
@@ -565,8 +565,8 @@ const LogoSidebar = () => {
                         (settings.colors.type === "solid" && settings.colors.color === preset.value) ||
                         (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
                          previousValues.colors?.color === preset.value)
-                          ? "ring-2 ring-offset-2 ring-indigo-500 scale-105 shadow-md z-10"
-                          : "ring-1 ring-slate-200 hover:ring-indigo-300 hover:scale-105 hover:shadow-sm"
+                          ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
+                          : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
                       )}
                       style={{ backgroundColor: preset.value }}
                       onClick={() => enabledSections.colors && handleSolidColorChange(preset.value)}
@@ -586,8 +586,8 @@ const LogoSidebar = () => {
                           (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
                             typeof previousValues.colors?.color === 'string' && 
                             !colorOptions.some(o => o.value === previousValues.colors?.color))
-                            ? "ring-2 ring-offset-2 ring-indigo-500 scale-105 shadow-md z-10"
-                            : "ring-1 ring-slate-200 hover:ring-indigo-300 hover:scale-105 hover:shadow-sm"
+                            ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
+                            : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
                         )}
                         style={{ 
                           backgroundColor: 
@@ -609,7 +609,7 @@ const LogoSidebar = () => {
                             (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
                               typeof previousValues.colors?.color === 'string' && 
                               colorOptions.some(o => o.value === previousValues.colors?.color)) 
-                              ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500" : ""
+                              ? "bg-gradient-to-br from-blue-600 via-purple-500 to-pink-500" : ""
                           )}
                         >
                           {((settings.colors.type === "solid" && !isCustomColorSelected) ||
@@ -617,7 +617,7 @@ const LogoSidebar = () => {
                               typeof previousValues.colors?.color === 'string' && 
                               colorOptions.some(o => o.value === previousValues.colors?.color))) && (
                             <div className="bg-white/70 backdrop-blur-[3px] rounded-full p-2.5 shadow-sm z-10">
-                              <Palette className="w-5 h-5 text-indigo-700 drop-shadow-sm" />
+                              <Palette className="w-5 h-5 text-blue-700 drop-shadow-sm" />
                             </div>
                           )}
                         </div>
@@ -671,8 +671,8 @@ const LogoSidebar = () => {
                         (settings.colors.type === 'anything' && previousValues.colors?.type === 'palette' && 
                          Array.isArray(previousValues.colors?.color) && 
                          JSON.stringify(previousValues.colors?.color) === JSON.stringify(palette.colors))
-                          ? "ring-2 ring-offset-2 ring-indigo-500 scale-105 shadow-md z-10"
-                          : "ring-1 ring-slate-200 hover:ring-indigo-300 hover:scale-105 hover:shadow-sm"
+                          ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
+                          : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
                       )}
                       onClick={() => enabledSections.colors && handlePaletteChange(id)}
                       disabled={!enabledSections.colors}
@@ -706,8 +706,8 @@ const LogoSidebar = () => {
                            Array.isArray(previousValues.colors?.color) && 
                            !Object.entries(colorPalettes).some(([, p]) => 
                             JSON.stringify(p.colors) === JSON.stringify(previousValues.colors?.color)))
-                            ? "ring-2 ring-offset-2 ring-indigo-500 scale-105 shadow-md z-10"
-                            : "ring-1 ring-slate-200 hover:ring-indigo-300 hover:scale-105 hover:shadow-sm"
+                            ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
+                            : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
                         )}
                         disabled={!enabledSections.colors}
                       >
@@ -729,7 +729,7 @@ const LogoSidebar = () => {
                                 style={{ backgroundColor: color }}
                               />
                             )) :
-                            <div className="h-full w-full bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500" />
+                            <div className="h-full w-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500" />
                           }
                         </div>
                         <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -750,13 +750,13 @@ const LogoSidebar = () => {
                                 <Popover>
                                   <PopoverTrigger asChild>
                                     <button
-                                      className="h-16 w-full rounded-md transition-all ring-1 ring-slate-200 hover:ring-indigo-300 relative group overflow-hidden shadow-sm"
+                                      className="h-16 w-full rounded-md transition-all ring-1 ring-slate-200 hover:ring-blue-300 relative group overflow-hidden shadow-sm"
                                       style={{ backgroundColor: color }}
                                     >
                                       <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <div className="bg-white/70 backdrop-blur-[2px] rounded-full p-1.5 shadow-sm">
-                                          <Palette className="w-4 h-4 text-indigo-700" />
+                                          <Palette className="w-4 h-4 text-blue-700" />
                                         </div>
                                       </div>
                                     </button>
@@ -799,7 +799,7 @@ const LogoSidebar = () => {
               <Switch
                 checked={enabledSections.controls}
                 onCheckedChange={() => toggleSection('controls')}
-                className="data-[state=checked]:bg-indigo-600"
+                className="data-[state=checked]:bg-blue-600"
               />
             </div>
           </div>
@@ -822,7 +822,7 @@ const LogoSidebar = () => {
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
                   activeControl === "creativity" && enabledSections.controls 
-                    ? "!bg-indigo-600 !text-white shadow-md" 
+                    ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
               >
@@ -833,7 +833,7 @@ const LogoSidebar = () => {
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
                   activeControl === "detail" && enabledSections.controls 
-                    ? "!bg-indigo-600 !text-white shadow-md" 
+                    ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
               >
@@ -848,7 +848,7 @@ const LogoSidebar = () => {
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-slate-600 font-medium">Conservative</span>
                   </div>
-                  <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-200">
+                  <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
                     {typeof settings.controls.creativity === "number" ? `${settings.controls.creativity}%` : "Anything"}
                   </span>
                   <div className="flex items-center gap-1">
@@ -873,7 +873,7 @@ const LogoSidebar = () => {
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-slate-600 font-medium">Minimal</span>
                   </div>
-                  <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-200">
+                  <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
                     {typeof settings.controls.detail === "number" ? `${settings.controls.detail}%` : "Anything"}
                   </span>
                   <div className="flex items-center gap-1">
@@ -899,10 +899,10 @@ const LogoSidebar = () => {
       <div className="p-4 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white">
         <Button
           variant="outline"
-          className="w-full border-slate-300 bg-white rounded-lg flex items-center gap-2 justify-center hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 text-slate-700 h-12 font-medium transition-all shadow-sm"
+          className="w-full border-slate-300 bg-white rounded-lg flex items-center gap-2 justify-center hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 text-slate-700 h-12 font-medium transition-all shadow-sm"
           onClick={resetToDefaults}
         >
-          <Rotate className="h-5 w-5 mr-1" />
+          <Rotate className="h-5 w-5 mr-1" iconPrimary="#1E3050" iconSecondary="#1E305030" />
           Reset to defaults
         </Button>
       </div>

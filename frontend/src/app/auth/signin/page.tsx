@@ -11,7 +11,7 @@ import { AxiosError } from "axios";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { api } from "@/lib/axios";
-import { Loader, Lock, Mailbox } from "../../../../public/icons/SvgIcons";
+import { Loader, Lock, Envelope, Mailbox } from "../../../../public/icons/SvgIcons";
 
 const signinSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -77,11 +77,11 @@ export default function SigninPage() {
   return (
     <div className="w-full max-w-[540px] relative">
       {/* Decorative orbs with improved colors */}
-      <div className="absolute -top-[10%] -right-[0%] h-40 sm:h-80 w-40 sm:w-80 rounded-full bg-violet-500/20 blur-3xl" />
+      <div className="absolute -top-[10%] -right-[0%] h-40 sm:h-80 w-40 sm:w-80 rounded-full bg-blue-600/20 blur-3xl" />
       <div className="absolute bottom-[5%] -left-[10%] h-40 sm:h-80 w-40 sm:w-80 rounded-full bg-fuchsia-500/20 blur-3xl" />
 
       {/* Main form container with improved background and border */}
-      <div className="relative h-[700px] flex justify-center flex-col bg-white/95 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-6 sm:space-y-8 border border-violet-100/20 shadow-lg">
+      <div className="relative h-[700px] flex justify-center flex-col bg-white/95 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-6 sm:p-8 space-y-6 sm:space-y-8 border border-blue-100/20 shadow-lg">
         {/* Header with improved text colors */}
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-800 tracking-tight">
@@ -124,13 +124,13 @@ export default function SigninPage() {
                     name="email"
                     type="email"
                     placeholder="you@example.com"
-                    className={`h-11 rounded-xl bg-white border-gray-200 text-zinc-800 placeholder:text-gray-400 focus-visible:ring-violet-500 focus-visible:ring-2 focus-visible:border-violet-500 pl-11 ${
+                    className={`h-11 rounded-xl bg-white border-gray-200 text-zinc-800 placeholder:text-gray-400 focus-visible:ring-blue-600 focus-visible:ring-2 focus-visible:border-blue-600 pl-11 ${
                       errors.email
                         ? "border-red-500 focus-visible:ring-red-500"
                         : ""
                     }`}
                   />
-                  <Mailbox className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
                 {errors.email && (
                   <p className="text-red-500 text-xs sm:text-sm mt-1">
@@ -155,7 +155,7 @@ export default function SigninPage() {
                     name="password"
                     type="password"
                     placeholder="••••••••"
-                    className={`h-11 rounded-xl bg-white border-gray-200 text-zinc-800 placeholder:text-gray-400 focus-visible:ring-violet-500 focus-visible:ring-2 focus-visible:border-violet-500 pl-11 ${
+                    className={`h-11 rounded-xl bg-white border-gray-200 text-zinc-800 placeholder:text-gray-400 focus-visible:ring-blue-600 focus-visible:ring-2 focus-visible:border-blue-600 pl-11 ${
                       errors.password
                         ? "border-red-500 focus-visible:ring-red-500"
                         : ""
@@ -176,7 +176,7 @@ export default function SigninPage() {
           <Button
             type="submit"
             disabled={isPending}
-            className="relative w-full h-11 rounded-xl bg-violet-600 text-white font-medium transition-all hover:bg-violet-700 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+            className="relative w-full h-11 rounded-xl bg-blue-600 text-white font-medium transition-all hover:bg-blue-700 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPending ? (
               <Loader className="h-5 w-5 animate-spin" />
@@ -193,7 +193,7 @@ export default function SigninPage() {
           Don`&apos;t have an account?{" "}
           <Link
             href="/auth/signup"
-            className="text-violet-600 hover:text-violet-700 font-medium transition-colors"
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             Sign up
           </Link>

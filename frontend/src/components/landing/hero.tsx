@@ -1,9 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { ArrowRight, Upload, FileCheck } from "../../../public/icons/SvgIcons";
 import Image from "next/image";
-
+import Link from "next/link";
 const Hero = () => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -25,9 +24,9 @@ const Hero = () => {
       "/showcase/after-airplane-basic.png",
       "/showcase/after-balloon-messy.png",
       "/showcase/after-brain-rough.png",
-      "/showcase/after-castle-pixel.png",
-      "/showcase/after-cat-flatGraphic.png",
-      "/showcase/after-coffee-badgeCrest.png",
+      "/showcase/after-wendys.png",
+      "/showcase/after-moonboy-beginner.png",
+      "/showcase/after-three-pictorial.png",
       "/showcase/after-compass-amateur.png",
       "/showcase/after-compass-pop.png",
       "/showcase/after-dragon-line.png"
@@ -46,7 +45,7 @@ const Hero = () => {
     row3: [
       "/showcase/after-owl-iconEmoji.png",
       "/showcase/after-rocket-rough.png",
-      "/showcase/after-rocket-watercolor.png",
+      "/showcase/after-astronauts.png",
       "/showcase/after-ship-comic.png",
       "/showcase/after-telescope-crude.png",
       "/showcase/after-three-pictorial.png",
@@ -57,36 +56,36 @@ const Hero = () => {
   };
 
   return (
-    <section className="pt-32 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+    <section className="pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 max-w-xl mx-auto lg:mx-0 text-center lg:text-left opacity-0" style={{ animation: "fadeIn 1s forwards", animationDelay: "0.2s" }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div className="space-y-6 max-w-xl mx-auto lg:mx-0 text-center lg:text-left opacity-0" style={{ animation: "fadeIn 1s forwards", animationDelay: "0.2s" }}>
             <div>
               <span className="px-4 py-1.5 rounded-full bg-blue-100 text-blue-600 font-medium text-sm inline-block mb-4 shadow-sm">
                 AI-Powered Logo Design
               </span>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
-                Create Your Perfect <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Brand Identity</span> with DrawBrand
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-5 tracking-tight">
+                Create Your Perfect <span className="text-blue-600">Brand Identity</span> with DrawBrand
               </h1>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <p className="text-base md:text-lg text-gray-600 mb-6 leading-relaxed">
                 Transform your ideas into stunning logos in seconds. Our AI-powered platform creates unique, professional designs that perfectly represent your brand.
               </p>
             </div>
             
             <div className="max-w-md mx-auto lg:mx-0">
-              <div className="bg-white/90 backdrop-blur-md p-7 relative overflow-hidden rounded-xl shadow-xl border border-gray-100 dark:border-gray-800">
-                <label htmlFor="file-upload" className={`flex flex-col items-center justify-center p-6 border-2 border-dashed ${fileName ? 'border-blue-500' : 'border-gray-300'} rounded-xl cursor-pointer transition-all duration-300 h-40 hover:border-blue-500 hover:bg-blue-50/50`}>
+              <div className="bg-white/90 backdrop-blur-md p-6 relative overflow-hidden rounded-xl shadow-xl border border-gray-100 dark:border-gray-800">
+                <label htmlFor="file-upload" className={`flex flex-col items-center justify-center p-5 border-2 border-dashed ${fileName ? 'border-blue-600' : 'border-gray-300'} rounded-xl cursor-pointer transition-all duration-300 h-36 hover:border-blue-600 hover:bg-blue-50/50`}>
                   {!fileName && !isUploading && (
                     <>
-                      <Upload className="w-10 h-10 mb-3 text-blue-600" />
+                      <Upload className="w-8 h-8 mb-3 text-blue-600" />
                       <span className="text-base font-medium text-gray-900">Upload your image or sketch</span>
-                      <span className="text-sm text-gray-500 mt-2">PNG, JPG, up to 5MB</span>
+                      <span className="text-sm text-gray-500 mt-1">PNG, JPG, up to 5MB</span>
                     </>
                   )}
                   
                   {isUploading && (
                     <div className="flex flex-col items-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                       <span className="text-base font-medium text-gray-900 mt-3">Creating your logo...</span>
                     </div>
                   )}
@@ -101,16 +100,16 @@ const Hero = () => {
                   <input id="file-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                 </label>
                 
-                <div className="mt-6">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-6 text-lg font-medium rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                <div className="mt-5">
+                  <Link href="/auth/signup"   className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-600 text-white py-3 text-base font-medium rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                     <span>Generate Logo</span>
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
+                    <ArrowRight className="w-5 h-5 ml-2" iconPrimary="#FFF" iconSecondary="#FFF" />
+                  </Link>
                 </div>
               </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-6 text-sm text-gray-500 mt-4">
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-5 text-sm text-gray-500 mt-3">
               <div className="flex items-center">
                 <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
@@ -246,12 +245,12 @@ const Hero = () => {
           50% { transform: translateY(-20px); }
         }
         @keyframes slideLeftToRight {
-          0% { transform: translateX(-50%); }
+          0% { transform: translateX(-100%); }
           100% { transform: translateX(0%); }
         }
         @keyframes slideRightToLeft {
           0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
+          100% { transform: translateX(-100%); }
         }
       `}</style>
     </section>

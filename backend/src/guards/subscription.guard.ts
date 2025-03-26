@@ -17,18 +17,18 @@ export class SubscriptionGuard implements CanActivate {
     const userPlan = user.plan;
     const userUsage = user.creditsUsed;
     const userMonthlyCredits = user.monthlyCredits;
+    const usageExceeded = userMonthlyCredits === 9999 ? false : userUsage >= userMonthlyCredits;
     if (!userPlan)
-      throw new UnauthorizedException("You don't have a subscription plan please visit https://scrive.pro");
+      throw new UnauthorizedException("You don't have a subscription plan please visit https://drawbrand.art");
     if (userPlan === 'none')
-      throw new UnauthorizedException('You do not have a subscription plan please visit https://scrive.pro');
-    if (userPlan === 'free' && userUsage >= userMonthlyCredits) {
+      throw new UnauthorizedException('You do not have a subscription plan please visit https://drawbrand.art');
+    if (userPlan === 'free' && usageExceeded) {
       await this.userModel.findByIdAndUpdate(userId, { plan: 'none' });
-      throw new UnauthorizedException('Free plan limit reached please visit https://scrive.pro');
+      throw new UnauthorizedException('Free plan limit reached please visit https://drawbrand.art');
     }
-
-    if (userPlan === 'Starter' && userUsage >= userMonthlyCredits) {
+    if (userPlan === 'Starter' && usageExceeded) {
       await this.userModel.findByIdAndUpdate(userId, { plan: 'none' });
-      throw new UnauthorizedException('Starter plan limit reached please visit https://scrive.pro');
+      throw new UnauthorizedException('Starter plan limit reached please visit https://drawbrand.art');
     }
 
     return true;

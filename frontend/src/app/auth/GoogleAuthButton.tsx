@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { useCallback, useState } from "react";
 
 const GoogleAuthButton = ({ isPending = false }) => {
@@ -17,13 +18,14 @@ const GoogleAuthButton = ({ isPending = false }) => {
   return (
     <Button
       variant="outline"
-      className="w-full h-11 border-zinc-200 rounded-xl text-zinc-600 transition-all duration-200"
+      className="w-full h-11 border-zinc-200 rounded-xl text-zinc-600 transition-all duration-200 hover:bg-zinc-50 hover:text-zinc-900"
       onClick={handleGoogleLogin}
       disabled={isPending}
     >
       <GoogleIcon />
       {isLoading ? (
-        <img 
+        <Image
+          fill
           src="/icons/duotone/spinner.svg"
           alt="Loading" 
           className="h-5 w-5 animate-spin" 

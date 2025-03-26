@@ -11,13 +11,13 @@ import Stripe from 'stripe';
 export class PaymentsService {
   private stripeClient: any;
   private plans = {
-    Starter: this.configService.get<string>('STARTER_PRICE_ID')!,
+    Starter: this.configService.get<string>('thegrowth_PRICE_ID')!,
     Pro: this.configService.get<string>('PRO_PRICE_ID')!,
     Growth: this.configService.get<string>('GROWTH_PRICE_ID')!,
   };
   private monthlyCredits = {
-    Starter: 200,
-    Growth: 750,
+    Starter: 100,
+    Growth: 'unlimited',
     Pro: 'unlimited',
   };
   constructor(
@@ -31,7 +31,7 @@ export class PaymentsService {
     this.stripeClient = new Stripe(key, { apiVersion: '2025-01-27.acacia' });
   }
 
-  async createCheckoutSession(plan: planType, userId: string) {
+  async createCheckoutSession(plan: planType, userId: string, subscriptionType: 'monthly' | 'yearly') {
     console.log(plan);
     console.log(this.plans);
     console.log(this.plans[plan]);
@@ -50,6 +50,7 @@ export class PaymentsService {
       metadata: {
         userId,
         plan,
+        subscriptionType,
       },
     });
 
@@ -74,12 +75,14 @@ export class PaymentsService {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.metadata?.userId;
       const plan = session.metadata?.plan;
+      const subscriptionType = session.metadata?.subscriptionType;
       if (!plan) return res.status(400).send('Plan not found');
       if (!userId) return res.status(400).send('User ID not found');
       await this.userModel.findByIdAndUpdate(userId, {
         plan: plan,
         creditsUsed: 0,
         monthlyCredits: this.monthlyCredits[plan],
+        subscriptionType,
       });
     }
   }

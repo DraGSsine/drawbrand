@@ -5,7 +5,7 @@ import { Linkedin, Twitter } from "../../../public/icons/SvgIcons";
 
 const Footer = () => {
   return (
-    <footer className="mt-auto bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/20 dark:to-violet-950/20 backdrop-blur-sm">
+    <footer className="mt-auto bg-gradient-to-br from-blue-50 to-blue-50 dark:from-blue-950/20 dark:to-blue-950/20 backdrop-blur-sm">
       <div className="border-t border-gray-300 dark:border-gray-700">
         <div className="container mx-auto px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -30,7 +30,7 @@ const Footer = () => {
                   <Link
                     key={name}
                     href={href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200"
+                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                   >
                     {name}
                   </Link>
@@ -51,7 +51,7 @@ const Footer = () => {
                   <Link
                     key={name}
                     href={href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200"
+                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                   >
                     {name}
                   </Link>
@@ -66,7 +66,7 @@ const Footer = () => {
                 <Link
                   target="_blank"
                   href="https://www.linkedin.com/in/yassineouchen/"
-                  className="text-gray-600 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                   aria-label="Visit Yassine Ouchen's LinkedIn profile"
                 >
                   <Linkedin className="w-5 h-5" />
@@ -74,7 +74,7 @@ const Footer = () => {
                 <Link
                   target="_blank"
                   href="https://twitter.com/yassin_ouchn"
-                  className="text-gray-600 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                   aria-label="Visit Yassine Ouchen's Twitter profile"
                 >
                   <Twitter className="w-5 h-5" />
