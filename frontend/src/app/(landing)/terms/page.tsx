@@ -14,9 +14,9 @@ const page = () => {
               1. Service Description
             </h2>
             <p className="text-gray-600">
-              Our service provides an interface to interact with Google`&apos;s Gemini
-              AI through our extension. We facilitate the communication between
-              users and the AI service without storing any message content.
+              Our service provides an AI-powered platform that converts user-submitted sketches into 
+              professional logo designs. We utilize advanced machine learning technology to 
+              transform your concept sketches into polished, ready-to-use logo designs.
             </p>
           </section>
 
@@ -27,7 +27,8 @@ const page = () => {
             <p className="text-gray-600">
               All payments are processed securely through Stripe. By making a
               purchase, you agree to provide current, complete, and accurate
-              purchase and account information.
+              purchase and account information. Pricing may vary based on subscription 
+              plans or per-generation usage tiers.
             </p>
           </section>
 
@@ -36,8 +37,8 @@ const page = () => {
               3. Refund Policy
             </h2>
             <p className="text-gray-600">
-              We offer a 24-hour money-back guarantee. If you`&apos;re not satisfied
-              with our service, you can request a full refund within 24 hours of
+              We offer a 24-hour money-back guarantee. If you&apos;re not satisfied
+              with our logo generation service, you can request a full refund within 24 hours of
               your purchase. To request a refund, please contact our support
               team.
             </p>
@@ -50,7 +51,9 @@ const page = () => {
             <p className="text-gray-600">
               Users are responsible for maintaining the confidentiality of their
               account credentials and for all activities that occur under their
-              account.
+              account. Users must ensure they have the right to submit any sketches or design 
+              elements for processing, and that the resulting logos do not infringe on any 
+              third-party intellectual property rights.
             </p>
           </section>
 
@@ -59,10 +62,10 @@ const page = () => {
               5. Data Processing
             </h2>
             <p className="text-gray-600">
-              Messages sent through our extension are processed by Google`&apos;s
-              Gemini AI. We do not store or retain any message content. Users
-              should be aware that their messages are subject to Google`&apos;s AI
-              processing terms and conditions.
+              Sketches uploaded to our service are processed by our proprietary AI logo generation 
+              technology. While we store your generated logos for your convenience, you retain all 
+              rights to your original sketches and the resulting logo designs. We may use anonymized 
+              data to improve our AI models.
             </p>
           </section>
 
