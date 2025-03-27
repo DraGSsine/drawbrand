@@ -13,7 +13,7 @@ async function bootstrap() {
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
   app.use(cookieParser());
   app.enableCors({
-    origin:["http://localhost:3000","https://drawbrand.art"],
+    origin:["http://localhost:3000","https://drawbrand.art","https://www.drawbrand.art"],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
