@@ -124,8 +124,8 @@ const defaultSettings: LogoSettings = {
     style: "none", // Default 2D style
   },
   colors: {
-    type: "palette",  // Changed from "solid" to "palette"
-    color: ["#4F46E5", "#10B981", "#F59E0B"], // Array of colors for palette
+    type: "anything",  // Changed from "solid" to "palette"
+    color: "anything"
   },
   controls: {
     creativity: 100,
@@ -372,8 +372,8 @@ const LogoSidebar = () => {
   };
 
   return (
-    <div className="w-full h-full overflow-auto bg-white border border-blue-100 rounded-2xl">
-      <div className="p-6 pb-20 space-y-14">
+    <div className="w-full h-full flex flex-col overflow-auto bg-white border border-blue-100 rounded-2xl">
+      <div className="p-6  flex-grow pb-20 space-y-14">
         {/* Styles Section */}
         <div className="space-y-4">
           <div className="mb-4 flex items-center justify-between">
@@ -895,7 +895,7 @@ const LogoSidebar = () => {
       </div>
 
       {/* Improved fixed button container at bottom */}
-      <div className="p-4 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white">
+      <div className="px-4 py-5 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white">
         <Button
           variant="outline"
           className="w-full border-slate-300 bg-white rounded-lg flex items-center gap-2 justify-center hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 text-slate-700 h-12 font-medium transition-all shadow-sm"

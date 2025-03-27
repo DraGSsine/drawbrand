@@ -166,8 +166,8 @@ export default function DashboardPage() {
                 exit={(isMobile || isTablet) ? { x: "-100%" } : { opacity: 0 }}
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
-                  ${(isMobile || isTablet) ? 'fixed top-[56px] bottom-0 z-30 w-[90%] md:w-[320px]' : 'relative w-[350px]'}
-                  bg-white rounded-2xl overflow-hidden border border-blue-100 h-[93vh]
+                  ${(isMobile || isTablet) ? 'fixed top-[56px] bottom-0 z-30 w-[90%] md:w-[320px]  h-[93vh]' : ' h-[calc(100vh - 56px)] relative w-[350px]'}
+                  bg-white rounded-2xl overflow-hidden border border-blue-100
                 `}
                 style={{
                   boxShadow: (isMobile || isTablet) ? "5px 0 20px rgba(0,0,0,0.1)" : "none"
@@ -196,7 +196,7 @@ export default function DashboardPage() {
           )}
 
           {/* Main drawing area */}
-          <main className="flex-1 h-full overflow-hidden bg-white rounded-2xl shadow-sm border border-blue-100">
+          <main className="flex-1 h-[80vh] md:h-full overflow-hidden bg-white rounded-2xl shadow-sm border border-blue-100">
             <Drawing />
           </main>
 
@@ -224,8 +224,8 @@ export default function DashboardPage() {
                 exit={(isMobile || isTablet) ? { x: "100%" } : { opacity: 0 }}
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
-                  ${(isMobile || isTablet) ? 'fixed top-[56px] bottom-0 right-0 z-30 w-[90%] md:w-[300px]' : 'relative w-[340px]'}
-                  bg-white rounded-2xl overflow-hidden border border-blue-100 h-[93vh]
+                  ${(isMobile || isTablet) ? 'fixed top-[56px] bottom-0 right-0 z-30 w-[90%] md:w-[300px] h-[93vh]' : ' h-[calc(100vh - 56px)] relative w-[340px]'}
+                  bg-white rounded-2xl overflow-hidden border border-blue-100
                 `}
                 style={{
                   boxShadow: (isMobile || isTablet) ? "-5px 0 20px rgba(0,0,0,0.1)" : "none"
