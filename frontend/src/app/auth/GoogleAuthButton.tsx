@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useCallback, useState } from "react";
+import { RotateLeft } from "../../../public/icons/SvgIcons";
 
 const GoogleAuthButton = ({ isPending = false }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,12 +25,7 @@ const GoogleAuthButton = ({ isPending = false }) => {
     >
       <GoogleIcon />
       {isLoading ? (
-        <Image
-          fill
-          src="/icons/duotone/spinner.svg"
-          alt="Loading" 
-          className="h-5 w-5 animate-spin" 
-        />
+        <RotateLeft className="h-6 w-6" />
       ) : (
         <span className="relative">Continue with Google</span>
       )}

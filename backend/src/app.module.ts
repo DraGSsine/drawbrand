@@ -13,6 +13,7 @@ import { MailModule } from './mail/mail.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      
     }),
     MongooseModule.forRoot(process.env.MONGODB_URI!),
     UsersModule,
