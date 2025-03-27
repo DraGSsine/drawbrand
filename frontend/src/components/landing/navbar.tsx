@@ -7,27 +7,12 @@ import Logo from "./logo";
 import Link from "next/link";
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "py-2 bg-white/80 backdrop-blur-lg shadow-sm"
-          : "py-4 bg-transparent"
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 bg-white/80 backdrop-blur-lg shadow-sm"
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Logo size={30} />
@@ -46,17 +31,17 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden md:flex items-center space-x-3">
-          <Link href="/auth/signin" className="font-medium hover:bg-blue-50 hover:text-blue-600 p-2 rounded-md w-28 text-center">
+          <Link href="/auth/signin" className="font-medium hover:bg-blue-50 hover:text-blue-600 rounded-full p-2 w-28 text-center">
             Login
           </Link>
-          <Link href="/auth/signup" className="bg-blue-600 hover:bg-blue-600 text-white p-2 rounded-md w-28 text-center">
+          <Link href="/auth/signup" className="bg-blue-600 rounded-full hover:bg-blue-600 text-white p-2 w-28 text-center">
             Try for Free
           </Link>
         </div>
 
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden text-gray-700 focus:outline-none hover:text-blue-600 transition-colors"
+          className="md:hidden rounded-full text-gray-700 focus:outline-none hover:text-blue-600 transition-colors"
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Burger className="w-6 h-6" />}
         </button>
@@ -75,12 +60,12 @@ const Navbar = () => {
                 Pricing
               </Link>
               <div className="flex flex-col space-y-3 pt-3">
-                <Button variant="ghost" className="w-full justify-center font-medium text-base py-2 hover:bg-blue-50 hover:text-blue-600">
-                  Login
-                </Button>
-                <Button className="w-full justify-center text-base py-2 bg-blue-600 hover:bg-blue-600 text-white">
-                  Try for Free
-                </Button>
+              <Link href="/auth/signup" className="bg-white border border-zinc-10 rounded-full hover:bg-zinc-100 text-blue-600 p-2 w-28 text-center">
+              Login
+                </Link>
+                <Link href="/auth/signup" className="bg-blue-600 rounded-full hover:bg-blue-600 text-white p-2 w-28 text-center">
+                Try for Free
+                </Link>
               </div>
             </nav>
           </div>

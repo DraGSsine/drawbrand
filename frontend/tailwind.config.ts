@@ -24,7 +24,7 @@ module.exports = {
 		  foreground: "hsl(var(--foreground))",
 		  primary: {
 			DEFAULT: "hsl(var(--primary))",
-			foreground: "hsl(var(--blue-600foreground))",
+			foreground: "hsl(var(--primary-foreground))",
 		  },
 		  secondary: {
 			DEFAULT: "hsl(var(--secondary))",
@@ -91,7 +91,19 @@ module.exports = {
 		  "float": {
 			"0%, 100%": { transform: "translateY(0)" },
 			"50%": { transform: "translateY(-10px)" }
-		  }
+		  },
+          "fadeIn": {
+            "0%": { opacity: 0 },
+            "100%": { opacity: 1 }
+          },
+          "slideLeft": {
+            "0%": { transform: "translateX(0)" },
+            "100%": { transform: "translateX(calc(-50% - 0.75rem))" }
+          },
+          "slideRight": {
+            "0%": { transform: "translateX(calc(-50% - 0.75rem))" },
+            "100%": { transform: "translateX(0)" }
+          }
 		},
 		animation: {
 		  "accordion-down": "accordion-down 0.2s ease-out",
