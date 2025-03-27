@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
 import { Burger, X } from "../../../public/icons/SvgIcons";
 import Logo from "./logo";
 import Link from "next/link";

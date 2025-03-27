@@ -1,10 +1,8 @@
 import React from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { 
   ArrowRight, 
   CurvedArrowRight, 
-  Check, 
   Star 
 } from "../../../public/icons/SvgIcons";
 import Link from "next/link";
@@ -15,12 +13,6 @@ interface Feature {
 }
 
 const Hero: React.FC = () => {
-  const features: Feature[] = [
-    { text: "AI-powered precision", color: "green" },
-    { text: "Ready in seconds", color: "blue" },
-    { text: "Unlimited revisions", color: "amber" }
-  ];
-
   const userImages = [
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
     "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop",
@@ -70,7 +62,7 @@ const Hero: React.FC = () => {
 
               <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
                 Our AI-powered platform converts your simple sketches into stunning,
-                professional logos that perfectly capture your brand's essence and vision.
+                professional logos that perfectly capture your brand&lsquo;s essence and vision.
               </p>
             </div>
 
