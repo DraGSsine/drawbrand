@@ -24,7 +24,7 @@ const GoogleAuthButton = ({ isPending = false }) => {
     >
       <GoogleIcon />
       {isLoading ? (
-        <RotateLeft className="h-6 w-6" />
+        <RotateLeft className="h-6 w-6 animate-spin " />
       ) : (
         <span className="relative">Continue with Google</span>
       )}
