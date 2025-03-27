@@ -20,7 +20,6 @@ const NavBar = () => {
   const creditsUsed = data?.creditsUsed ?? 0;
   const remainingCredits = monthlyCredits - creditsUsed;
   const isUnlimited = (data?.plan === "Pro" || data?.plan === "Growth") ? true : false;
-  console.log(data)
   const handleSignout = async () => {
     try {
       await api.post('/auth/signout');

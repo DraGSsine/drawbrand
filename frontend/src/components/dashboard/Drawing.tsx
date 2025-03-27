@@ -757,7 +757,7 @@ const Sketch: React.FC = (): React.ReactElement => {
     
     if (fabricRef.current) {
       // Load the SVG from the provided path
-      fabric.loadSVGFromURL(`http://localhost:5000${iconPath}`, (objects, options) => {
+      fabric.loadSVGFromURL(`${process.env.NEXT_PUBLIC_API_URL}${iconPath}`, (objects, options) => {
         if (!objects || objects.length === 0) {
           console.error("Failed to load SVG from", iconPath);
           return;
