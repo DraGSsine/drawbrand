@@ -167,7 +167,7 @@ export default function DashboardPage() {
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
                   ${(isMobile || isTablet) ? 'fixed top-[56px] bottom-0 z-30 w-[90%] md:w-[320px]' : 'relative w-[350px]'}
-                  bg-white rounded-2xl overflow-hidden border border-blue-100 h-full
+                  bg-white rounded-2xl overflow-hidden border border-blue-100 h-[93vh]
                 `}
                 style={{
                   boxShadow: (isMobile || isTablet) ? "5px 0 20px rgba(0,0,0,0.1)" : "none"
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
                   ${(isMobile || isTablet) ? 'fixed top-[56px] bottom-0 right-0 z-30 w-[90%] md:w-[300px]' : 'relative w-[340px]'}
-                  bg-white rounded-2xl overflow-hidden border border-blue-100 h-full
+                  bg-white rounded-2xl overflow-hidden border border-blue-100 h-[93vh]
                 `}
                 style={{
                   boxShadow: (isMobile || isTablet) ? "-5px 0 20px rgba(0,0,0,0.1)" : "none"

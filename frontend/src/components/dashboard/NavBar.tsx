@@ -54,20 +54,20 @@ const NavBar = () => {
     <nav className="bg-white border-b border-slate-100 fixed w-full top-0 z-50 shadow-sm">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <Logo  size={40} textClass="text-2xl" />
+          <Logo  size={40} textClass=" text-lg lg:text-2xl" />
 
           {/* Credits Display */}
           <div className="flex items-center space-x-6">
             {!isLoading && data && (
               <div className="flex items-center space-x-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
-                <CreditCard className="w-4 h-4 text-slate-600" />
+                <CreditCard className="w-4 h-4 text-slate-600 " />
                 <div>
                   <div className="flex items-center space-x-1">
                     <span className="text-sm h-6 flex items-center justify-center font-medium text-slate-600">
                       {isUnlimited ? <Infinity className="w-4 h-4" /> : remainingCredits}
                     </span>
                     <span className="text-sm h-6 text-slate-500">
-                      credits remaining
+                      credits <p className='hidden'>remaining</p>
                     </span>
                   </div>
                   <div className="w-full bg-slate-200 h-1 rounded-full mt-1">
