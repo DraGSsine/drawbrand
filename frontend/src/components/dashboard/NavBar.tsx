@@ -66,8 +66,8 @@ const NavBar = () => {
                     <span className="text-sm h-6 flex items-center justify-center font-medium text-slate-600">
                       {isUnlimited ? <Infinity className="w-4 h-4" /> : remainingCredits}
                     </span>
-                    <span className="text-sm h-6 text-slate-500">
-                      credits <p className='hidden'>remaining</p>
+                    <span className="text-sm h-6 text-slate-500 flex gap-1">
+                      credits <p className='hidden md:flex'>remaining</p>
                     </span>
                   </div>
                   <div className="w-full bg-slate-200 h-1 rounded-full mt-1">

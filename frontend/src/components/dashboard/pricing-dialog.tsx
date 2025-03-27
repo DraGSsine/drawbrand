@@ -142,7 +142,8 @@ const SubscriptionDialog = () => {
   const [selectedPlan, setSelectedPlan] = useState<string>("Growth");
   const [isPending, setIsPending] = useState(false);
   const {data , isLoading} = useUserInfo()
-  if (data?.subscription?.status !== "none" || isLoading)
+  console.log(data)
+  if (data?.plan !== "none" || isLoading)
     return null;
 
   const handlePlanSelection = async (plan: string) => {
