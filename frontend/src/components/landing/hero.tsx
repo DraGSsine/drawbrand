@@ -7,10 +7,6 @@ import {
 } from "../../../public/icons/SvgIcons";
 import Link from "next/link";
 
-interface Feature {
-  text: string;
-  color: string;
-}
 
 const Hero: React.FC = () => {
   const userImages = [

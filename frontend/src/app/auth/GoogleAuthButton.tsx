@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { useCallback, useState } from "react";
 import { RotateLeft } from "../../../public/icons/SvgIcons";
 
