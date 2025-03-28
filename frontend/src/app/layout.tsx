@@ -50,14 +50,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://drawbrand.art",
+    url: "http://localhost:3000",
     siteName: "DrawBrand - Sketch to Logo Converter",
     title: "DrawBrand | Transform Sketches into Professional Logos",
     description:
       "Turn your sketches and images into professional logos with DrawBrand. Our AI-powered tool helps you create stunning logos from your design ideas quickly and efficiently.",
     images: [
       {
-        url: "https://drawbrand.art/og-image.png",
+        url: "http://localhost:3000/og-image.png",
         width: 1200,
         height: 630,
         alt: "DrawBrand Sketch to Logo Converter Preview",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     description:
       "Transform your sketches and images into professional logos with DrawBrand. Create stunning brand identities with our AI-powered conversion tool.",
     creator: "@yassin_ouchen",
-    images: ["https://drawbrand.art/twitter-image.png"],
+    images: ["http://localhost:3000/twitter-image.png"],
   },
   viewport: {
     width: "device-width",
@@ -78,9 +78,9 @@ export const metadata: Metadata = {
     maximumScale: 1,
   },
   alternates: {
-    canonical: "https://drawbrand.art",
+    canonical: "http://localhost:3000",
     languages: {
-      "en-US": "https://drawbrand.art",
+      "en-US": "http://localhost:3000",
     },
   },
   category: "productivity",

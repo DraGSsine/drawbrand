@@ -664,33 +664,6 @@ const Sketch: React.FC = (): React.ReactElement => {
     };
   }, [saveCanvasState]);
   
-  // Add forced save function for debugging (removed forceLoadCanvas as it's unused)
-  const forceSaveCanvas = (): boolean => {
-    console.log("Forcing canvas save to localStorage...");
-    if (fabricRef.current) {
-      // Create a JSON representation with all necessary properties
-      const json = JSON.stringify(fabricRef.current.toJSON([
-        'id', 'selectable', 'hasControls', 'hasBorders',
-        'lockMovementX', 'lockMovementY', 'lockRotation',
-        'lockScalingX', 'lockScalingY', 'lockUniScaling', 'evented'
-      ]));
-      
-      // Save directly to localStorage
-      localStorage.setItem(DRAWING_JSON_STORAGE_KEY, json);
-      
-      // Also save as PNG for compatibility
-      const dataUrl = fabricRef.current.toDataURL({
-        format: 'png',
-        quality: 0.9,
-        multiplier: 1
-      });
-      localStorage.setItem(DRAWING_STORAGE_KEY, dataUrl);
-      
-      console.log('Emergency canvas save completed');
-      return true;
-    }
-    return false;
-  };
 
   const handleToolChange = (newTool: Tool): void => {
     if (fabricRef.current) {
@@ -817,16 +790,6 @@ const Sketch: React.FC = (): React.ReactElement => {
           />
         </div>
         
-        {/* Small debug save button */}
-        <div className="absolute bottom-2 right-2 z-10">
-          <button 
-            onClick={forceSaveCanvas}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs py-1 px-2 rounded"
-            title="Force Save to LocalStorage"
-          >
-            Save
-          </button>
-        </div>
         
         {/* Canvas wrapper with focus ring */}
         <div 
