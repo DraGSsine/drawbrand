@@ -16,7 +16,7 @@ const Hero: React.FC = () => {
       <div className="absolute inset-0 -z-10 overflow-hidden">
         {[
           { top: "top-0 left-1/4", bg: "bg-blue-200/30", size: "w-[300px] sm:w-[400px] md:w-[500px] h-[300px] sm:h-[400px] md:h-[500px]", delay: "" },
-          { top: "bottom-0 right-0", bg: "bg-brand-purple-200/30", size: "w-[250px] sm:w-[300px] md:w-[400px] h-[250px] sm:h-[300px] md:h-[400px]", delay: "animation-delay-1000" },
+          { top: "bottom-0 right-0", bg: "bg-purple-200/30", size: "w-[250px] sm:w-[300px] md:w-[400px] h-[250px] sm:h-[300px] md:h-[400px]", delay: "animation-delay-1000" },
           { top: "top-1/3 right-1/4", bg: "bg-pink-100/20", size: "w-[200px] sm:w-[250px] md:w-[300px] h-[200px] sm:h-[250px] md:h-[300px]", delay: "animation-delay-2000" }
         ].map((item, index) => (
           <div
@@ -33,8 +33,8 @@ const Hero: React.FC = () => {
           <div className="md:col-span-6 lg:col-span-5 space-y-6 sm:space-y-8 md:space-y-10 transition-all duration-1000 ease-out">
             <div className="space-y-4 sm:space-y-6">
               <div className="inline-flex">
-                <div className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-blue-100 border border-brand-blue-600/20 
-                  text-brand-blue-600 font-medium text-xs sm:text-sm shadow-sm hover-lift">
+                <div className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-blue-100 border border-blue-600/20 
+                  text-blue-600 font-medium text-xs sm:text-sm shadow-sm hover-lift">
                   <span className="flex items-center gap-1.5">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-600 "></span>
@@ -46,7 +46,7 @@ const Hero: React.FC = () => {
               </div>
 
               <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-                Transform <span className="text-brand-blue-600">Anything</span> Into
+                Transform <span className="text-blue-600">Anything</span> Into
                 <br className="hidden sm:inline" /> Professional <span className="text-gradient">Logo</span>
               </h1>
 
@@ -61,8 +61,8 @@ const Hero: React.FC = () => {
                 <Link
                   href="/auth/signup"
                   className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-600/90 
-                    shadow-lg shadow-brand-blue-600/20 transition-all duration-300 transform 
-                    text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-blue-600/30 group"
+                    shadow-lg shadow-blue-600/20 transition-all duration-300 transform 
+                    text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-600/30 group"
                 >
                   Start Creating Now
                   <ArrowRight 
@@ -185,7 +185,7 @@ const LogoShowcase: React.FC = () => {
     <div className="relative z-10 rounded-2xl bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-md border border-white/40 shadow-xl p-4 sm:p-6 md:p-8 overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-100/40 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-brand-purple-100/40 rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-100/40 rounded-full blur-3xl"></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-blue-50/30 rounded-full blur-3xl"></div>
 
       <div className="relative">
@@ -208,7 +208,7 @@ const LogoShowcase: React.FC = () => {
             </div>
             
             <div className="col-span-1 flex items-center justify-center">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-brand-blue-600/20">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-600/20">
                 <ArrowRight 
                   className="h-4 w-4 sm:h-5 sm:w-5" 
                   iconPrimary="#fff" 
