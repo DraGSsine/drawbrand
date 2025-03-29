@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowRight, Star } from "../../../public/icons/SvgIcons";
 import Link from "next/link";
+import Image from "next/image";
 
 const Hero: React.FC = () => {
   const userImages = [
@@ -52,7 +53,7 @@ const Hero: React.FC = () => {
 
               <p className="text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed">
                 Our AI-powered platform converts your simple sketches into stunning,
-                professional logos that perfectly capture your brand's essence and vision.
+                professional logos that perfectly capture your brand&apos;s essence and vision.
               </p>
             </div>
 
@@ -92,7 +93,7 @@ const Hero: React.FC = () => {
                         ring-2 ring-white/50 hover-lift"
                       style={{ transitionDelay: `${i * 100}ms` }}
                     >
-                      <img
+                      <Image
                         width={40}
                         height={40}
                         src={imageUrl}
@@ -139,7 +140,7 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({ src, alt, className = "", width = 150, height = 150 }) => {
   return (
     <div className={`rounded-xl overflow-hidden ${className}`}>
-      <img src={src} alt={alt} width={width} height={height} className="object-cover w-full h-full" />
+      <Image src={src} alt={alt} width={width} height={height} className="object-cover w-full h-full" />
     </div>
   );
 };
@@ -246,7 +247,9 @@ const LogoShowcase: React.FC = () => {
               <div className="flex gap-3 sm:gap-5">
                 {showcaseImages.row1.map((image, index) => (
                   <div key={index} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
-                    <img
+                    <Image
+                      width={50}
+                      height={50}
                       src={image}
                       alt={`Logo example ${index + 1}`}
                       className="w-full h-full object-cover rounded-lg"
@@ -255,7 +258,9 @@ const LogoShowcase: React.FC = () => {
                 ))}
                 {showcaseImages.row1.map((image, index) => (
                   <div key={`duplicate-${index}`} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
-                    <img
+                    <Image
+                    width={50}
+                      height={50}
                       src={image}
                       alt={`Logo example ${index + 1}`}
                       className="w-full h-full object-cover rounded-lg"
@@ -272,7 +277,9 @@ const LogoShowcase: React.FC = () => {
               <div className="flex gap-3 sm:gap-5">
                 {showcaseImages.row2.map((image, index) => (
                   <div key={index} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
-                    <img
+                    <Image
+                      width={50}
+                      height={50}
                       src={image}
                       alt={`Logo example ${index + 9}`}
                       className="w-full h-full object-cover rounded-lg"
@@ -281,7 +288,9 @@ const LogoShowcase: React.FC = () => {
                 ))}
                 {showcaseImages.row2.map((image, index) => (
                   <div key={`duplicate-${index}`} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
-                    <img
+                    <Image
+                      width={50}
+                      height={50}
                       src={image}
                       alt={`Logo example ${index + 9}`}
                       className="w-full h-full object-cover rounded-lg"
@@ -298,7 +307,9 @@ const LogoShowcase: React.FC = () => {
               <div className="flex gap-3 sm:gap-5">
                 {showcaseImages.row3.map((image, index) => (
                   <div key={index} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
-                    <img
+                    <Image
+                      width={50}
+                      height={50}
                       src={image}
                       alt={`Logo example ${index + 18}`}
                       className="w-full h-full object-cover rounded-lg"
@@ -307,7 +318,9 @@ const LogoShowcase: React.FC = () => {
                 ))}
                 {showcaseImages.row3.map((image, index) => (
                   <div key={`duplicate-${index}`} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
-                    <img
+                    <Image
+                      width={50}
+                      height={50}
                       src={image}
                       alt={`Logo example ${index + 18}`}
                       className="w-full h-full object-cover rounded-lg"
