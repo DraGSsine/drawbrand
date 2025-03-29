@@ -79,42 +79,21 @@ const colorPalettes: ColorPaletteType = {
   }
 };
 
-const Style2D = [
+// Replace the separate Style2D and Style3D arrays with a single unified array
+const logoStyles = [
   { value: "none", label: "None", image: "/logoStyles/none.png" },
   { value: "pictorial", label: "Pictorial", image: "/logoStyles/logos_2d/pictorial.png" },
   { value: "mascot", label: "Mascot", image: "/logoStyles/logos_2d/mascot.png" },
   { value: "badgeCrest", label: "Badge Crest", image: "/logoStyles/logos_2d/badgeCrest.png" },
   { value: "cartoon", label: "Cartoon", image: "/logoStyles/logos_2d/cartoon.png" },
-  { value: "iconEmoji", label: "Icon Emoji", image: "/logoStyles/logos_2d/iconEmoji.png" },
   { value: "abstract", label: "Abstract", image: "/logoStyles/logos_2d/abstract.png" },
   { value: "line", label: "Line", image: "/logoStyles/logos_2d/line.png" },
   { value: "pixel", label: "Pixel", image: "/logoStyles/logos_2d/pixel.png" },
   { value: "comic", label: "Comic", image: "/logoStyles/logos_2d/comic.png" },
-  { value: "flatGraphic", label: "Flat Graphic", image: "/logoStyles/logos_2d/flatGraphic.png" },
-  { value: "manga", label: "Manga", image: "/logoStyles/logos_2d/manga.png" },
-  { value: "kawaii", label: "Kawaii", image: "/logoStyles/logos_2d/kawaii.png" },
+  { value: "realistic", label: "Realistic", image: "/logoStyles/logos_2d/realistic.png" },
   { value: "watercolor", label: "Watercolor", image: "/logoStyles/logos_2d/watercolor.png" },
   { value: "pop", label: "Pop", image: "/logoStyles/logos_2d/pop.png" },
   { value: "illustration", label: "Illustration", image: "/logoStyles/logos_2d/illustration.png" }
-];
-
-const Style3D = [
-  { value: "none", label: "None", image: "/logoStyles/none.png" },
-  { value: "lowPoly", label: "Low Poly", image: "/logoStyles/owl_logos_3d/low_poly.png" },
-  { value: "realistic", label: "Realistic", image: "/logoStyles/owl_logos_3d/realistic.png" },
-  { value: "celShaded", label: "Cel Shaded", image: "/logoStyles/owl_logos_3d/cel_shaded.png" },
-  { value: "sculpted", label: "Sculpted", image: "/logoStyles/owl_logos_3d/sculpted.png" },
-  { value: "voxel", label: "Voxel", image: "/logoStyles/owl_logos_3d/voxel_art.png" },
-  { value: "cyberpunk", label: "Cyberpunk", image: "/logoStyles/owl_logos_3d/cyberpunk.png" },
-  { value: "fantasy", label: "Fantasy", image: "/logoStyles/owl_logos_3d/fantasy.png" },
-  { value: "steampunk", label: "Steampunk", image: "/logoStyles/owl_logos_3d/steampunk.png" },
-  { value: "sciFi", label: "Sci-Fi", image: "/logoStyles/owl_logos_3d/sci_fi.png" },
-  { value: "surreal", label: "Surreal", image: "/logoStyles/owl_logos_3d/surreal.png" },
-  { value: "toonStyle", label: "Toon Style", image: "/logoStyles/owl_logos_3d/toon_style.png" },
-  { value: "claymation", label: "Claymation", image: "/logoStyles/owl_logos_3d/claymation.png" },
-  { value: "metallic", label: "Metallic", image: "/logoStyles/owl_logos_3d/metallic.png" },
-  { value: "abstract", label: "Abstract", image: "/logoStyles/owl_logos_3d/abstract.png" },
-  { value: "organic", label: "Organic", image: "/logoStyles/owl_logos_3d/organic.png" }
 ];
 
 // Updated default settings with palette as default color type
@@ -195,9 +174,9 @@ const LogoSidebar = () => {
     let newStyle = settings.styles.style;
     
     // If current style isn't applicable to new type, use a default
-    if (type === "2d" && !Style2D.some(s => s.value === settings.styles.style)) {
+    if (type === "2d" && !logoStyles.some(s => s.value === settings.styles.style)) {
       newStyle = "geometric"; // Default 2D style
-    } else if (type === "3d" && !Style3D.some(s => s.value === settings.styles.style)) {
+    } else if (type === "3d" && !logoStyles.some(s => s.value === settings.styles.style)) {
       newStyle = "realistic_3d"; // Default 3D style
     }
     
@@ -327,7 +306,7 @@ const LogoSidebar = () => {
 
   // Helper to get style options based on current type
   const getStyleOptions = () => {
-    return settings.styles.type === "2d" ? Style2D : Style3D;
+    return settings.styles.type === "2d" ? logoStyles : logoStyles;
   };
 
   // Helper function to toggle sections - updated for simpler color structure

@@ -11,6 +11,7 @@ import {
 import { api } from "@/lib/axios";
 import ImageModal from "./ImageModal";
 import Image from "next/image";
+import { useUserInfo } from "@/lib/queries";
 
 // Constants for localStorage keys
 const SETTINGS_STORAGE_KEY = "logo-generator-settings";
@@ -36,6 +37,7 @@ interface RightSideBarProps {
 }
 
 const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
+  const {refetch} = useUserInfo();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [promptText, setPromptText] = useState("");
@@ -86,6 +88,7 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
       } else {
         console.error("Unexpected data format received:", data);
       }
+      refetch();
     },
     onError: (error) => {
       console.error("Error generating logo:", error);
