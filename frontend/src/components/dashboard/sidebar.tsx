@@ -372,7 +372,7 @@ const LogoSidebar = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col overflow-auto bg-white border border-blue-100 rounded-2xl">
+    <div className="w-full h-full flex flex-col overflow-auto bg-white border border-blue-100 xl:rounded-2xl">
       <div className="p-6  flex-grow pb-20 space-y-14">
         {/* Styles Section */}
         <div className="space-y-4">

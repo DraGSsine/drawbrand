@@ -107,7 +107,7 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
   };
 
   return (
-    <div className={`${isMobile ? 'w-[90vw] max-w-[350px]' : 'w-[380px]'} top-[-5%] ${isMobile ? 'left-[5%]' : 'left-[120%]'} absolute bg-white z-10 rounded-xl shadow-dropdown p-3 sm:p-4 animate-scale-in border border-gray-100`}>
+    <div className=" w-[280px] xl:w-[420px] absolute top-[2000%] -left-[9000%] bg-white rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
       {/* Search Box */}
       <div className="relative mb-3 sm:mb-4">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

@@ -24,8 +24,11 @@ export default function DashboardPage() {
   // Check for screen sizes
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
-      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1280);
+      const newIsMobile = window.innerWidth < 768;
+      const newIsTablet = window.innerWidth >= 768 && window.innerWidth < 1280;
+      
+      setIsMobile(newIsMobile);
+      setIsTablet(newIsTablet);
       
       // Auto show sidebars on desktop
       if (window.innerWidth >= 1280) {
@@ -34,23 +37,48 @@ export default function DashboardPage() {
       } else if (window.innerWidth >= 768) {
         // On tablet, show left sidebar by default
         setShowLeftSidebar(true);
-        setShowRightSidebar(false);
+        // Don't change right sidebar state on resize if it's already open
+        if (!showRightSidebar) {
+          setShowRightSidebar(false);
+        }
       } else {
-        // On mobile, hide both sidebars by default
-        setShowLeftSidebar(false);
-        setShowRightSidebar(false);
+        // On mobile, don't change sidebar states on resize to avoid keyboard issues
+        // Only set initial state if they haven't been set yet
+        if (showLeftSidebar === undefined) setShowLeftSidebar(false);
+        if (showRightSidebar === undefined) setShowRightSidebar(false);
       }
     };
     
     // Initial check
     checkScreenSize();
     
-    // Add event listener for resize
-    window.addEventListener('resize', checkScreenSize);
+    // Use a more focused approach for resize events to avoid keyboard triggering issues
+    let resizeTimer: NodeJS.Timeout;
+    const handleResize = () => {
+      // Debounce the resize event
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        // Only respond to significant size changes (likely not keyboard)
+        const focusedElement = document.activeElement;
+        const isInputFocused = 
+          focusedElement instanceof HTMLInputElement || 
+          focusedElement instanceof HTMLTextAreaElement;
+        
+        // Don't run the resize handler if an input is focused (keyboard is likely open)
+        if (!isInputFocused) {
+          checkScreenSize();
+        }
+      }, 250);
+    };
+    
+    window.addEventListener('resize', handleResize);
     
     // Cleanup
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
+    };
+  }, [showLeftSidebar, showRightSidebar]);
 
   // Close sidebars on mobile/tablet when ESC key is pressed
   useEffect(() => {
@@ -166,15 +194,15 @@ export default function DashboardPage() {
                 exit={(isMobile || isTablet) ? { x: "-100%" } : { opacity: 0 }}
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
-                  ${(isMobile || isTablet) ? 'fixed top-[56px] bottom-0 z-30 w-[90%] md:w-[320px]  h-[93vh]' : ' h-[calc(100vh - 56px)] relative w-[350px]'}
+                  ${(isMobile || isTablet) ? 'fixed left-0 top-[56px] bottom-0 z-30 w-[90%] md:w-[320px]  h-[93vh]' : ' h-[calc(100vh - 56px)] relative w-[350px]'}
                   bg-white rounded-2xl overflow-hidden border border-blue-100
                 `}
                 style={{
                   boxShadow: (isMobile || isTablet) ? "5px 0 20px rgba(0,0,0,0.1)" : "none"
                 }}
               >
-                <div className="h-full overflow-y-auto">
-                  <Sidebar />
+                <div className="h-full overflow-y-auto" >
+                  <Sidebar /> 
                 </div>
               </motion.div>
             )}
