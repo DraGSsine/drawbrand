@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Logo from "./logo";
 import Link from "next/link";
@@ -8,7 +10,7 @@ const Footer = () => {
     <footer className="mt-auto bg-gradient-to-br from-blue-50 to-blue-50 dark:from-blue-950/20 dark:to-blue-950/20 backdrop-blur-sm">
       <div className="border-t border-gray-300 dark:border-gray-700">
         <div className="container mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {/* Brand Column */}
             <div className="space-y-6">
               <Logo size={36} />
@@ -22,10 +24,10 @@ const Footer = () => {
               <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Quick Links</h3>
               <div className="flex flex-col space-y-4">
                 {[
-                  ["How It Works", "#how-it-works"],
-                  ["Features", "#features"],
-                  ["Examples", "#examples"],
-                  ["Pricing", "#pricing"],
+                  ["Testimonials", "/#testimonials"],
+                  ["Why Us", "/#why-us"],
+                  ["Pricing", "/#pricing"],
+                  ["Showcase", "/showcase"],
                 ].map(([name, href]) => (
                   <Link
                     key={name}
@@ -45,8 +47,6 @@ const Footer = () => {
                 {[
                   ["Terms of Service", "/terms"],
                   ["Privacy Policy", "/privacy"],
-                  ["Cookie Policy", "/cookies"],
-                  ["Refund Policy", "/refund"],
                 ].map(([name, href]) => (
                   <Link
                     key={name}
@@ -57,28 +57,28 @@ const Footer = () => {
                   </Link>
                 ))}
               </div>
-            </div>
-
-            {/* Social */}
-            <div className="space-y-6">
-              <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Connect</h3>
-              <div className="flex items-center space-x-4">
-                <Link
-                  target="_blank"
-                  href="https://www.linkedin.com/in/yassineouchen/"
-                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                  aria-label="Visit Yassine Ouchen's LinkedIn profile"
-                >
-                  <Linkedin className="w-5 h-5" />
-                </Link>
-                <Link
-                  target="_blank"
-                  href="https://twitter.com/yassin_ouchn"
-                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                  aria-label="Visit Yassine Ouchen's Twitter profile"
-                >
-                  <Twitter className="w-5 h-5" />
-                </Link>
+              
+              {/* Social */}
+              <div className="mt-8">
+                <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Connect</h3>
+                <div className="flex items-center space-x-4 mt-4">
+                  <Link
+                    target="_blank"
+                    href="https://www.linkedin.com/in/yassineouchen/"
+                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                    aria-label="Visit Yassine Ouchen's LinkedIn profile"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </Link>
+                  <Link
+                    target="_blank"
+                    href="https://twitter.com/yassin_ouchn"
+                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                    aria-label="Visit Yassine Ouchen's Twitter profile"
+                  >
+                    <Twitter className="w-5 h-5" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

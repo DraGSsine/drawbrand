@@ -1,12 +1,6 @@
 import React from "react";
-import Image from "next/image";
-import { 
-  ArrowRight, 
-  CurvedArrowRight, 
-  Star 
-} from "../../../public/icons/SvgIcons";
+import { ArrowRight, Star } from "../../../public/icons/SvgIcons";
 import Link from "next/link";
-
 
 const Hero: React.FC = () => {
   const userImages = [
@@ -17,13 +11,13 @@ const Hero: React.FC = () => {
   ];
 
   return (
-    <section className="relative min-h-screen py-20 px-4 sm:px-6 overflow-hidden flex items-center">
+    <section className="relative min-h-screen py-12 sm:py-16 md:py-20 px-4 sm:px-8 md:px-12 overflow-hidden flex items-center">
       {/* Ambient Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         {[
-          { top: "top-0 left-1/4", bg: "bg-blue-200/30", size: "w-[500px] h-[500px]", delay: "" },
-          { top: "bottom-0 right-0", bg: "bg-purple-200/30", size: "w-[400px] h-[400px]", delay: "animation-delay-1000" },
-          { top: "top-1/3 right-1/4", bg: "bg-pink-100/20", size: "w-[300px] h-[300px]", delay: "animation-delay-2000" }
+          { top: "top-0 left-1/4", bg: "bg-blue-200/30", size: "w-[300px] sm:w-[400px] md:w-[500px] h-[300px] sm:h-[400px] md:h-[500px]", delay: "" },
+          { top: "bottom-0 right-0", bg: "bg-brand-purple-200/30", size: "w-[250px] sm:w-[300px] md:w-[400px] h-[250px] sm:h-[300px] md:h-[400px]", delay: "animation-delay-1000" },
+          { top: "top-1/3 right-1/4", bg: "bg-pink-100/20", size: "w-[200px] sm:w-[250px] md:w-[300px] h-[200px] sm:h-[250px] md:h-[300px]", delay: "animation-delay-2000" }
         ].map((item, index) => (
           <div
             key={index}
@@ -34,74 +28,71 @@ const Hero: React.FC = () => {
       </div>
 
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 sm:gap-10 lg:gap-20 items-center">
           {/* Left Column - Text Content */}
-          <div className="space-y-10 transition-all duration-1000 ease-out">
-            <div className="space-y-6">
+          <div className="md:col-span-6 lg:col-span-5 space-y-6 sm:space-y-8 md:space-y-10 transition-all duration-1000 ease-out">
+            <div className="space-y-4 sm:space-y-6">
               <div className="inline-flex">
-                <div className="px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-600/20 
-                  text-blue-600 font-medium text-sm shadow-sm hover-lift">
+                <div className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-blue-100 border border-brand-blue-600/20 
+                  text-brand-blue-600 font-medium text-xs sm:text-sm shadow-sm hover-lift">
                   <span className="flex items-center gap-1.5">
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-600 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-600 "></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
                     </span>
                     Sketch to Logo Transformation
                   </span>
                 </div>
               </div>
 
-              <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold">
-                Transform <span className="text-blue-600">Anything</span> Into
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+                Transform <span className="text-brand-blue-600">Anything</span> Into
                 <br className="hidden sm:inline" /> Professional <span className="text-gradient">Logo</span>
               </h1>
 
-              <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
+              <p className="text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed">
                 Our AI-powered platform converts your simple sketches into stunning,
-                professional logos that perfectly capture your brand&lsquo;s essence and vision.
+                professional logos that perfectly capture your brand's essence and vision.
               </p>
             </div>
 
-            <div className="space-y-8">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex justify-center space-x-4">
-                  <Link
-                    href="/auth/signup"
-                    className="h-14 px-8 text-base flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-600/90 
-                      shadow-lg shadow-blue-600/20 transition-all duration-300 transform 
-                      text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-600/30 group"
-                  >
-                    Start Creating Now
-                    <ArrowRight 
-                      className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-0.5" 
-                      iconPrimary="#fff" 
-                      iconSecondary="#fff" 
-                    />
-                  </Link>
+            <div className="space-y-6 sm:space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <Link
+                  href="/auth/signup"
+                  className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-600/90 
+                    shadow-lg shadow-brand-blue-600/20 transition-all duration-300 transform 
+                    text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-blue-600/30 group"
+                >
+                  Start Creating Now
+                  <ArrowRight 
+                    className="ml-2 h-4 sm:h-5 w-4 sm:w-5 transition-transform group-hover:translate-x-0.5" 
+                    iconPrimary="#fff" 
+                    iconSecondary="#fff" 
+                  />
+                </Link>
 
-                  <Link
-                    href="/showcase"
-                    className="h-14 px-8 flex items-center justify-center text-base rounded-full border-2 hover:bg-zinc-50 hover:text-zinc-800
-                      transition-all duration-300 border-gray-200"
-                  >
-                    See Examples
-                  </Link>
-                </div>
+                <Link
+                  href="/showcase"
+                  className="h-12 sm:h-14 px-6 sm:px-8 flex items-center justify-center text-sm sm:text-base rounded-full border-2 hover:bg-zinc-50 hover:text-zinc-800
+                    transition-all duration-300 border-gray-200"
+                >
+                  See Examples
+                </Link>
               </div>
-
             </div>
 
-            <div className="pt-4">
-              <div className="flex items-center gap-5">
+            <div className="pt-2 sm:pt-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
                 <div className="flex -space-x-3">
                   {userImages.map((imageUrl, i) => (
                     <div
                       key={i}
-                      className="w-12 h-12 rounded-full border-2 border-white overflow-hidden 
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white overflow-hidden 
                         ring-2 ring-white/50 hover-lift"
                       style={{ transitionDelay: `${i * 100}ms` }}
                     >
-                      <Image
+                      <img
                         width={40}
                         height={40}
                         src={imageUrl}
@@ -125,7 +116,7 @@ const Hero: React.FC = () => {
           </div>
 
           {/* Right Column - Image Showcase */}
-          <div className="transition-all duration-1000 ease-out translate-y-8">
+          <div className="md:col-span-6 lg:col-span-7 transition-all duration-1000 ease-out">
             <LogoShowcase />
           </div>
         </div>
@@ -137,7 +128,23 @@ const Hero: React.FC = () => {
 export default Hero;
 
 
-const LogoShowcase = () => {
+interface LogoProps {
+  src: string;
+  alt: string;
+  className?: string;
+  width?: number;
+  height?: number;
+}
+
+export const Logo: React.FC<LogoProps> = ({ src, alt, className = "", width = 150, height = 150 }) => {
+  return (
+    <div className={`rounded-xl overflow-hidden ${className}`}>
+      <img src={src} alt={alt} width={width} height={height} className="object-cover w-full h-full" />
+    </div>
+  );
+};
+
+const LogoShowcase: React.FC = () => {
   const showcaseImages = {
     row1: [
       "/showcase/after-airplane-basic.png",
@@ -175,135 +182,143 @@ const LogoShowcase = () => {
   };
 
   return (
-    <div className="relative z-10 rounded-2xl bg-white/80 backdrop-blur-md border border-white/30 shadow-xl p-6 overflow-hidden">
-      <div className="absolute -top-6 -right-6 w-16 h-16 bg-blue-400/10 rounded-full blur-xl"></div>
-      <div className="absolute -bottom-8 -left-8 w-16 h-16 bg-purple-400/10 rounded-full blur-xl"></div>
+    <div className="relative z-10 rounded-2xl bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-md border border-white/40 shadow-xl p-4 sm:p-6 md:p-8 overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-100/40 rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-brand-purple-100/40 rounded-full blur-3xl"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-blue-50/30 rounded-full blur-3xl"></div>
 
       <div className="relative">
-        <div className="mb-8">
-          <div className="grid grid-cols-7 gap-6 items-center">
-            <div className="col-span-3">
-              <div className="aspect-square rounded-xl bg-white border border-gray-200 p-3 flex items-center justify-center overflow-hidden shadow-sm">
-                <Image
+        {/* Before & After Showcase */}
+        <div className="mb-6 sm:mb-10">
+          <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-4 sm:mb-6 text-center">See the transformation</h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-7 gap-4 md:gap-6 items-center">
+            <div className="col-span-1 sm:col-span-3 mx-auto sm:mx-0">
+              <div className="aspect-square w-full max-w-[180px] sm:max-w-none rounded-xl bg-white border border-gray-100 p-3 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+                <Logo 
                   src="/showcase/before-astronauts.png"
+                  alt="Sketch of astronaut"
                   width={150}
                   height={150}
-                  alt="after owl"
-                  className="rounded-xl overflow-hiden"
+                  className="rounded-xl"
                 />
               </div>
+              <p className="text-xs text-center mt-2 text-gray-500">Your Sketch</p>
             </div>
+            
             <div className="col-span-1 flex items-center justify-center">
-              <CurvedArrowRight className="w-12 h-12" />
-            </div>
-            <div className="col-span-3">
-              <div className="aspect-square rounded-xl bg-white border border-gray-200 p-3 flex items-center justify-center overflow-hidden shadow-sm">
-                <Image
-                  src="/showcase/after-astronauts.png"
-                  width={500}
-                  height={500}
-                  alt="after owl"
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-brand-blue-600/20">
+                <ArrowRight 
+                  className="h-4 w-4 sm:h-5 sm:w-5" 
+                  iconPrimary="#fff" 
+                  iconSecondary="#fff" 
                 />
               </div>
+            </div>
+            
+            <div className="col-span-1 sm:col-span-3 mx-auto sm:mx-0">
+              <div className="aspect-square w-full max-w-[180px] sm:max-w-none rounded-xl bg-white border border-gray-100 p-3 flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+                <Logo 
+                  src="/showcase/after-astronauts.png"
+                  alt="Professional astronaut logo"
+                  width={150}
+                  height={150}
+                />
+              </div>
+              <p className="text-xs text-center mt-2 text-gray-500">Generated Logo</p>
             </div>
           </div>
         </div>
 
+        {/* More Examples Label */}
+        <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div className="h-[1px] w-10 sm:w-16 bg-gray-200"></div>
+          <p className="text-xs sm:text-sm font-medium text-gray-500">More Examples</p>
+          <div className="h-[1px] w-10 sm:w-16 bg-gray-200"></div>
+        </div>
 
-        <div className="relative z-10 overflow-hidden space-y-6 mb-12">
-              {/* First row - Left to Right */}
-              <div className="relative w-full overflow-hidden">
-                <div className="flex auth-slideLeftToRight">
-                  <div className="flex gap-6">
-                    {showcaseImages.row1.map((image, index) => (
-                      <div key={index} className="relative w-16 h-16 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
-                        <Image
-                          src={image}
-                          alt={`Logo example ${index + 1}`}
-                          fill
-                          className="rounded-xl overflow-hiden"
-
-                        />
-                      </div>
-                    ))}
-                    {showcaseImages.row1.map((image, index) => (
-                      <div key={`duplicate-${index}`} className="relative w-16 h-16 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
-                        <Image
-                          src={image}
-                          alt={`Logo example ${index + 1}`}
-                          fill
-                          className="rounded-xl overflow-hiden"
-
-                        />
-                      </div>
-                    ))}
+        {/* Scrolling Logo Showcases */}
+        <div className="relative z-10 overflow-hidden space-y-3 sm:space-y-5 mb-4 sm:mb-6">
+          {/* First row - Left to Right */}
+          <div className="relative w-full overflow-hidden">
+            <div className="flex auth-slideLeftToRight">
+              <div className="flex gap-3 sm:gap-5">
+                {showcaseImages.row1.map((image, index) => (
+                  <div key={index} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
+                    <img
+                      src={image}
+                      alt={`Logo example ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
                   </div>
-                </div>
-              </div>
-
-              {/* Second row - Right to Left */}
-              <div className="relative w-full overflow-hidden">
-                <div className="flex auth-slideRightToLeft">
-                  <div className="flex gap-6">
-                    {showcaseImages.row2.map((image, index) => (
-                      <div key={index} className="relative w-16 h-16 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
-                        <Image
-                          src={image}
-                          alt={`Logo example ${index + 9}`}
-                          fill
-                          className="rounded-xl overflow-hiden"
-
-                        />
-                      </div>
-                    ))}
-                    {showcaseImages.row2.map((image, index) => (
-                      <div key={`duplicate-${index}`} className="relative w-16 h-16 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
-                        <Image
-                          src={image}
-                          alt={`Logo example ${index + 9}`}
-                          fill
-                          className="rounded-xl overflow-hiden"
-
-                        />
-                      </div>
-                    ))}
+                ))}
+                {showcaseImages.row1.map((image, index) => (
+                  <div key={`duplicate-${index}`} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
+                    <img
+                      src={image}
+                      alt={`Logo example ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
                   </div>
-                </div>
-              </div>
-
-              {/* Third row - Left to Right */}
-              <div className="relative w-full overflow-hidden">
-                <div className="flex auth-slideLeftToRight">
-                  <div className="flex gap-6">
-                    {showcaseImages.row3.map((image, index) => (
-                      <div key={index} className="relative w-16 h-16 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
-                        <Image
-                          src={image}
-                          alt={`Logo example ${index + 18}`}
-                          fill
-                          className="rounded-xl overflow-hiden"
-
-                        />
-                      </div>
-                    ))}
-                    {showcaseImages.row3.map((image, index) => (
-                      <div key={`duplicate-${index}`} className="relative w-16 h-16 flex-shrink-0 hover:scale-105 transition-all duration-500 transform hover:-translate-y-1">
-                        <Image
-                          src={image}
-                          alt={`Logo example ${index + 18}`}
-                          fill
-                          className="rounded-xl overflow-hiden"
-
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
-        <div className="mt-8 flex justify-center">
-          <div className="h-1 w-20 rounded-full bg-gray-200"></div>
+          </div>
+
+          {/* Second row - Right to Left */}
+          <div className="relative w-full overflow-hidden">
+            <div className="flex auth-slideRightToLeft">
+              <div className="flex gap-3 sm:gap-5">
+                {showcaseImages.row2.map((image, index) => (
+                  <div key={index} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
+                    <img
+                      src={image}
+                      alt={`Logo example ${index + 9}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                ))}
+                {showcaseImages.row2.map((image, index) => (
+                  <div key={`duplicate-${index}`} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
+                    <img
+                      src={image}
+                      alt={`Logo example ${index + 9}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Third row - Left to Right */}
+          <div className="relative w-full overflow-hidden">
+            <div className="flex auth-slideLeftToRight">
+              <div className="flex gap-3 sm:gap-5">
+                {showcaseImages.row3.map((image, index) => (
+                  <div key={index} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
+                    <img
+                      src={image}
+                      alt={`Logo example ${index + 18}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                ))}
+                {showcaseImages.row3.map((image, index) => (
+                  <div key={`duplicate-${index}`} className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 hover:scale-110 transition-all duration-300 hover:shadow-md rounded-lg overflow-hidden transform hover:-translate-y-1">
+                    <img
+                      src={image}
+                      alt={`Logo example ${index + 18}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
+        
       </div>
     </div>
   );
