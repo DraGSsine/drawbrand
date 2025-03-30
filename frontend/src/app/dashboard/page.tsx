@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function DashboardPage() {
   // Simplified sidebar visibility state
   const [showLeftSidebar, setShowLeftSidebar] = useState(true);
-  const [showRightSidebar, setShowRightSidebar] = useState(false);
+  const [showRightSidebar, setShowRightSidebar] = useState(true);
   // Track if component is mounted (client-side)
   const [isMounted, setIsMounted] = useState(false);
   // Store viewport information
