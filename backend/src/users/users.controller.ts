@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards, Query, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards, Query, NotFoundException, BadRequestException, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import * as fs from "fs";
@@ -88,6 +88,34 @@ export class UsersController {
         throw error;
       }
       throw new NotFoundException('Failed to load icons');
+    }
+  }
+
+  @Get('svgs/:category/:filename')
+  async getSvgFile(@Req() req: any, @Res() res: any) {
+    const { category, filename } = req.params;
+    const filePath = path.join(this.svgRoot, category, filename);
+    console.log("Requested SVG file:", filePath);
+
+    try {
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        console.error(`SVG file not found: ${filePath}`);
+        return res.status(404).send('SVG file not found');
+      }
+
+      // Read file content directly
+      const svgContent = fs.readFileSync(filePath, 'utf8');
+      
+      // Set appropriate headers
+      res.header('Content-Type', 'image/svg+xml');
+      res.header('Cache-Control', 'public, max-age=86400'); // Cache for a day
+      
+      // Send SVG content
+      return res.send(svgContent);
+    } catch (error) {
+      console.error(`Error serving SVG file ${filePath}:`, error);
+      return res.status(500).send('Error serving SVG file');
     }
   }
 }
