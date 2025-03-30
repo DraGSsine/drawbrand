@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ShapeType } from "@/utils/drawing/ShapeTool";
 import IconPicker from "./IconPicker";
 import ShapeSelector from "./ShapeSelector";
