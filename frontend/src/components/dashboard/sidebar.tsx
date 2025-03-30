@@ -81,7 +81,7 @@ const colorPalettes: ColorPaletteType = {
 
 // Replace the separate Style2D and Style3D arrays with a single unified array
 const logoStyles = [
-  { value: "none", label: "None", image: "/logoStyles/none.png" },
+  { value: "none", label: "None", image: "/logo_styles/none.png" },
   { value: "pictorial", label: "Pictorial", image: "/logos_styles/pictorial.png" },
   { value: "mascot", label: "Mascot", image: "/logos_styles/mascot.png" },
   { value: "badgeCrest", label: "Badge Crest", image: "/logos_styles/badgeCrest.png" },
