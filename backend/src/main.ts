@@ -17,6 +17,9 @@ async function bootstrap() {
   console.log('Serving static files from:', staticPath);
   app.useStaticAssets(staticPath, {
     prefix: '/',  // This makes files available at the root URL path
+    setHeaders: (res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*'); // Allow cross-origin requests for static assets
+    },
   });
   
   // Custom middleware to handle Stripe webhooks differently
@@ -40,7 +43,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'http://localhost:3000',
+      'https://drawbrand.art',
       'https://www.drawbrand.art',
     ],
     credentials: true,

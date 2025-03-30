@@ -727,12 +727,15 @@ const Sketch: React.FC = (): React.ReactElement => {
 
   const handleIconPathSelect = (iconPath: string): void => {
     setTool("icon");
-    
+  
     if (fabricRef.current) {
+      const fullUrl = `${process.env.NEXT_PUBLIC_API_URL}${iconPath}`;
+      console.log("Loading SVG from URL:", fullUrl); // Debug log for the full URL
+  
       // Load the SVG from the provided path
-      fabric.loadSVGFromURL(`${process.env.NEXT_PUBLIC_API_URL}${iconPath}`, (objects, options) => {
+      fabric.loadSVGFromURL(fullUrl, (objects, options) => {
         if (!objects || objects.length === 0) {
-          console.error("Failed to load SVG from", iconPath);
+          console.error("Failed to load SVG from", fullUrl);
           return;
         }
         
@@ -789,7 +792,6 @@ const Sketch: React.FC = (): React.ReactElement => {
             onUndoAction={handleUndo}
           />
         </div>
-        
         
         {/* Canvas wrapper with focus ring */}
         <div 

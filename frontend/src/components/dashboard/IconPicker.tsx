@@ -25,24 +25,7 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
   const [selectedCategory, setSelectedCategory] = useState("solid");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); 
-  const [isMobile, setIsMobile] = useState(false);
   const loader = useRef<HTMLDivElement | null>(null);
-
-  // Check for mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    // Initial check
-    checkMobile();
-    
-    // Add event listener for resize
-    window.addEventListener('resize', checkMobile);
-    
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // Debounce search input to avoid excessive API calls
   useEffect(() => {
@@ -107,7 +90,7 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
   };
 
   return (
-    <div className=" w-[280px] xl:w-[420px] absolute top-[2000%] -left-[9000%] bg-white rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
+    <div className="absolute top-[30vh] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[280px] xl:w-[420px] bg-white rounded-xl shadow-dropdown p-4 animate-scale-in border border-gray-100">
       {/* Search Box */}
       <div className="relative mb-3 sm:mb-4">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -137,8 +120,8 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
         />
       </div>
 
-      {/* Category Pills - Adjust for mobile */}
-      <div className={`grid ${isMobile ? 'grid-cols-3' : 'grid-cols-6'} gap-1 sm:gap-2 mb-3 sm:mb-4`}>
+      {/* Category Pills */}
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-1 sm:gap-2 mb-3 sm:mb-4">
         {categories.map((cat) => (
           <button
             key={cat.id}
@@ -235,8 +218,8 @@ const IconPicker = ({ onSelectIcon }: FullIconPickerProps) => {
           </div>
         )}
 
-        {/* Icon Grid - Adjust column count based on screen size */}
-        <div className={`grid ${isMobile ? 'grid-cols-4' : 'grid-cols-5'} gap-1 sm:gap-2`}>
+        {/* Icon Grid */}
+        <div className="grid grid-cols-4 sm:grid-cols-5 gap-1 sm:gap-2">
             {allIcons.map((src: string, index: number) => (
               <div 
                 key={index} 
