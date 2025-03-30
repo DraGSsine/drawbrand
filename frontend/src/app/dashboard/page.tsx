@@ -15,79 +15,18 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function DashboardPage() {
-  // State to control sidebar visibility
-  const [showLeftSidebar, setShowLeftSidebar] = useState(false);
+  // Simplified sidebar visibility state
+  const [showLeftSidebar, setShowLeftSidebar] = useState(true);
   const [showRightSidebar, setShowRightSidebar] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
 
-  // Check for screen sizes
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const newIsMobile = window.innerWidth < 768;
-      const newIsTablet = window.innerWidth >= 768 && window.innerWidth < 1280;
-      
-      setIsMobile(newIsMobile);
-      setIsTablet(newIsTablet);
-      
-      // Auto show sidebars on desktop
-      if (window.innerWidth >= 1280) {
-        setShowLeftSidebar(true);
-        setShowRightSidebar(true);
-      } else if (window.innerWidth >= 768) {
-        // On tablet, show left sidebar by default
-        setShowLeftSidebar(true);
-        // Don't change right sidebar state on resize if it's already open
-        if (!showRightSidebar) {
-          setShowRightSidebar(false);
-        }
-      } else {
-        // On mobile, don't change sidebar states on resize to avoid keyboard issues
-        // Only set initial state if they haven't been set yet
-        if (showLeftSidebar === undefined) setShowLeftSidebar(false);
-        if (showRightSidebar === undefined) setShowRightSidebar(false);
-      }
-    };
-    
-    // Initial check
-    checkScreenSize();
-    
-    // Use a more focused approach for resize events to avoid keyboard triggering issues
-    let resizeTimer: NodeJS.Timeout;
-    const handleResize = () => {
-      // Debounce the resize event
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        // Only respond to significant size changes (likely not keyboard)
-        const focusedElement = document.activeElement;
-        const isInputFocused = 
-          focusedElement instanceof HTMLInputElement || 
-          focusedElement instanceof HTMLTextAreaElement;
-        
-        // Don't run the resize handler if an input is focused (keyboard is likely open)
-        if (!isInputFocused) {
-          checkScreenSize();
-        }
-      }, 250);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimer);
-    };
-  }, [showLeftSidebar, showRightSidebar]);
-
-  // Close sidebars on mobile/tablet when ESC key is pressed
+  // Close sidebars on ESC key (for accessibility)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (isMobile) {
+        // On mobile (will be hidden via CSS if not mobile)
+        const isMobileView = window.matchMedia("(max-width: 767px)").matches;
+        if (isMobileView) {
           setShowLeftSidebar(false);
-          setShowRightSidebar(false);
-        } else if (isTablet) {
           setShowRightSidebar(false);
         }
       }
@@ -95,7 +34,19 @@ export default function DashboardPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMobile, isTablet]);
+  }, []);
+
+  // Helper function for sidebar overlay click
+  const handleOverlayClick = () => {
+    if (window.innerWidth < 768) {
+      // Close both sidebars on mobile
+      setShowLeftSidebar(false);
+      setShowRightSidebar(false);
+    } else if (window.innerWidth < 1280) {
+      // Only close right sidebar on tablet
+      setShowRightSidebar(false);
+    }
+  };
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-blue-50">
@@ -113,73 +64,66 @@ export default function DashboardPage() {
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Tablet-only buttons for opening/closing sidebars */}
-          {isTablet && !isMobile && (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowLeftSidebar(!showLeftSidebar)}
-                className="flex items-center gap-1"
-              >
-                <Bars className="h-4 w-4" />
-                <span className="text-xs">Settings</span>
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowRightSidebar(!showRightSidebar)}
-                className="flex items-center gap-1"
-              >
-                <SquareArrowLeft className="h-4 w-4" />
-                <span className="text-xs">Generate</span>
-              </Button>
-            </>
-          )}
+          {/* Tablet-only sidebar toggles */}
+          <div className="hidden md:flex lg:hidden items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowLeftSidebar(!showLeftSidebar)}
+              className="flex items-center gap-1"
+            >
+              <Bars className="h-4 w-4" />
+              <span className="text-xs">Settings</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowRightSidebar(!showRightSidebar)}
+              className="flex items-center gap-1"
+            >
+              <SquareArrowLeft className="h-4 w-4" />
+              <span className="text-xs">Generate</span>
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Main content area */}
       <div className="h-[calc(100vh-56px)] w-full mx-auto relative p-4 mt-14">
-        {/* Mobile sidebar toggle buttons above drawing area - only visible on mobile */}
-        {isMobile && (
-          <div className="flex w-full gap-2 mb-2 z-20">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setShowLeftSidebar(true)}
-              className="flex-1 h-12 bg-white/90 backdrop-blur-sm shadow-sm border border-blue-200 rounded-xl"
-            >
-              <Bars className="h-5 w-5 mr-2 text-blue-600" />
-              <span className="font-medium text-blue-700">Settings</span>
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setShowRightSidebar(true)}
-              className="flex-1 h-12 bg-white/90 backdrop-blur-sm shadow-sm border border-blue-200 rounded-xl"
-            >
-              <Sparkles className="h-5 w-5 mr-2 text-blue-600" />
-              <span className="font-medium text-blue-700">Generate</span>
-            </Button>
-          </div>
-        )}
+        {/* Mobile sidebar toggle buttons - only visible on mobile */}
+        <div className="flex md:hidden w-full gap-2 mb-2 z-20">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setShowLeftSidebar(true)}
+            className="flex-1 h-12 bg-white/90 backdrop-blur-sm shadow-sm border border-blue-200 rounded-xl"
+          >
+            <Bars className="h-5 w-5 mr-2 text-blue-600" />
+            <span className="font-medium text-blue-700">Settings</span>
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setShowRightSidebar(true)}
+            className="flex-1 h-12 bg-white/90 backdrop-blur-sm shadow-sm border border-blue-200 rounded-xl"
+          >
+            <Sparkles className="h-5 w-5 mr-2 text-blue-600" />
+            <span className="font-medium text-blue-700">Generate</span>
+          </Button>
+        </div>
         
-        {/* Overlay for mobile when sidebars are open */}
+        {/* Overlay for mobile/tablet when sidebars are open */}
         <AnimatePresence>
-          {(isMobile || isTablet) && (showLeftSidebar || showRightSidebar) && (
+          {(showLeftSidebar || showRightSidebar) && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="fixed top-14 bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm z-20 lg:hidden"
-              onClick={() => {
-                setShowLeftSidebar(isMobile ? false : showLeftSidebar);
-                setShowRightSidebar(false);
-              }}
+              onClick={handleOverlayClick}
             />
           )}
         </AnimatePresence>
@@ -187,21 +131,32 @@ export default function DashboardPage() {
         <div className="flex h-full">
           {/* Left Sidebar - Configuration panel */}
           <AnimatePresence>
-            {((!isMobile && !isTablet && showLeftSidebar) || ((isMobile || isTablet) && showLeftSidebar)) && (
+            {showLeftSidebar && (
               <motion.div
-                initial={(isMobile || isTablet) ? { x: "-100%" } : { opacity: 0 }}
-                animate={(isMobile || isTablet) ? { x: 0 } : { opacity: 1 }}
-                exit={(isMobile || isTablet) ? { x: "-100%" } : { opacity: 0 }}
+                initial={{ 
+                  x: "-100%",
+                  opacity: 0,
+                  width: "90%", // Mobile default width
+                }}
+                animate={{ 
+                  x: 0,
+                  opacity: 1,
+                  width: window.innerWidth < 768 ? "90%" : 
+                         window.innerWidth < 1280 ? "320px" : "350px"
+                }}
+                exit={{ 
+                  x: "-100%", 
+                  opacity: 0 
+                }}
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
-                  ${(isMobile || isTablet) ? 'fixed left-0 top-[56px] bottom-0 z-30 w-[90%] md:w-[320px]  h-[93vh]' : ' h-[calc(100vh - 56px)] relative w-[350px]'}
+                  fixed md:relative left-0 top-[56px] md:top-0 z-30 
+                  h-[calc(100vh-56px)] 
                   bg-white rounded-2xl overflow-hidden border border-blue-100
+                  shadow-lg md:shadow-none
                 `}
-                style={{
-                  boxShadow: (isMobile || isTablet) ? "5px 0 20px rgba(0,0,0,0.1)" : "none"
-                }}
               >
-                <div className="h-full overflow-y-auto" >
+                <div className="h-full overflow-y-auto">
                   <Sidebar /> 
                 </div>
               </motion.div>
@@ -209,7 +164,7 @@ export default function DashboardPage() {
           </AnimatePresence>
 
           {/* Toggle for left sidebar - visible on desktop and tablet */}
-          {!isMobile && (
+          <div className="hidden md:block">
             <Button
               variant="ghost"
               size="icon"
@@ -221,7 +176,7 @@ export default function DashboardPage() {
                 <ChevronRight className="h-6 w-6 text-blue-600" />
               }
             </Button>
-          )}
+          </div>
 
           {/* Main drawing area */}
           <main className="flex-1 h-[80vh] md:h-full overflow-hidden bg-white rounded-2xl shadow-sm border border-blue-100">
@@ -229,7 +184,7 @@ export default function DashboardPage() {
           </main>
 
           {/* Toggle for right sidebar - visible on desktop and tablet */}
-          {!isMobile && (
+          <div className="hidden md:block">
             <Button
               variant="ghost"
               size="icon"
@@ -241,23 +196,34 @@ export default function DashboardPage() {
                 <ChevronLeft className="h-6 w-6 text-blue-600" />
               }
             </Button>
-          )}
+          </div>
 
           {/* Right Sidebar - Generator panel */}
           <AnimatePresence>
-            {((!isMobile && !isTablet && showRightSidebar) || ((isMobile || isTablet) && showRightSidebar)) && (
+            {showRightSidebar && (
               <motion.div
-                initial={(isMobile || isTablet) ? { x: "100%" } : { opacity: 0 }}
-                animate={(isMobile || isTablet) ? { x: 0 } : { opacity: 1 }}
-                exit={(isMobile || isTablet) ? { x: "100%" } : { opacity: 0 }}
+                initial={{ 
+                  x: "100%",
+                  opacity: 0,
+                  width: "90%", // Mobile default width
+                }}
+                animate={{ 
+                  x: 0,
+                  opacity: 1,
+                  width: window.innerWidth < 768 ? "90%" : 
+                         window.innerWidth < 1280 ? "300px" : "340px"
+                }}
+                exit={{ 
+                  x: "100%", 
+                  opacity: 0 
+                }}
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
-                  ${(isMobile || isTablet) ? 'fixed top-[56px] bottom-0 right-0 z-30 w-[90%] md:w-[300px] h-[93vh]' : ' h-[calc(100vh - 56px)] relative w-[340px]'}
+                  fixed md:relative right-0 top-[56px] md:top-0 z-30  
+                  h-[calc(100vh-56px)] 
                   bg-white rounded-2xl overflow-hidden border border-blue-100
+                  shadow-lg md:shadow-none
                 `}
-                style={{
-                  boxShadow: (isMobile || isTablet) ? "-5px 0 20px rgba(0,0,0,0.1)" : "none"
-                }}
               >
                 <div className="h-full overflow-y-auto">
                   <RightSideBar />

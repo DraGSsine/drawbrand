@@ -41,6 +41,12 @@ const Sketch: React.FC = (): React.ReactElement => {
   const DRAWING_STORAGE_KEY = 'logo-generator-canvas';
   const DRAWING_JSON_STORAGE_KEY = 'logo-generator-canvas-json';
 
+  // Add a new state for SVG loading
+  const [isSvgLoading, setIsSvgLoading] = useState<boolean>(false);
+  
+  // Add SVG cache to prevent reloading the same SVGs
+  const svgCacheRef = useRef<Map<string, fabric.Object>>(new Map());
+
   // Check for mobile screen size
   useEffect(() => {
     const checkMobile = (): void => {
@@ -664,6 +670,33 @@ const Sketch: React.FC = (): React.ReactElement => {
     };
   }, [saveCanvasState]);
   
+  // Add forced save function for debugging (removed forceLoadCanvas as it's unused)
+  const forceSaveCanvas = (): boolean => {
+    console.log("Forcing canvas save to localStorage...");
+    if (fabricRef.current) {
+      // Create a JSON representation with all necessary properties
+      const json = JSON.stringify(fabricRef.current.toJSON([
+        'id', 'selectable', 'hasControls', 'hasBorders',
+        'lockMovementX', 'lockMovementY', 'lockRotation',
+        'lockScalingX', 'lockScalingY', 'lockUniScaling', 'evented'
+      ]));
+      
+      // Save directly to localStorage
+      localStorage.setItem(DRAWING_JSON_STORAGE_KEY, json);
+      
+      // Also save as PNG for compatibility
+      const dataUrl = fabricRef.current.toDataURL({
+        format: 'png',
+        quality: 0.9,
+        multiplier: 1
+      });
+      localStorage.setItem(DRAWING_STORAGE_KEY, dataUrl);
+      
+      console.log('Emergency canvas save completed');
+      return true;
+    }
+    return false;
+  };
 
   const handleToolChange = (newTool: Tool): void => {
     if (fabricRef.current) {
@@ -725,49 +758,162 @@ const Sketch: React.FC = (): React.ReactElement => {
     }
   };
 
+  // Improved SVG loading function with caching, error handling, and positioning
   const handleIconPathSelect = (iconPath: string): void => {
     setTool("icon");
-  
-    if (fabricRef.current) {
-      const fullUrl = `${process.env.NEXT_PUBLIC_API_URL}${iconPath}`;
-      console.log("Loading SVG from URL:", fullUrl); // Debug log for the full URL
-  
-      // Load the SVG from the provided path
-      fabric.loadSVGFromURL(fullUrl, (objects, options) => {
-        if (!objects || objects.length === 0) {
-          console.error("Failed to load SVG from", fullUrl);
-          return;
+    
+    if (!fabricRef.current) return;
+    
+    // Show loading state
+    setIsSvgLoading(true);
+    
+    const canvas = fabricRef.current;
+    
+    // CRITICAL FIX: Clear the cache to prevent reusing small SVGs
+    svgCacheRef.current = new Map();
+    
+    // Create full URL
+    const svgUrl = `${process.env.NEXT_PUBLIC_API_URL}${iconPath}`;
+    
+    // Load SVG with proper error handling
+    fabric.loadSVGFromURL(svgUrl, 
+      (objects, options) => {
+        try {
+          if (!objects || objects.length === 0) {
+            throw new Error("Failed to load SVG objects");
+          }
+          
+          // Process the SVG group with optimizations
+          const svgGroup = processSvgGroup(objects, options);
+          
+          // Cache the original SVG for future use
+          svgCacheRef.current.set(iconPath, svgGroup);
+          
+          // Use immediately instead of cloning
+          addSvgToCanvas(svgGroup);
+          setIsSvgLoading(false);
+        } catch (error) {
+          console.error("Error processing SVG:", error);
+          setIsSvgLoading(false);
         }
+      },
+      (error: Error) => {
+        console.error("Failed to load SVG from", svgUrl, error);
+        setIsSvgLoading(false);
+      }
+    );
+  };
+  
+  // Helper function to process and optimize SVG groups
+  const processSvgGroup = (objects: fabric.Object[], options: fabric.IObjectOptions): fabric.Object => {
+    // Create group from SVG elements
+    const svgGroup = fabric.util.groupSVGElements(objects, options);
+    
+    // Apply default styling and make it editable
+    svgGroup.set({
+      originX: 'center',
+      originY: 'center',
+      transparentCorners: false,
+      cornerColor: '#0066ff',
+      borderColor: '#0066ff',
+      cornerSize: 8,
+      padding: 5,
+      cornerStyle: 'circle'
+    });
+    
+    // MAKE VERY LARGE: Use 150px to ensure it's visible
+    const FIXED_MAX_SIZE = 150; // Much larger to ensure visibility
+    
+    try {
+      // Get original dimensions for logging
+      const originalWidth = svgGroup.width || 0;
+      const originalHeight = svgGroup.height || 0;
+      
+      console.log(`Original SVG dimensions: ${originalWidth}px × ${originalHeight}px`);
+      
+      // Apply scaling immediately using more reliable method
+      if (originalWidth > 0) {
+        // Calculate scale factor for desired size
+        const scale = FIXED_MAX_SIZE / originalWidth;
+        console.log(`Applying scale factor: ${scale}`);
         
-        // Create a fabric group from the loaded SVG objects
-        const svgGroup = fabric.util.groupSVGElements(objects, options);
-        
-        // Scale the icon to a reasonable size
-        svgGroup.scaleToWidth(50);
-        
-        // Center the icon on the canvas
-        const canvas = fabricRef.current;
-        if (canvas) {
-          svgGroup.set({
-            left: (canvas.width || 600) / 2,
-            top: (canvas.height || 600) / 2,
-            originX: 'center',
-            originY: 'center'
-          });
-          
-          // Add to canvas and select it
-          canvas.add(svgGroup);
-          canvas.setActiveObject(svgGroup);
-          canvas.requestRenderAll();
-          
-          // Update history to include this object
-          setHistory((prev: fabric.Object[]) => [...prev, svgGroup]);
-          
-          // Switch to select tool after adding the icon
-          setTool("select");
-        }
-      });
+        // Force scale with direct property setting
+        svgGroup.scaleX = scale;
+        svgGroup.scaleY = scale;
+      } else {
+        console.log("Using scaleToWidth fallback");
+        svgGroup.scaleToWidth(FIXED_MAX_SIZE);
+      }
+      
+      // Ensure scale is permanently applied
+      svgGroup.setCoords();
+      
+      // Log the dimensions after scaling
+      console.log(`SVG dimensions after scaling: ${svgGroup.getScaledWidth()}px × ${svgGroup.getScaledHeight()}px`);
+    } catch (e) {
+      console.error("Error during SVG scaling:", e);
+      // Emergency fallback - direct scale override
+      svgGroup.scaleX = 2.0;
+      svgGroup.scaleY = 2.0;
     }
+    
+    return svgGroup;
+  };
+  
+  // Helper function to add SVG to canvas at appropriate position
+  const addSvgToCanvas = (svgObject: fabric.Object): void => {
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+    
+    // Position at the center of canvas
+    const canvasCenter = {
+      x: (canvas.width || 600) / 2,
+      y: (canvas.height || 600) / 2
+    };
+    
+    // Make sure the SVG is LARGE (force large size)
+    const TARGET_SIZE = 150; // Match the size in processSvgGroup
+    
+    // Force a large size regardless of current dimensions
+    let currentWidth = svgObject.getScaledWidth();
+    console.log(`Before final scaling: width = ${currentWidth}px`);
+    
+    if (currentWidth < 100) {
+      // If somehow still small, make it much larger
+      const forceScale = TARGET_SIZE / Math.max(currentWidth, 1);
+      svgObject.scale(forceScale);
+      svgObject.setCoords();
+      console.log(`Applied force scale: ${forceScale}, new width = ${svgObject.getScaledWidth()}px`);
+    }
+
+    // Position at the center of canvas
+    svgObject.set({
+      left: canvasCenter.x,
+      top: canvasCenter.y
+    });
+    
+    // Add directly to canvas
+    canvas.add(svgObject);
+    
+    // CRITICAL: Apply scaling AFTER adding to canvas to ensure it takes effect
+    if (svgObject.getScaledWidth() < 100) {
+      svgObject.scaleToWidth(TARGET_SIZE);
+      console.log(`Emergency resize after adding to canvas: ${svgObject.getScaledWidth()}px`);
+    }
+    
+    // Always select the object
+    canvas.setActiveObject(svgObject);
+    
+    // Update history and save canvas
+    setHistory((prev: fabric.Object[]) => [...prev, svgObject]);
+    saveCanvasState();
+    
+    // Switch to select tool
+    setTool("select");
+    
+    // Ensure canvas is rendered multiple times to force update
+    canvas.requestRenderAll();
+    setTimeout(() => canvas.requestRenderAll(), 50);
   };
 
   return (
@@ -791,6 +937,27 @@ const Sketch: React.FC = (): React.ReactElement => {
             onClearCanvas={handleClearCanvas}
             onUndoAction={handleUndo}
           />
+        </div>
+        
+        {/* SVG loading indicator */}
+        {isSvgLoading && (
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-white/90 py-1 px-3 rounded-full shadow-md z-20">
+            <div className="flex items-center">
+              <div className="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent mr-2"></div>
+              <span className="text-xs text-blue-600 font-medium">Loading SVG...</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Small debug save button */}
+        <div className="absolute bottom-2 right-2 z-10">
+          <button 
+            onClick={forceSaveCanvas}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs py-1 px-2 rounded"
+            title="Force Save to LocalStorage"
+          >
+            Save
+          </button>
         </div>
         
         {/* Canvas wrapper with focus ring */}
