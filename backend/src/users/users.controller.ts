@@ -6,7 +6,7 @@ import * as path from "path";
 
 @Controller('users')
 export class UsersController {
-  // Fixed: Define SVG root path correctly
+  // Improved path handling for SVG root
   private readonly svgRoot = path.join(process.cwd(), "public");
 
   constructor(private readonly usersService: UsersService) {}
@@ -37,14 +37,14 @@ export class UsersController {
     @Query("page") page = "1",
     @Query("search") search?: string
   ) {
-    console.log("SVG request received:", category, page, search ? `search: ${search}` : ''); // Updated debug log
+    console.log("SVG request received:", category, page, search ? `search: ${search}` : '');
     console.log("SVG root path:", this.svgRoot);
     
     if (!category) {
       throw new BadRequestException('Category parameter is required');
     }
     
-    const validCategories = ["solid", "regular", "duotone", "light", "thin","brands"];
+    const validCategories = ["solid", "regular", "duotone", "light", "thin", "brands"];
     if (!validCategories.includes(category.toLowerCase())) {
       throw new BadRequestException(`Invalid category. Valid options are: ${validCategories.join(', ')}`);
     }
@@ -80,7 +80,7 @@ export class UsersController {
       const start = (pageNumber - 1) * pageSize;
       const paginatedFiles = files.slice(start, start + pageSize);
 
-      // Return paths that match your directory structure
+      // Return paths that will work with our custom static file serving
       return paginatedFiles.map(file => `/${category.toLowerCase()}/${file}`);
     } catch (error) {
       console.error("Error loading icons:", error);

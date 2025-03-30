@@ -18,14 +18,39 @@ export default function DashboardPage() {
   // Simplified sidebar visibility state
   const [showLeftSidebar, setShowLeftSidebar] = useState(true);
   const [showRightSidebar, setShowRightSidebar] = useState(false);
+  // Track if component is mounted (client-side)
+  const [isMounted, setIsMounted] = useState(false);
+  // Store viewport information
+  const [viewport, setViewport] = useState({
+    isMobile: false, // < 768px
+    isTablet: false, // 768px - 1279px
+  });
+
+  // Set isMounted to true after component mounts
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Initialize viewport size
+    const updateViewport = () => {
+      setViewport({
+        isMobile: window.innerWidth < 768,
+        isTablet: window.innerWidth >= 768 && window.innerWidth < 1280,
+      });
+    };
+    
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+    return () => window.removeEventListener('resize', updateViewport);
+  }, []);
 
   // Close sidebars on ESC key (for accessibility)
   useEffect(() => {
+    if (!isMounted) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         // On mobile (will be hidden via CSS if not mobile)
-        const isMobileView = window.matchMedia("(max-width: 767px)").matches;
-        if (isMobileView) {
+        if (viewport.isMobile) {
           setShowLeftSidebar(false);
           setShowRightSidebar(false);
         }
@@ -34,18 +59,35 @@ export default function DashboardPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isMounted, viewport.isMobile]);
 
   // Helper function for sidebar overlay click
   const handleOverlayClick = () => {
-    if (window.innerWidth < 768) {
+    if (!isMounted) return;
+    
+    if (viewport.isMobile) {
       // Close both sidebars on mobile
       setShowLeftSidebar(false);
       setShowRightSidebar(false);
-    } else if (window.innerWidth < 1280) {
+    } else if (viewport.isTablet) {
       // Only close right sidebar on tablet
       setShowRightSidebar(false);
     }
+  };
+
+  // Calculate sidebar width based on viewport
+  const getLeftSidebarWidth = () => {
+    if (!isMounted) return "350px"; // Default for initial render
+    if (viewport.isMobile) return "90%";
+    if (viewport.isTablet) return "320px";
+    return "350px";
+  };
+
+  const getRightSidebarWidth = () => {
+    if (!isMounted) return "340px"; // Default for initial render
+    if (viewport.isMobile) return "90%";
+    if (viewport.isTablet) return "300px";
+    return "340px";
   };
 
   return (
@@ -141,8 +183,7 @@ export default function DashboardPage() {
                 animate={{ 
                   x: 0,
                   opacity: 1,
-                  width: window.innerWidth < 768 ? "90%" : 
-                         window.innerWidth < 1280 ? "320px" : "350px"
+                  width: getLeftSidebarWidth()
                 }}
                 exit={{ 
                   x: "-100%", 
@@ -210,8 +251,7 @@ export default function DashboardPage() {
                 animate={{ 
                   x: 0,
                   opacity: 1,
-                  width: window.innerWidth < 768 ? "90%" : 
-                         window.innerWidth < 1280 ? "300px" : "340px"
+                  width: getRightSidebarWidth()
                 }}
                 exit={{ 
                   x: "100%", 

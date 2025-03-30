@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { fabric } from "fabric";
 import EraserBrush from "@/utils/drawing/EraserBrush";
@@ -766,9 +768,7 @@ const Sketch: React.FC = (): React.ReactElement => {
     
     // Show loading state
     setIsSvgLoading(true);
-    
-    const canvas = fabricRef.current;
-    
+        
     // CRITICAL FIX: Clear the cache to prevent reusing small SVGs
     svgCacheRef.current = new Map();
     
@@ -875,7 +875,7 @@ const Sketch: React.FC = (): React.ReactElement => {
     const TARGET_SIZE = 150; // Match the size in processSvgGroup
     
     // Force a large size regardless of current dimensions
-    let currentWidth = svgObject.getScaledWidth();
+    const currentWidth = svgObject.getScaledWidth();
     console.log(`Before final scaling: width = ${currentWidth}px`);
     
     if (currentWidth < 100) {
