@@ -82,18 +82,18 @@ const colorPalettes: ColorPaletteType = {
 // Replace the separate Style2D and Style3D arrays with a single unified array
 const logoStyles = [
   { value: "none", label: "None", image: "/logoStyles/none.png" },
-  { value: "pictorial", label: "Pictorial", image: "/logoStyles/logos_2d/pictorial.png" },
-  { value: "mascot", label: "Mascot", image: "/logoStyles/logos_2d/mascot.png" },
-  { value: "badgeCrest", label: "Badge Crest", image: "/logoStyles/logos_2d/badgeCrest.png" },
-  { value: "cartoon", label: "Cartoon", image: "/logoStyles/logos_2d/cartoon.png" },
-  { value: "abstract", label: "Abstract", image: "/logoStyles/logos_2d/abstract.png" },
-  { value: "line", label: "Line", image: "/logoStyles/logos_2d/line.png" },
-  { value: "pixel", label: "Pixel", image: "/logoStyles/logos_2d/pixel.png" },
-  { value: "comic", label: "Comic", image: "/logoStyles/logos_2d/comic.png" },
-  { value: "realistic", label: "Realistic", image: "/logoStyles/logos_2d/realistic.png" },
-  { value: "watercolor", label: "Watercolor", image: "/logoStyles/logos_2d/watercolor.png" },
-  { value: "pop", label: "Pop", image: "/logoStyles/logos_2d/pop.png" },
-  { value: "illustration", label: "Illustration", image: "/logoStyles/logos_2d/illustration.png" }
+  { value: "pictorial", label: "Pictorial", image: "/logos_styles/pictorial.png" },
+  { value: "mascot", label: "Mascot", image: "/logos_styles/mascot.png" },
+  { value: "badgeCrest", label: "Badge Crest", image: "/logos_styles/badgeCrest.png" },
+  { value: "cartoon", label: "Cartoon", image: "/logos_styles/cartoon.png" },
+  { value: "abstract", label: "Abstract", image: "/logos_styles/abstract.png" },
+  { value: "line", label: "Line", image: "/logos_styles/line.png" },
+  { value: "pixel", label: "Pixel", image: "/logos_styles/pixel.png" },
+  { value: "comic", label: "Comic", image: "/logos_styles/comic.png" },
+  { value: "realistic", label: "Realistic", image: "/logos_styles/realistic.png" },
+  { value: "watercolor", label: "Watercolor", image: "/logos_styles/watercolor.png" },
+  { value: "pop", label: "Pop", image: "/logos_styles/pop.png" },
+  { value: "illustration", label: "Illustration", image: "/logos_styles/illustration.png" }
 ];
 
 // Updated default settings with palette as default color type
@@ -127,7 +127,7 @@ const LogoSidebar = () => {
   const [isCustomColorSelected, setIsCustomColorSelected] = useState<boolean>(false);
   const [enabledSections, setEnabledSections] = useState({
     styles: true,
-    colors: false,
+    colors: true, // Changed default to true for colors as well
     controls: true
   });
   const [previousValues, setPreviousValues] = useState({
@@ -309,13 +309,13 @@ const LogoSidebar = () => {
     return settings.styles.type === "2d" ? logoStyles : logoStyles;
   };
 
-  // Helper function to toggle sections - updated for simpler color structure
+  // Helper function to toggle sections - improved for better state preservation
   const toggleSection = (section: 'styles' | 'colors' | 'controls') => {
     if (enabledSections[section]) {
       // Disabling section - store current values first
       setPreviousValues({
         ...previousValues,
-        [section]: { ...settings[section] }
+        [section]: JSON.parse(JSON.stringify(settings[section])) // Deep copy to ensure no references
       });
       
       // Update settings with "Anything"
@@ -352,10 +352,10 @@ const LogoSidebar = () => {
 
   return (
     <div className="w-full h-full flex flex-col overflow-auto bg-white border border-blue-100 xl:rounded-2xl">
-      <div className="p-6  flex-grow pb-20 space-y-14">
+      <div className="p-6 flex-grow pb-20 space-y-10"> {/* Adjusted spacing between sections */}
         {/* Styles Section */}
-        <div className="space-y-4">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="space-y-5"> {/* Increased spacing */}
+          <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
               Styles
             </span>
@@ -369,14 +369,14 @@ const LogoSidebar = () => {
             </div>
           </div>
           
-          {/* Always show content, but apply disabled styling when toggled off */}
+          {/* Always show content, but apply stronger disabled styling when toggled off */}
           <div className={cn(
-            "transition-all duration-300 space-y-4",
-            !enabledSections.styles && "opacity-50 pointer-events-none saturate-50"
+            "transition-all duration-300 space-y-5", // More spacing
+            !enabledSections.styles && "opacity-40 saturate-[0.6] cursor-not-allowed" // Stronger visual indication of disabled state
           )}>
             <ToggleGroup
               type="single"
-              value={settings.styles.type}
+              value={settings.styles.type !== "anything" ? settings.styles.type : undefined}
               onValueChange={(value) => {
                 if (value && enabledSections.styles) handleStyleTypeChange(value as "2d" | "3d");
               }}
@@ -408,7 +408,7 @@ const LogoSidebar = () => {
 
             {/* Style Select with improved visuals */}
             <Select
-              value={settings.styles.style}
+              value={settings.styles.style !== "anything" ? settings.styles.style : ""}
               onValueChange={handleStyleChange}
               disabled={!enabledSections.styles}
             >
@@ -475,8 +475,8 @@ const LogoSidebar = () => {
         </div>
 
         {/* Colors Section - Improved section header */}
-        <div className="space-y-4">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="space-y-5"> {/* Increased spacing */}
+          <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
               Colors
             </span>
@@ -490,18 +490,19 @@ const LogoSidebar = () => {
             </div>
           </div>
           
-          {/* Color type toggle - Always visible but with reduced opacity when disabled */}
-          <div className="space-y-3">
+          {/* Color type toggle - Always visible with better disabled state */}
+          <div className={cn(
+            "space-y-5", // Increased spacing
+            !enabledSections.colors && "opacity-40 saturate-[0.6] cursor-not-allowed" // More distinct disabled state
+          )}>
             <ToggleGroup
               type="single"
-              value={enabledSections.colors ? settings.colors.type : undefined}
+              value={settings.colors.type !== "anything" ? settings.colors.type : 
+                     previousValues.colors?.type !== "anything" ? previousValues.colors?.type : "solid"}
               onValueChange={(value) => {
                 if (value && enabledSections.colors) handleColorTypeChange(value as "solid" | "palette");
               }}
-              className={cn(
-                "flex bg-slate-50 p-1 rounded-lg border border-slate-200 mb-3",
-                !enabledSections.colors && "opacity-50 pointer-events-none"
-              )}
+              className="flex bg-slate-50 p-1 rounded-lg border border-slate-200"
             >
               <ToggleGroupItem
                 value="solid"
@@ -527,14 +528,13 @@ const LogoSidebar = () => {
               </ToggleGroupItem>
             </ToggleGroup>
 
-            {/* Solid Color Selection - Visible even when disabled */}
+            {/* Only show the appropriate color selection UI based on current or previous type */}
+            {/* Solid Color Selection */}
             {(settings.colors.type === "solid" || 
-              (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid')) && (
-              <div className={cn(
-                "space-y-3",
-                !enabledSections.colors && "opacity-50 pointer-events-none saturate-50"
-              )}>
-                <div className="grid grid-cols-4 gap-2">
+              (settings.colors.type === "anything" && 
+               (!previousValues.colors?.type || previousValues.colors?.type === "solid"))) && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 gap-3"> {/* Increased gap */}
                   {colorOptions.map((preset) => (
                     <button
                       key={preset.value}
@@ -629,15 +629,11 @@ const LogoSidebar = () => {
               </div>
             )}
 
-            {/* Palette Selection - Visible even when disabled */}
+            {/* Palette Selection */}
             {(settings.colors.type === "palette" || 
-              settings.colors.type === 'anything' && 
-              (previousValues.colors?.type === 'palette' || !previousValues.colors?.type)) && (
-              <div className={cn(
-                "space-y-2",
-                !enabledSections.colors && "opacity-50 pointer-events-none saturate-50"
-              )}>
-                <div className="grid grid-cols-4 gap-2">
+              (settings.colors.type === "anything" && previousValues.colors?.type === "palette")) && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 gap-3"> {/* Increased gap */}
                   {/* Predefined palettes (first 3 columns) */}
                   {Object.entries(colorPalettes).slice(0, 3).map(([id, palette]) => (
                     <button
@@ -767,8 +763,8 @@ const LogoSidebar = () => {
         </div>
 
         {/* Design Controls - Improved section */}
-        <div className="space-y-4">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="space-y-5"> {/* Increased spacing */}
+          <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
               Design Controls
             </span>
@@ -782,10 +778,10 @@ const LogoSidebar = () => {
             </div>
           </div>
           
-          {/* Enhanced controls UI */}
+          {/* Enhanced controls UI with stronger disabled state */}
           <div className={cn(
-            "transition-all duration-300 space-y-5",
-            !enabledSections.controls && "opacity-50 pointer-events-none saturate-50"
+            "transition-all duration-300 space-y-5", // More spacing
+            !enabledSections.controls && "opacity-40 saturate-[0.6] cursor-not-allowed" // More distinct disabled state
           )}>
             <ToggleGroup
               type="single"
@@ -793,7 +789,7 @@ const LogoSidebar = () => {
               onValueChange={(value) => {
                 if (value && enabledSections.controls) setActiveControl(value as "creativity" | "detail");
               }}
-              className="flex bg-slate-50 p-1 rounded-lg border border-slate-200 mb-2"
+              className="flex bg-slate-50 p-1 rounded-lg border border-slate-200 mb-3" // Increased margin
             >
               <ToggleGroupItem
                 value="creativity"
@@ -819,62 +815,64 @@ const LogoSidebar = () => {
               </ToggleGroupItem>
             </ToggleGroup>
 
-            {/* Improved slider UI with better visual feedback */}
-            {activeControl === "creativity" && (
-              <div className="space-y-4 bg-gradient-to-br from-slate-50 to-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-slate-600 font-medium">Conservative</span>
-                  </div>
-                  <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
-                    {typeof settings.controls.creativity === "number" ? `${settings.controls.creativity}%` : "Anything"}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-slate-600 font-medium">Creative</span>
-                  </div>
+            {/* Show both sliders at all times, but only active one based on state */}
+            <div className={cn(
+              activeControl === "creativity" ? "block" : "hidden",
+              "space-y-4 bg-gradient-to-br from-slate-50 to-white p-5 rounded-lg border border-slate-200 shadow-sm" // More padding
+            )}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-slate-600 font-medium">Conservative</span>
                 </div>
-                <Slider
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={[typeof settings.controls.creativity === "number" ? settings.controls.creativity : 100]}
-                  onValueChange={(values) => handleControlChange("creativity", values[0])}
-                  disabled={settings.controls.creativity === "anything"}
-                  className="mt-2"
-                />
+                <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
+                  {typeof settings.controls.creativity === "number" ? `${settings.controls.creativity}%` : "Anything"}
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-slate-600 font-medium">Creative</span>
+                </div>
               </div>
-            )}
+              <Slider
+                min={0}
+                max={100}
+                step={1}
+                value={[typeof settings.controls.creativity === "number" ? settings.controls.creativity : 100]}
+                onValueChange={(values) => handleControlChange("creativity", values[0])}
+                disabled={settings.controls.creativity === "anything"}
+                className="mt-2"
+              />
+            </div>
             
-            {activeControl === "detail" && (
-              <div className="space-y-4 bg-gradient-to-br from-slate-50 to-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-slate-600 font-medium">Minimal</span>
-                  </div>
-                  <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
-                    {typeof settings.controls.detail === "number" ? `${settings.controls.detail}%` : "Anything"}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-slate-600 font-medium">Detailed</span>
-                  </div>
+            <div className={cn(
+              activeControl === "detail" ? "block" : "hidden",
+              "space-y-4 bg-gradient-to-br from-slate-50 to-white p-5 rounded-lg border border-slate-200 shadow-sm" // More padding
+            )}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-slate-600 font-medium">Minimal</span>
                 </div>
-                <Slider
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={[typeof settings.controls.detail === "number" ? settings.controls.detail : 100]}
-                  onValueChange={(values) => handleControlChange("detail", values[0])}
-                  disabled={settings.controls.detail === "anything"}
-                  className="mt-2"
-                />
+                <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
+                  {typeof settings.controls.detail === "number" ? `${settings.controls.detail}%` : "Anything"}
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-slate-600 font-medium">Detailed</span>
+                </div>
               </div>
-            )}
+              <Slider
+                min={0}
+                max={100}
+                step={1}
+                value={[typeof settings.controls.detail === "number" ? settings.controls.detail : 100]}
+                onValueChange={(values) => handleControlChange("detail", values[0])}
+                disabled={settings.controls.detail === "anything"}
+                className="mt-2"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Improved fixed button container at bottom */}
-      <div className="px-4 py-5 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white">
+      <div className="px-6 py-6 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white"> {/* Increased padding */}
         <Button
           variant="outline"
           className="w-full border-slate-300 bg-white rounded-lg flex items-center gap-2 justify-center hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 text-slate-700 h-12 font-medium transition-all shadow-sm"
@@ -889,4 +887,3 @@ const LogoSidebar = () => {
 };
 
 export default LogoSidebar;
-
