@@ -90,7 +90,7 @@ const logoStyles = [
   { value: "line", label: "Line", image: "/logos_styles/line.png" },
   { value: "pixel", label: "Pixel", image: "/logos_styles/pixel.png" },
   { value: "comic", label: "Comic", image: "/logos_styles/comic.png" },
-  { value: "realistic", label: "Realistic", image: "/logos_styles/realistic.png" },
+  { value: "manga", label: "Realistic", image: "/logos_styles/manga.png" },
   { value: "watercolor", label: "Watercolor", image: "/logos_styles/watercolor.png" },
   { value: "pop", label: "Pop", image: "/logos_styles/pop.png" },
   { value: "illustration", label: "Illustration", image: "/logos_styles/illustration.png" }
