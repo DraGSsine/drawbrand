@@ -34,15 +34,35 @@ const AnythingBadge = () => (
 export interface LogoSettings {
   styles: {
     type: "2d" | "3d" | "anything";  
-    style: string;      
+    style: string;
+    // Add previousValues for preserving state between toggles
+    previousValues?: {
+      type: "2d" | "3d";
+      style: string;
+    };      
   };
   colors: {
     type: "solid" | "palette" | "anything"; // Support both solid and palette types, plus "anything"
     color: string | string[] | "anything"; // Can be a single color or array of colors
+    // Add previousValues for preserving state between toggles
+    previousValues?: {
+      type: "solid" | "palette";
+      color: string | string[];
+    };
   };
   controls: {
     creativity: number | "anything";
     detail: number | "anything";
+    // Add previousValues for preserving state between toggles
+    previousValues?: {
+      creativity: number;
+      detail: number;
+    };
+  };
+  text: {
+    enabled: boolean;
+    value: string;
+    previousValue?: string;
   };
 }
 
@@ -81,7 +101,7 @@ const colorPalettes: ColorPaletteType = {
 
 // Replace the separate Style2D and Style3D arrays with a single unified array
 const logoStyles = [
-  { value: "none", label: "None", image: "/logo_styles/none.png" },
+  { value: "none", label: "None", image: "/logos_styles/none.png" },
   { value: "pictorial", label: "Pictorial", image: "/logos_styles/pictorial.png" },
   { value: "mascot", label: "Mascot", image: "/logos_styles/mascot.png" },
   { value: "badgeCrest", label: "Badge Crest", image: "/logos_styles/badgeCrest.png" },
@@ -96,7 +116,7 @@ const logoStyles = [
   { value: "illustration", label: "Illustration", image: "/logos_styles/illustration.png" }
 ];
 
-// Updated default settings with palette as default color type
+// Updated default settings with "My Logo Name" as default text
 const defaultSettings: LogoSettings = {
   styles: {
     type: "2d",
@@ -109,6 +129,10 @@ const defaultSettings: LogoSettings = {
   controls: {
     creativity: 100,
     detail: 100,
+  },
+  text: {
+    enabled: true,
+    value: "My Logo Name" // Changed from "Logo" to "My Logo Name"
   }
 };
 
@@ -128,12 +152,14 @@ const LogoSidebar = () => {
   const [enabledSections, setEnabledSections] = useState({
     styles: true,
     colors: true, // Changed default to true for colors as well
-    controls: true
+    controls: true,
+    text: true // Added text section to enabled sections
   });
   const [previousValues, setPreviousValues] = useState({
     styles: { ...settings.styles },
     colors: { ...settings.colors },
-    controls: { ...settings.controls }
+    controls: { ...settings.controls },
+    text: { ...settings.text } // Added text to previous values
   });
 
   // Load settings from localStorage on component mount
@@ -144,14 +170,43 @@ const LogoSidebar = () => {
         const parsedSettings = JSON.parse(savedSettings) as Partial<LogoSettings>;
         
         // Merge with defaults to ensure all properties exist
-        setSettings({
+        const mergedSettings = {
           ...defaultSettings,
           ...parsedSettings,
           // Ensure nested objects don't get lost
           styles: { ...defaultSettings.styles, ...(parsedSettings.styles || {}) },
           colors: { ...defaultSettings.colors, ...(parsedSettings.colors || {}) },
           controls: { ...defaultSettings.controls, ...(parsedSettings.controls || {}) },
-        });
+          text: { ...defaultSettings.text, ...(parsedSettings.text || {}) }
+        };
+        
+        setSettings(mergedSettings);
+        
+        // Initialize enabledSections based on whether values are "anything"
+        const newEnabledSections = {
+          styles: !(mergedSettings.styles.type === "anything"),
+          colors: !(mergedSettings.colors.type === "anything"),
+          controls: !(mergedSettings.controls.creativity === "anything"),
+          text: mergedSettings.text.enabled
+        };
+        
+        setEnabledSections(newEnabledSections);
+        
+        // Set previousValues from the stored previousValues or from the current values
+        const newPreviousValues = {
+          styles: mergedSettings.styles.previousValues || 
+                  (mergedSettings.styles.type === "anything" ? defaultSettings.styles : mergedSettings.styles),
+          colors: mergedSettings.colors.previousValues || 
+                  (mergedSettings.colors.type === "anything" ? defaultSettings.colors : mergedSettings.colors),
+          controls: mergedSettings.controls.previousValues || 
+                    (mergedSettings.controls.creativity === "anything" ? defaultSettings.controls : mergedSettings.controls),
+          text: mergedSettings.text.previousValue ? 
+                { enabled: mergedSettings.text.enabled, value: mergedSettings.text.previousValue } : 
+                mergedSettings.text
+        };
+        
+        setPreviousValues(newPreviousValues);
+        
       } catch (error) {
         console.error("Error parsing saved settings:", error);
         localStorage.removeItem(STORAGE_KEY);
@@ -306,41 +361,128 @@ const LogoSidebar = () => {
 
   // Helper to get style options based on current type
   const getStyleOptions = () => {
-    return settings.styles.type === "2d" ? logoStyles : logoStyles;
+    // Use previous values when type is "anything"
+    const effectiveType = settings.styles.type !== "anything" ? 
+      settings.styles.type : 
+      settings.styles.previousValues?.type || previousValues.styles.type || "2d";
+    
+    return effectiveType === "2d" ? logoStyles : logoStyles;
   };
 
   // Helper function to toggle sections - improved for better state preservation
-  const toggleSection = (section: 'styles' | 'colors' | 'controls') => {
+  const toggleSection = (section: 'styles' | 'colors' | 'controls' | 'text') => {
     if (enabledSections[section]) {
-      // Disabling section - store current values first
+      // Disabling section - store current values in both state and within settings object
+      const currentSectionValues = JSON.parse(JSON.stringify(settings[section])); // Deep copy
+      
+      // Remove any "anything" values from the current section before storing
+      if (section === 'styles') {
+        delete currentSectionValues.type;
+        delete currentSectionValues.style;
+      } else if (section === 'colors') {
+        delete currentSectionValues.type;
+        delete currentSectionValues.color;
+      } else if (section === 'controls') {
+        delete currentSectionValues.creativity;
+        delete currentSectionValues.detail;
+      } else if (section === 'text') {
+        // Store text value before disabling
+        currentSectionValues.previousValue = settings.text.value;
+      }
+      
       setPreviousValues({
         ...previousValues,
-        [section]: JSON.parse(JSON.stringify(settings[section])) // Deep copy to ensure no references
+        [section]: currentSectionValues // Store current values before disabling
       });
       
-      // Update settings with "Anything"
+      // Update settings with "Anything" and preserve previous values
       if (section === 'styles') {
         setSettings({
           ...settings,
-          styles: { type: "anything", style: "anything" }
+          styles: { 
+            type: "anything", 
+            style: "anything",
+            previousValues: { 
+              type: settings.styles.type as "2d" | "3d",
+              style: settings.styles.style 
+            }
+          }
         });
       } else if (section === 'colors') {
         setSettings({
           ...settings,
-          colors: { type: "anything", color: "anything" }
+          colors: { 
+            type: "anything", 
+            color: "anything",
+            previousValues: { 
+              type: settings.colors.type as "solid" | "palette",
+              color: settings.colors.color !== "anything" ? settings.colors.color : 
+                    (previousValues.colors.color || (settings.colors.type === "solid" ? "#4F46E5" : ["#4F46E5", "#0EA5E9", "#10B981"]))
+            }
+          }
         });
       } else if (section === 'controls') {
         setSettings({
           ...settings,
-          controls: { creativity: "anything", detail: "anything" }
+          controls: { 
+            creativity: "anything", 
+            detail: "anything",
+            previousValues: { 
+              creativity: typeof settings.controls.creativity === "number" ? 
+                          settings.controls.creativity : 100,
+              detail: typeof settings.controls.detail === "number" ? 
+                      settings.controls.detail : 100,
+            }
+          }
+        });
+      } else if (section === 'text') {
+        // Disable text section
+        setSettings({
+          ...settings,
+          text: {
+            enabled: false,
+            value: "",
+            previousValue: settings.text.value
+          }
         });
       }
     } else {
       // Enabling section - restore previous values
-      setSettings({
-        ...settings,
-        [section]: previousValues[section]
-      });
+      if (section === 'styles') {
+        setSettings({
+          ...settings,
+          styles: {
+            type: settings.styles.previousValues?.type || previousValues.styles.type || "2d",
+            style: settings.styles.previousValues?.style || previousValues.styles.style || "none"
+          }
+        });
+      } else if (section === 'colors') {
+        setSettings({
+          ...settings,
+          colors: {
+            type: settings.colors.previousValues?.type || previousValues.colors.type || "solid",
+            color: settings.colors.previousValues?.color || previousValues.colors.color || "#4F46E5" 
+          }
+        });
+      } else if (section === 'controls') {
+        setSettings({
+          ...settings,
+          controls: {
+            creativity: settings.controls.previousValues?.creativity || previousValues.controls.creativity || 100,
+            detail: settings.controls.previousValues?.detail || previousValues.controls.detail || 100
+          }
+        });
+      } else if (section === 'text') {
+        // Re-enable text section - keep previously entered text
+        setSettings({
+          ...settings,
+          text: {
+            enabled: true,
+            value: settings.text.previousValue || previousValues.text.previousValue || "" 
+            // Empty string is allowed
+          }
+        });
+      }
     }
     
     // Toggle the enabled state
@@ -350,10 +492,69 @@ const LogoSidebar = () => {
     });
   };
 
+  // Handle text change - allow empty values
+  const handleTextChange = (value: string) => {
+    setSettings({
+      ...settings,
+      text: {
+        ...settings.text,
+        value: value // Allow empty string, no default
+      }
+    });
+  };
+
+  // Helper function that returns either the set text or the default fallback
+  const getLogoText = () => {
+    return settings.text.value || "My Logo Name";
+  };
+
   return (
     <div className="w-full h-full flex flex-col overflow-auto bg-white border border-blue-100 xl:rounded-2xl">
       <div className="p-6 flex-grow pb-20 space-y-10"> {/* Adjusted spacing between sections */}
-        {/* Styles Section */}
+        {/* Text Section - Now appears first */}
+        <div className="space-y-5">
+          <div className="flex items-center justify-between">
+            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
+              Text
+            </span>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={enabledSections.text}
+                onCheckedChange={() => toggleSection('text')}
+                className="data-[state=checked]:bg-blue-600"
+              />
+            </div>
+          </div>
+          
+          {/* Text input field - no error states */}
+          <div className={cn(
+            "transition-all duration-300 space-y-5",
+            !enabledSections.text && "opacity-40 saturate-[0.6] cursor-not-allowed"
+          )}>
+            <div className="relative">
+              <input
+                type="text"
+                value={settings.text.value}
+                onChange={(e) => handleTextChange(e.target.value)}
+                placeholder="Enter logo text (default: My Logo Name)"
+                disabled={!enabledSections.text}
+                className={cn(
+                  "w-full p-3 bg-white border border-slate-200 rounded-lg text-sm transition-all",
+                  enabledSections.text ? "hover:border-blue-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100" : ""
+                  // Removed conditional styling for empty field
+                )}
+              />
+              {/* Removed error message for empty text */}
+            </div>
+            <div className="text-xs text-slate-500">
+              {enabledSections.text 
+                ? `This text will appear on your logo${!settings.text.value ? " (using default if empty)" : ""}`
+                : "Text is disabled"}
+            </div>
+          </div>
+        </div>
+        
+        {/* Styles Section - Now appears second */}
         <div className="space-y-5"> {/* Increased spacing */}
           <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
@@ -376,7 +577,10 @@ const LogoSidebar = () => {
           )}>
             <ToggleGroup
               type="single"
-              value={settings.styles.type !== "anything" ? settings.styles.type : undefined}
+              value={
+                settings.styles.type !== "anything" ? settings.styles.type : 
+                settings.styles.previousValues?.type || previousValues.styles.type || "2d"
+              }
               onValueChange={(value) => {
                 if (value && enabledSections.styles) handleStyleTypeChange(value as "2d" | "3d");
               }}
@@ -386,7 +590,10 @@ const LogoSidebar = () => {
                 value="2d"
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
-                  settings.styles.type === "2d" && enabledSections.styles 
+                  (settings.styles.type === "2d" || 
+                   (settings.styles.type === "anything" && 
+                    (settings.styles.previousValues?.type === "2d" || previousValues.styles.type === "2d"))) && 
+                  enabledSections.styles 
                     ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
@@ -397,7 +604,10 @@ const LogoSidebar = () => {
                 value="3d"
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
-                  settings.styles.type === "3d" && enabledSections.styles 
+                  (settings.styles.type === "3d" || 
+                   (settings.styles.type === "anything" && 
+                    (settings.styles.previousValues?.type === "3d" || previousValues.styles.type === "3d"))) && 
+                  enabledSections.styles 
                     ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
@@ -408,7 +618,10 @@ const LogoSidebar = () => {
 
             {/* Style Select with improved visuals */}
             <Select
-              value={settings.styles.style !== "anything" ? settings.styles.style : ""}
+              value={
+                settings.styles.style !== "anything" ? settings.styles.style : 
+                settings.styles.previousValues?.style || previousValues.styles.style || ""
+              }
               onValueChange={handleStyleChange}
               disabled={!enabledSections.styles}
             >
@@ -418,7 +631,10 @@ const LogoSidebar = () => {
                   {/* Get the currently selected style */}
                   {(() => {
                     const selectedStyle = getStyleOptions().find(
-                      (style) => style.value === settings.styles.style
+                      (style) => style.value === (
+                        settings.styles.style !== "anything" ? settings.styles.style : 
+                        settings.styles.previousValues?.style || previousValues.styles.style || ""
+                      )
                     );
 
                     return (
@@ -435,7 +651,10 @@ const LogoSidebar = () => {
                           </div>
                         ) : null}
                         <span className="flex-1 text-sm text-left">
-                          {selectedStyle?.label || `Select ${settings.styles.type} style`}
+                          {selectedStyle?.label || `Select ${
+                            settings.styles.type !== "anything" ? settings.styles.type : 
+                            settings.styles.previousValues?.type || previousValues.styles.type || "2d"
+                          } style`}
                         </span>
                       </>
                     );
@@ -474,7 +693,7 @@ const LogoSidebar = () => {
           </div>
         </div>
 
-        {/* Colors Section - Improved section header */}
+        {/* Colors Section - Remains third */}
         <div className="space-y-5"> {/* Increased spacing */}
           <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
@@ -497,8 +716,11 @@ const LogoSidebar = () => {
           )}>
             <ToggleGroup
               type="single"
-              value={settings.colors.type !== "anything" ? settings.colors.type : 
-                     previousValues.colors?.type !== "anything" ? previousValues.colors?.type : "solid"}
+              value={
+                settings.colors.type !== "anything" ? settings.colors.type : 
+                previousValues.colors?.type && previousValues.colors.type !== "anything" ? previousValues.colors.type : 
+                "solid" // Default fallback when both are "anything" or undefined
+              }
               onValueChange={(value) => {
                 if (value && enabledSections.colors) handleColorTypeChange(value as "solid" | "palette");
               }}
@@ -762,7 +984,7 @@ const LogoSidebar = () => {
           </div>
         </div>
 
-        {/* Design Controls - Improved section */}
+        {/* Design Controls - Remains fourth */}
         <div className="space-y-5"> {/* Increased spacing */}
           <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">

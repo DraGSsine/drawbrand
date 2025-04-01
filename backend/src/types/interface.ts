@@ -19,6 +19,10 @@ export interface LogoSettings {
     creativity: number;
     detail: number;
   };
+  text: {
+    enabled: string;
+    value: string;
+  };
 }
 
 export interface GenerationRequest {
