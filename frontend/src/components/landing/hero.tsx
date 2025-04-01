@@ -12,7 +12,7 @@ const Hero: React.FC = () => {
   ];
 
   return (
-    <section className="relative min-h-screen py-12 sm:py-16 md:py-20 px-4 sm:px-8 md:px-12 overflow-hidden flex items-center">
+    <section className="relative min-h-screen py-24 sm:py-16 md:py-20 px-4 sm:px-8 md:px-12 overflow-hidden flex items-center">
       {/* Ambient Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         {[

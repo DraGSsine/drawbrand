@@ -503,10 +503,6 @@ const LogoSidebar = () => {
     });
   };
 
-  // Helper function that returns either the set text or the default fallback
-  const getLogoText = () => {
-    return settings.text.value || "My Logo Name";
-  };
 
   return (
     <div className="w-full h-full flex flex-col overflow-auto bg-white border border-blue-100 xl:rounded-2xl">
