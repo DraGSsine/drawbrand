@@ -15,6 +15,7 @@ const GoogleAuthButton = ({ isPending = false }) => {
     }
     window.location.href = `${apiUrl}/auth/google`;
   }, []);
+
   return (
     <Button
       variant="outline"

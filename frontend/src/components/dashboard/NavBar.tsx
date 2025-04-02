@@ -23,7 +23,7 @@ const NavBar = () => {
   const handleSignout = async () => {
     try {
       await api.post('/auth/signout');
-      window.location.href = '/auth/signin';
+      // window.location.href = '/auth/signin';
     } catch (error) {
       console.error('Failed to sign out', error);
     }

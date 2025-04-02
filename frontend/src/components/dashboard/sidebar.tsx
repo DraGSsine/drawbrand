@@ -23,46 +23,39 @@ import {
 import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
 
-// Improved AnythingBadge with better contrast and padding
-const AnythingBadge = () => (
-  <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">
-    Anything
-  </span>
-);
+// Removed AnythingBadge as it's no longer needed
 
-// Updated LogoSettings interface with palette structure
+// Updated LogoSettings interface with enabled properties
 export interface LogoSettings {
   styles: {
-    type: "2d" | "3d" | "anything";  
+    enabled: boolean;
+    type: "2d" | "3d";  
     style: string;
-    // Add previousValues for preserving state between toggles
-    previousValues?: {
-      type: "2d" | "3d";
-      style: string;
-    };      
   };
   colors: {
-    type: "solid" | "palette" | "anything"; // Support both solid and palette types, plus "anything"
-    color: string | string[] | "anything"; // Can be a single color or array of colors
-    // Add previousValues for preserving state between toggles
-    previousValues?: {
-      type: "solid" | "palette";
-      color: string | string[];
-    };
+    enabled: boolean;
+    type: "solid" | "palette";
+    color: string | string[]; 
   };
   controls: {
-    creativity: number | "anything";
-    detail: number | "anything";
-    // Add previousValues for preserving state between toggles
-    previousValues?: {
-      creativity: number;
-      detail: number;
-    };
+    enabled: boolean;
+    creativity: number;
+    detail: number;
   };
   text: {
     enabled: boolean;
     value: string;
     previousValue?: string;
+  };
+  tagline: {  
+    enabled: boolean;
+    value: string;
+    previousValue?: string;
+  };
+  background: {  
+    enabled: boolean;
+    type: "solid" | "palette";
+    color: string | string[];
   };
 }
 
@@ -101,7 +94,6 @@ const colorPalettes: ColorPaletteType = {
 
 // Replace the separate Style2D and Style3D arrays with a single unified array
 const logoStyles = [
-  { value: "none", label: "None", image: "/logos_styles/none.png" },
   { value: "pictorial", label: "Pictorial", image: "/logos_styles/pictorial.png" },
   { value: "mascot", label: "Mascot", image: "/logos_styles/mascot.png" },
   { value: "badgeCrest", label: "Badge Crest", image: "/logos_styles/badgeCrest.png" },
@@ -116,23 +108,35 @@ const logoStyles = [
   { value: "illustration", label: "Illustration", image: "/logos_styles/illustration.png" }
 ];
 
-// Updated default settings with "My Logo Name" as default text
+// Updated default settings with enabled properties
 const defaultSettings: LogoSettings = {
   styles: {
+    enabled: true,
     type: "2d",
-    style: "none", // Default 2D style
+    style: "abstract",
   },
   colors: {
-    type: "anything",  // Changed from "solid" to "palette"
-    color: "anything"
+    enabled: false,
+    type: "solid",
+    color: "#4F46E5"
   },
   controls: {
+    enabled: true,
     creativity: 100,
     detail: 100,
   },
   text: {
-    enabled: true,
-    value: "My Logo Name" // Changed from "Logo" to "My Logo Name"
+    enabled: false,
+    value: "Your Logo Name"
+  },
+  tagline: {
+    enabled: false,
+    value: "Your Logo tagline"
+  },
+  background: {
+    enabled: false,
+    type: "solid",
+    color: "#FFFFFF"
   }
 };
 
@@ -149,18 +153,7 @@ const LogoSidebar = () => {
   const [settings, setSettings] = useState<LogoSettings>(defaultSettings);
   const [activeControl, setActiveControl] = useState<"creativity" | "detail">("creativity");
   const [isCustomColorSelected, setIsCustomColorSelected] = useState<boolean>(false);
-  const [enabledSections, setEnabledSections] = useState({
-    styles: true,
-    colors: true, // Changed default to true for colors as well
-    controls: true,
-    text: true // Added text section to enabled sections
-  });
-  const [previousValues, setPreviousValues] = useState({
-    styles: { ...settings.styles },
-    colors: { ...settings.colors },
-    controls: { ...settings.controls },
-    text: { ...settings.text } // Added text to previous values
-  });
+  const [isCustomBgColorSelected, setIsCustomBgColorSelected] = useState<boolean>(false);
 
   // Load settings from localStorage on component mount
   useEffect(() => {
@@ -177,35 +170,24 @@ const LogoSidebar = () => {
           styles: { ...defaultSettings.styles, ...(parsedSettings.styles || {}) },
           colors: { ...defaultSettings.colors, ...(parsedSettings.colors || {}) },
           controls: { ...defaultSettings.controls, ...(parsedSettings.controls || {}) },
-          text: { ...defaultSettings.text, ...(parsedSettings.text || {}) }
+          text: { ...defaultSettings.text, ...(parsedSettings.text || {}) },
+          tagline: { ...defaultSettings.tagline, ...(parsedSettings.tagline || {}) },
+          background: { ...defaultSettings.background, ...(parsedSettings.background || {}) }
         };
         
         setSettings(mergedSettings);
         
-        // Initialize enabledSections based on whether values are "anything"
-        const newEnabledSections = {
-          styles: !(mergedSettings.styles.type === "anything"),
-          colors: !(mergedSettings.colors.type === "anything"),
-          controls: !(mergedSettings.controls.creativity === "anything"),
-          text: mergedSettings.text.enabled
-        };
+        // Check if the color is custom
+        if (mergedSettings.colors.type === "solid") {
+          const color = mergedSettings.colors.color as string;
+          setIsCustomColorSelected(!colorOptions.some(option => option.value === color));
+        }
         
-        setEnabledSections(newEnabledSections);
-        
-        // Set previousValues from the stored previousValues or from the current values
-        const newPreviousValues = {
-          styles: mergedSettings.styles.previousValues || 
-                  (mergedSettings.styles.type === "anything" ? defaultSettings.styles : mergedSettings.styles),
-          colors: mergedSettings.colors.previousValues || 
-                  (mergedSettings.colors.type === "anything" ? defaultSettings.colors : mergedSettings.colors),
-          controls: mergedSettings.controls.previousValues || 
-                    (mergedSettings.controls.creativity === "anything" ? defaultSettings.controls : mergedSettings.controls),
-          text: mergedSettings.text.previousValue ? 
-                { enabled: mergedSettings.text.enabled, value: mergedSettings.text.previousValue } : 
-                mergedSettings.text
-        };
-        
-        setPreviousValues(newPreviousValues);
+        // Check if background color is custom
+        if (mergedSettings.background.type === "solid") {
+          const bgColor = mergedSettings.background.color as string;
+          setIsCustomBgColorSelected(!colorOptions.some(option => option.value === bgColor));
+        }
         
       } catch (error) {
         console.error("Error parsing saved settings:", error);
@@ -238,6 +220,7 @@ const LogoSidebar = () => {
     setSettings({
       ...settings,
       styles: {
+        ...settings.styles,
         type,
         style: newStyle
       }
@@ -262,6 +245,7 @@ const LogoSidebar = () => {
       setSettings({
         ...settings,
         colors: {
+          ...settings.colors,
           type,
           color: [settings.colors.color, "#FBBF24", "#DC2626"] // Convert to array with the current color
         }
@@ -272,6 +256,7 @@ const LogoSidebar = () => {
       setSettings({
         ...settings,
         colors: {
+          ...settings.colors,
           type,
           color: settings.colors.color[0] // Use first color from array
         }
@@ -294,6 +279,7 @@ const LogoSidebar = () => {
     setSettings({
       ...settings,
       colors: {
+        ...settings.colors,
         type: "solid",
         color: color
       }
@@ -304,7 +290,7 @@ const LogoSidebar = () => {
     setIsCustomColorSelected(!isPredefined);
   };
 
-  // Updated handlePaletteChange function to fix custom palette handling
+  // Updated handlePaletteChange function
   const handlePaletteChange = (paletteId: string) => {
     let selectedColors: string[];
     
@@ -315,10 +301,10 @@ const LogoSidebar = () => {
       selectedColors = ["#F97316", "#FBBF24", "#DC2626"];
     }
     
-    // Always set to palette type and update colors
     setSettings({
       ...settings,
       colors: {
+        ...settings.colors,
         type: "palette",
         color: selectedColors
       }
@@ -337,6 +323,7 @@ const LogoSidebar = () => {
     setSettings({
       ...settings,
       colors: {
+        ...settings.colors,
         type: "palette",
         color: currentColors
       }
@@ -357,138 +344,116 @@ const LogoSidebar = () => {
   // Reset to defaults
   const resetToDefaults = () => {
     setSettings({ ...defaultSettings });
+    setIsCustomColorSelected(false);
+    setIsCustomBgColorSelected(false);
   };
 
-  // Helper to get style options based on current type
-  const getStyleOptions = () => {
-    // Use previous values when type is "anything"
-    const effectiveType = settings.styles.type !== "anything" ? 
-      settings.styles.type : 
-      settings.styles.previousValues?.type || previousValues.styles.type || "2d";
+  // Handle tagline change
+  const handleTaglineChange = (value: string) => {
+    setSettings({
+      ...settings,
+      tagline: {
+        ...settings.tagline,
+        value: value
+      }
+    });
+  };
+  
+  // Handle background color change
+  const handleBackgroundColorChange = (color: string) => {
+    setSettings({
+      ...settings,
+      background: {
+        ...settings.background,
+        type: "solid",
+        color: color
+      }
+    });
     
-    return effectiveType === "2d" ? logoStyles : logoStyles;
+    // Determine if this is a custom color
+    const isPredefined = colorOptions.some(option => option.value === color);
+    setIsCustomBgColorSelected(!isPredefined);
   };
 
-  // Helper function to toggle sections - improved for better state preservation
-  const toggleSection = (section: 'styles' | 'colors' | 'controls' | 'text') => {
-    if (enabledSections[section]) {
-      // Disabling section - store current values in both state and within settings object
-      const currentSectionValues = JSON.parse(JSON.stringify(settings[section])); // Deep copy
-      
-      // Remove any "anything" values from the current section before storing
-      if (section === 'styles') {
-        delete currentSectionValues.type;
-        delete currentSectionValues.style;
-      } else if (section === 'colors') {
-        delete currentSectionValues.type;
-        delete currentSectionValues.color;
-      } else if (section === 'controls') {
-        delete currentSectionValues.creativity;
-        delete currentSectionValues.detail;
-      } else if (section === 'text') {
-        // Store text value before disabling
-        currentSectionValues.previousValue = settings.text.value;
-      }
-      
-      setPreviousValues({
-        ...previousValues,
-        [section]: currentSectionValues // Store current values before disabling
-      });
-      
-      // Update settings with "Anything" and preserve previous values
-      if (section === 'styles') {
-        setSettings({
-          ...settings,
-          styles: { 
-            type: "anything", 
-            style: "anything",
-            previousValues: { 
-              type: settings.styles.type as "2d" | "3d",
-              style: settings.styles.style 
-            }
-          }
-        });
-      } else if (section === 'colors') {
-        setSettings({
-          ...settings,
-          colors: { 
-            type: "anything", 
-            color: "anything",
-            previousValues: { 
-              type: settings.colors.type as "solid" | "palette",
-              color: settings.colors.color !== "anything" ? settings.colors.color : 
-                    (previousValues.colors.color || (settings.colors.type === "solid" ? "#4F46E5" : ["#4F46E5", "#0EA5E9", "#10B981"]))
-            }
-          }
-        });
-      } else if (section === 'controls') {
-        setSettings({
-          ...settings,
-          controls: { 
-            creativity: "anything", 
-            detail: "anything",
-            previousValues: { 
-              creativity: typeof settings.controls.creativity === "number" ? 
-                          settings.controls.creativity : 100,
-              detail: typeof settings.controls.detail === "number" ? 
-                      settings.controls.detail : 100,
-            }
-          }
-        });
-      } else if (section === 'text') {
-        // Disable text section
-        setSettings({
-          ...settings,
-          text: {
-            enabled: false,
-            value: "",
-            previousValue: settings.text.value
-          }
-        });
-      }
+  // Handle background palette change
+  const handleBackgroundPaletteChange = (paletteId: string) => {
+    let selectedColors: string[];
+    
+    if (paletteId in colorPalettes) {
+      selectedColors = [...colorPalettes[paletteId].colors];
     } else {
-      // Enabling section - restore previous values
-      if (section === 'styles') {
-        setSettings({
-          ...settings,
-          styles: {
-            type: settings.styles.previousValues?.type || previousValues.styles.type || "2d",
-            style: settings.styles.previousValues?.style || previousValues.styles.style || "none"
-          }
-        });
-      } else if (section === 'colors') {
-        setSettings({
-          ...settings,
-          colors: {
-            type: settings.colors.previousValues?.type || previousValues.colors.type || "solid",
-            color: settings.colors.previousValues?.color || previousValues.colors.color || "#4F46E5" 
-          }
-        });
-      } else if (section === 'controls') {
-        setSettings({
-          ...settings,
-          controls: {
-            creativity: settings.controls.previousValues?.creativity || previousValues.controls.creativity || 100,
-            detail: settings.controls.previousValues?.detail || previousValues.controls.detail || 100
-          }
-        });
-      } else if (section === 'text') {
-        // Re-enable text section - keep previously entered text
-        setSettings({
-          ...settings,
-          text: {
-            enabled: true,
-            value: settings.text.previousValue || previousValues.text.previousValue || "" 
-            // Empty string is allowed
-          }
-        });
-      }
+      // Default colors if palette not found
+      selectedColors = ["#F97316", "#FBBF24", "#DC2626"];
     }
     
-    // Toggle the enabled state
-    setEnabledSections({
-      ...enabledSections,
-      [section]: !enabledSections[section]
+    setSettings({
+      ...settings,
+      background: {
+        ...settings.background,
+        type: "palette",
+        color: selectedColors
+      }
+    });
+  };
+
+  // Update custom background palette color
+  const updateCustomBackgroundColor = (index: number, color: string) => {
+    // Ensure we have an array
+    const currentColors = Array.isArray(settings.background.color) ? 
+      [...settings.background.color] : 
+      ["#F97316", "#FBBF24", "#DC2626"];
+    
+    currentColors[index] = color;
+    
+    setSettings({
+      ...settings,
+      background: {
+        ...settings.background,
+        type: "palette",
+        color: currentColors
+      }
+    });
+  };
+  
+  // Handle background type change
+  const handleBackgroundTypeChange = (type: "solid" | "palette") => {
+    if (type === "palette" && typeof settings.background.color === "string") {
+      setSettings({
+        ...settings,
+        background: {
+          ...settings.background,
+          type,
+          color: [settings.background.color, "#FBBF24", "#DC2626"]
+        }
+      });
+    } else if (type === "solid" && Array.isArray(settings.background.color)) {
+      setSettings({
+        ...settings,
+        background: {
+          ...settings.background,
+          type,
+          color: settings.background.color[0]
+        }
+      });
+    } else {
+      setSettings({
+        ...settings,
+        background: {
+          ...settings.background,
+          type
+        }
+      });
+    }
+  };
+
+  // Simplified toggleSection function - just toggles the enabled property
+  const toggleSection = (section: 'styles' | 'colors' | 'controls' | 'text' | 'tagline' | 'background') => {
+    setSettings({
+      ...settings,
+      [section]: {
+        ...settings[section],
+        enabled: !settings[section].enabled,
+      }
     });
   };
 
@@ -515,17 +480,17 @@ const LogoSidebar = () => {
             </span>
             <div className="flex items-center gap-2">
               <Switch
-                checked={enabledSections.text}
+                checked={settings.text.enabled}
                 onCheckedChange={() => toggleSection('text')}
                 className="data-[state=checked]:bg-blue-600"
               />
             </div>
           </div>
           
-          {/* Text input field - no error states */}
+          {/* Text input field */}
           <div className={cn(
             "transition-all duration-300 space-y-5",
-            !enabledSections.text && "opacity-40 saturate-[0.6] cursor-not-allowed"
+            !settings.text.enabled && "opacity-40 saturate-[0.6] cursor-not-allowed"
           )}>
             <div className="relative">
               <input
@@ -533,52 +498,86 @@ const LogoSidebar = () => {
                 value={settings.text.value}
                 onChange={(e) => handleTextChange(e.target.value)}
                 placeholder="Enter logo text (default: My Logo Name)"
-                disabled={!enabledSections.text}
+                disabled={!settings.text.enabled}
                 className={cn(
                   "w-full p-3 bg-white border border-slate-200 rounded-lg text-sm transition-all",
-                  enabledSections.text ? "hover:border-blue-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100" : ""
-                  // Removed conditional styling for empty field
+                  settings.text.enabled ? "hover:border-blue-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100" : ""
                 )}
               />
-              {/* Removed error message for empty text */}
             </div>
             <div className="text-xs text-slate-500">
-              {enabledSections.text 
+              {settings.text.enabled 
                 ? `This text will appear on your logo${!settings.text.value ? " (using default if empty)" : ""}`
                 : "Text is disabled"}
             </div>
           </div>
         </div>
         
-        {/* Styles Section - Now appears second */}
-        <div className="space-y-5"> {/* Increased spacing */}
+        {/* Tagline Section - Appears after the text section */}
+        <div className="space-y-5">
+          <div className="flex items-center justify-between">
+            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
+              Tagline
+            </span>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={settings.tagline.enabled}
+                onCheckedChange={() => toggleSection('tagline')}
+                className="data-[state=checked]:bg-blue-600"
+              />
+            </div>
+          </div>
+          
+          {/* Tagline input field */}
+          <div className={cn(
+            "transition-all duration-300 space-y-5",
+            !settings.tagline.enabled && "opacity-40 saturate-[0.6] cursor-not-allowed"
+          )}>
+            <div className="relative">
+              <input
+                type="text"
+                value={settings.tagline.value}
+                onChange={(e) => handleTaglineChange(e.target.value)}
+                placeholder="Enter tagline (e.g., Your brand tagline)"
+                disabled={!settings.tagline.enabled}
+                className={cn(
+                  "w-full p-3 bg-white border border-slate-200 rounded-lg text-sm transition-all",
+                  settings.tagline.enabled ? "hover:border-blue-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100" : ""
+                )}
+              />
+            </div>
+            <div className="text-xs text-slate-500">
+              {settings.tagline.enabled 
+                ? "This tagline will appear below your main logo text"
+                : "Tagline is disabled"}
+            </div>
+          </div>
+        </div>
+        
+        {/* Styles Section */}
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
               Styles
             </span>
             <div className="flex items-center gap-2">
-              {!enabledSections.styles && <AnythingBadge />}
               <Switch
-                checked={enabledSections.styles}
+                checked={settings.styles.enabled}
                 onCheckedChange={() => toggleSection('styles')}
                 className="data-[state=checked]:bg-blue-600"
               />
             </div>
           </div>
           
-          {/* Always show content, but apply stronger disabled styling when toggled off */}
           <div className={cn(
-            "transition-all duration-300 space-y-5", // More spacing
-            !enabledSections.styles && "opacity-40 saturate-[0.6] cursor-not-allowed" // Stronger visual indication of disabled state
+            "transition-all duration-300 space-y-5",
+            !settings.styles.enabled && "opacity-40 saturate-[0.6] cursor-not-allowed"
           )}>
             <ToggleGroup
               type="single"
-              value={
-                settings.styles.type !== "anything" ? settings.styles.type : 
-                settings.styles.previousValues?.type || previousValues.styles.type || "2d"
-              }
+              value={settings.styles.type}
               onValueChange={(value) => {
-                if (value && enabledSections.styles) handleStyleTypeChange(value as "2d" | "3d");
+                if (value && settings.styles.enabled) handleStyleTypeChange(value as "2d" | "3d");
               }}
               className="flex bg-slate-50 p-1 rounded-lg border border-slate-200"
             >
@@ -586,10 +585,7 @@ const LogoSidebar = () => {
                 value="2d"
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
-                  (settings.styles.type === "2d" || 
-                   (settings.styles.type === "anything" && 
-                    (settings.styles.previousValues?.type === "2d" || previousValues.styles.type === "2d"))) && 
-                  enabledSections.styles 
+                  settings.styles.type === "2d" && settings.styles.enabled 
                     ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
@@ -600,10 +596,7 @@ const LogoSidebar = () => {
                 value="3d"
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
-                  (settings.styles.type === "3d" || 
-                   (settings.styles.type === "anything" && 
-                    (settings.styles.previousValues?.type === "3d" || previousValues.styles.type === "3d"))) && 
-                  enabledSections.styles 
+                  settings.styles.type === "3d" && settings.styles.enabled 
                     ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
@@ -614,23 +607,15 @@ const LogoSidebar = () => {
 
             {/* Style Select with improved visuals */}
             <Select
-              value={
-                settings.styles.style !== "anything" ? settings.styles.style : 
-                settings.styles.previousValues?.style || previousValues.styles.style || ""
-              }
+              value={settings.styles.style}
               onValueChange={handleStyleChange}
-              disabled={!enabledSections.styles}
+              disabled={!settings.styles.enabled}
             >
-              {/* Better select trigger with improved spacing and visual cues */}
               <SelectTrigger className="w-full bg-white border border-slate-200 hover:border-blue-300 focus:ring-blue-300 transition-all">
                 <div className="flex items-center gap-3">
-                  {/* Get the currently selected style */}
                   {(() => {
-                    const selectedStyle = getStyleOptions().find(
-                      (style) => style.value === (
-                        settings.styles.style !== "anything" ? settings.styles.style : 
-                        settings.styles.previousValues?.style || previousValues.styles.style || ""
-                      )
+                    const selectedStyle = logoStyles.find(
+                      (style) => style.value === settings.styles.style
                     );
 
                     return (
@@ -647,10 +632,7 @@ const LogoSidebar = () => {
                           </div>
                         ) : null}
                         <span className="flex-1 text-sm text-left">
-                          {selectedStyle?.label || `Select ${
-                            settings.styles.type !== "anything" ? settings.styles.type : 
-                            settings.styles.previousValues?.type || previousValues.styles.type || "2d"
-                          } style`}
+                          {selectedStyle?.label || `Select ${settings.styles.type} style`}
                         </span>
                       </>
                     );
@@ -660,7 +642,7 @@ const LogoSidebar = () => {
 
               <SelectContent className="w-[340px] p-3 max-h-[450px]">
                 <div className="grid grid-cols-3 gap-3">
-                  {getStyleOptions().map((style) =>
+                  {logoStyles.map((style) =>
                       <SelectItem
                         key={style.value}
                         value={style.value}
@@ -681,7 +663,6 @@ const LogoSidebar = () => {
                           </span>
                         </div>
                       </SelectItem>
-                    
                   )}
                 </div>
               </SelectContent>
@@ -689,36 +670,30 @@ const LogoSidebar = () => {
           </div>
         </div>
 
-        {/* Colors Section - Remains third */}
-        <div className="space-y-5"> {/* Increased spacing */}
+        {/* Colors Section */}
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
               Colors
             </span>
             <div className="flex items-center gap-2">
-              {!enabledSections.colors && <AnythingBadge />}
               <Switch
-                checked={enabledSections.colors}
+                checked={settings.colors.enabled}
                 onCheckedChange={() => toggleSection('colors')}
                 className="data-[state=checked]:bg-blue-600"
               />
             </div>
           </div>
           
-          {/* Color type toggle - Always visible with better disabled state */}
           <div className={cn(
-            "space-y-5", // Increased spacing
-            !enabledSections.colors && "opacity-40 saturate-[0.6] cursor-not-allowed" // More distinct disabled state
+            "space-y-5",
+            !settings.colors.enabled && "opacity-40 saturate-[0.6] cursor-not-allowed"
           )}>
             <ToggleGroup
               type="single"
-              value={
-                settings.colors.type !== "anything" ? settings.colors.type : 
-                previousValues.colors?.type && previousValues.colors.type !== "anything" ? previousValues.colors.type : 
-                "solid" // Default fallback when both are "anything" or undefined
-              }
+              value={settings.colors.type}
               onValueChange={(value) => {
-                if (value && enabledSections.colors) handleColorTypeChange(value as "solid" | "palette");
+                if (value && settings.colors.enabled) handleColorTypeChange(value as "solid" | "palette");
               }}
               className="flex bg-slate-50 p-1 rounded-lg border border-slate-200"
             >
@@ -726,7 +701,7 @@ const LogoSidebar = () => {
                 value="solid"
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
-                  settings.colors.type === "solid" && enabledSections.colors 
+                  settings.colors.type === "solid" && settings.colors.enabled 
                     ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
@@ -737,7 +712,7 @@ const LogoSidebar = () => {
                 value="palette"
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
-                  settings.colors.type === "palette" && enabledSections.colors 
+                  settings.colors.type === "palette" && settings.colors.enabled 
                     ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
@@ -746,72 +721,52 @@ const LogoSidebar = () => {
               </ToggleGroupItem>
             </ToggleGroup>
 
-            {/* Only show the appropriate color selection UI based on current or previous type */}
             {/* Solid Color Selection */}
-            {(settings.colors.type === "solid" || 
-              (settings.colors.type === "anything" && 
-               (!previousValues.colors?.type || previousValues.colors?.type === "solid"))) && (
+            {settings.colors.type === "solid" && (
               <div className="space-y-4">
-                <div className="grid grid-cols-4 gap-3"> {/* Increased gap */}
+                <div className="grid grid-cols-4 gap-3">
                   {colorOptions.map((preset) => (
                     <button
                       key={preset.value}
                       className={cn(
                         "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
-                        (settings.colors.type === "solid" && settings.colors.color === preset.value) ||
-                        (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
-                         previousValues.colors?.color === preset.value)
+                        settings.colors.color === preset.value
                           ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
                           : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
                       )}
                       style={{ backgroundColor: preset.value }}
-                      onClick={() => enabledSections.colors && handleSolidColorChange(preset.value)}
+                      onClick={() => settings.colors.enabled && handleSolidColorChange(preset.value)}
                       aria-label={`Select ${preset.label} color`}
-                      disabled={!enabledSections.colors}
+                      disabled={!settings.colors.enabled}
                     >
                       <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     </button>
                   ))}
 
                   <Popover>
-                    <PopoverTrigger asChild disabled={!enabledSections.colors}>
+                    <PopoverTrigger asChild disabled={!settings.colors.enabled}>
                       <button
                         className={cn(
                           "h-16 rounded-lg transition-all duration-200 relative overflow-hidden group",
-                          (settings.colors.type === "solid" && isCustomColorSelected) ||
-                          (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
-                            typeof previousValues.colors?.color === 'string' && 
-                            !colorOptions.some(o => o.value === previousValues.colors?.color))
+                          isCustomColorSelected
                             ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
                             : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
                         )}
                         style={{ 
-                          backgroundColor: 
-                            settings.colors.type === "solid" && isCustomColorSelected && typeof settings.colors.color === 'string'
-                              ? settings.colors.color 
-                              : settings.colors.type === 'anything' && 
-                                typeof previousValues.colors?.color === 'string' && 
-                                !colorOptions.some(o => o.value === previousValues.colors?.color)
-                                ? previousValues.colors?.color
-                                : undefined
+                          backgroundColor: isCustomColorSelected && typeof settings.colors.color === 'string'
+                            ? settings.colors.color 
+                            : undefined
                         }}
                         aria-label="Select custom color"
-                        disabled={!enabledSections.colors}
+                        disabled={!settings.colors.enabled}
                       >
                         <div
                           className={cn(
                             "w-full h-full flex items-center justify-center absolute inset-0",
-                            (settings.colors.type === "solid" && !isCustomColorSelected) ||
-                            (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
-                              typeof previousValues.colors?.color === 'string' && 
-                              colorOptions.some(o => o.value === previousValues.colors?.color)) 
-                              ? "bg-gradient-to-br from-blue-600 via-purple-500 to-pink-500" : ""
+                            !isCustomColorSelected ? "bg-gradient-to-br from-blue-600 via-purple-500 to-pink-500" : ""
                           )}
                         >
-                          {((settings.colors.type === "solid" && !isCustomColorSelected) ||
-                            (settings.colors.type === 'anything' && previousValues.colors?.type === 'solid' && 
-                              typeof previousValues.colors?.color === 'string' && 
-                              colorOptions.some(o => o.value === previousValues.colors?.color))) && (
+                          {!isCustomColorSelected && (
                             <div className="bg-white/70 backdrop-blur-[3px] rounded-full p-2.5 shadow-sm z-10">
                               <Palette className="w-5 h-5 text-blue-700 drop-shadow-sm" />
                             </div>
@@ -848,26 +803,21 @@ const LogoSidebar = () => {
             )}
 
             {/* Palette Selection */}
-            {(settings.colors.type === "palette" || 
-              (settings.colors.type === "anything" && previousValues.colors?.type === "palette")) && (
+            {settings.colors.type === "palette" && (
               <div className="space-y-4">
-                <div className="grid grid-cols-4 gap-3"> {/* Increased gap */}
-                  {/* Predefined palettes (first 3 columns) */}
+                <div className="grid grid-cols-4 gap-3">
                   {Object.entries(colorPalettes).slice(0, 3).map(([id, palette]) => (
                     <button
                       key={id}
                       className={cn(
                         "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
-                        (settings.colors.type === "palette" && Array.isArray(settings.colors.color) && 
-                         JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors)) ||
-                        (settings.colors.type === 'anything' && previousValues.colors?.type === 'palette' && 
-                         Array.isArray(previousValues.colors?.color) && 
-                         JSON.stringify(previousValues.colors?.color) === JSON.stringify(palette.colors))
+                        Array.isArray(settings.colors.color) && 
+                         JSON.stringify(settings.colors.color) === JSON.stringify(palette.colors)
                           ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
                           : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
                       )}
-                      onClick={() => enabledSections.colors && handlePaletteChange(id)}
-                      disabled={!enabledSections.colors}
+                      onClick={() => settings.colors.enabled && handlePaletteChange(id)}
+                      disabled={!settings.colors.enabled}
                     >
                       <div className="flex h-full overflow-hidden rounded-md">
                         {palette.colors.map((color, index) => (
@@ -885,26 +835,21 @@ const LogoSidebar = () => {
                     </button>
                   ))}
 
-                  {/* Custom palette editor in the 4th column */}
                   <Popover>
-                    <PopoverTrigger asChild disabled={!enabledSections.colors}>
+                    <PopoverTrigger asChild disabled={!settings.colors.enabled}>
                       <button
                         className={cn(
                           "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
-                          (settings.colors.type === "palette" && Array.isArray(settings.colors.color) && 
+                          Array.isArray(settings.colors.color) && 
                            !Object.entries(colorPalettes).some(([, p]) => 
-                            JSON.stringify(p.colors) === JSON.stringify(settings.colors.color))) ||
-                          (settings.colors.type === 'anything' && previousValues.colors?.type === 'palette' && 
-                           Array.isArray(previousValues.colors?.color) && 
-                           !Object.entries(colorPalettes).some(([, p]) => 
-                            JSON.stringify(p.colors) === JSON.stringify(previousValues.colors?.color)))
+                            JSON.stringify(p.colors) === JSON.stringify(settings.colors.color))
                             ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
                             : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
                         )}
-                        disabled={!enabledSections.colors}
+                        disabled={!settings.colors.enabled}
                       >
                         <div className="flex h-full overflow-hidden rounded-md">
-                          {Array.isArray(settings.colors.color) && settings.colors.type === "palette" ? 
+                          {Array.isArray(settings.colors.color) ? 
                             settings.colors.color.slice(0, 3).map((color, index) => (
                               <div
                                 key={index}
@@ -912,15 +857,6 @@ const LogoSidebar = () => {
                                 style={{ backgroundColor: color }}
                               />
                             )) : 
-                            settings.colors.type === 'anything' && previousValues.colors?.type === 'palette' && 
-                            Array.isArray(previousValues.colors?.color) ?
-                            previousValues.colors.color.slice(0, 3).map((color, index) => (
-                              <div
-                                key={index}
-                                className="h-full flex-1"
-                                style={{ backgroundColor: color }}
-                              />
-                            )) :
                             <div className="h-full w-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500" />
                           }
                         </div>
@@ -934,7 +870,6 @@ const LogoSidebar = () => {
                       <div className="space-y-3">
                         <h4 className="text-xs font-medium text-slate-700">Edit Custom Palette</h4>
                         
-                        {/* Simplified UI with direct color pickers */}
                         <div className="flex gap-2 justify-between">
                           {Array.isArray(settings.colors.color) ? 
                             settings.colors.color.map((color, index) => (
@@ -980,40 +915,289 @@ const LogoSidebar = () => {
           </div>
         </div>
 
-        {/* Design Controls - Remains fourth */}
-        <div className="space-y-5"> {/* Increased spacing */}
+        {/* Background Section */}
+        <div className="space-y-5">
+          <div className="flex items-center justify-between">
+            <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
+              Background
+            </span>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={settings.background.enabled}
+                onCheckedChange={() => toggleSection('background')}
+                className="data-[state=checked]:bg-blue-600"
+              />
+            </div>
+          </div>
+          
+          <div className={cn(
+            "space-y-5",
+            !settings.background.enabled && "opacity-40 saturate-[0.6] cursor-not-allowed"
+          )}>
+            <ToggleGroup
+              type="single"
+              value={settings.background.type}
+              onValueChange={(value) => {
+                if (value && settings.background.enabled) handleBackgroundTypeChange(value as "solid" | "palette");
+              }}
+              className="flex bg-slate-50 p-1 rounded-lg border border-slate-200"
+            >
+              <ToggleGroupItem
+                value="solid"
+                className={cn(
+                  "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
+                  settings.background.type === "solid" && settings.background.enabled 
+                    ? "!bg-blue-600 !text-white shadow-md" 
+                    : "hover:bg-slate-100"
+                )}
+              >
+                Solid Color
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="palette"
+                className={cn(
+                  "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
+                  settings.background.type === "palette" && settings.background.enabled 
+                    ? "!bg-blue-600 !text-white shadow-md" 
+                    : "hover:bg-slate-100"
+                )}
+              >
+                Color Palette
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            {/* Solid Background Color Selection */}
+            {settings.background.type === "solid" && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 gap-3">
+                  {colorOptions.map((preset) => (
+                    <button
+                      key={preset.value}
+                      className={cn(
+                        "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
+                        settings.background.color === preset.value
+                          ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
+                          : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
+                      )}
+                      style={{ backgroundColor: preset.value }}
+                      onClick={() => settings.background.enabled && handleBackgroundColorChange(preset.value)}
+                      aria-label={`Select ${preset.label} background color`}
+                      disabled={!settings.background.enabled}
+                    >
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    </button>
+                  ))}
+
+                  <Popover>
+                    <PopoverTrigger asChild disabled={!settings.background.enabled}>
+                      <button
+                        className={cn(
+                          "h-16 rounded-lg transition-all duration-200 relative overflow-hidden group",
+                          isCustomBgColorSelected && typeof settings.background.color === 'string'
+                            ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
+                            : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
+                        )}
+                        style={{ 
+                          backgroundColor: isCustomBgColorSelected && typeof settings.background.color === 'string'
+                            ? settings.background.color 
+                            : undefined
+                        }}
+                        aria-label="Select custom background color"
+                        disabled={!settings.background.enabled}
+                      >
+                        <div
+                          className={cn(
+                            "w-full h-full flex items-center justify-center absolute inset-0",
+                            !isCustomBgColorSelected ? "bg-gradient-to-br from-blue-600 via-purple-500 to-pink-500" : ""
+                          )}
+                        >
+                          {!isCustomBgColorSelected && (
+                            <div className="bg-white/70 backdrop-blur-[3px] rounded-full p-2.5 shadow-sm z-10">
+                              <Palette className="w-5 h-5 text-blue-700 drop-shadow-sm" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-4 bg-white rounded-lg border border-slate-200 shadow-lg">
+                      <div className="space-y-4">
+                        <HexColorPicker
+                          color={isCustomBgColorSelected && typeof settings.background.color === 'string' ? 
+                            settings.background.color : "#FFFFFF"}
+                          onChange={(color) => {
+                            handleBackgroundColorChange(color);
+                            setIsCustomBgColorSelected(true);
+                          }}
+                          className="w-48 !h-48"
+                        />
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                          <div className="h-8 w-12 rounded-md border border-slate-200 shadow-sm" 
+                               style={{ backgroundColor: isCustomBgColorSelected && typeof settings.background.color === 'string' ? 
+                                 settings.background.color : "#FFFFFF" }} />
+                          <span className="text-sm font-medium text-slate-700">
+                            {isCustomBgColorSelected && typeof settings.background.color === 'string' ? 
+                              settings.background.color.toUpperCase() : "#FFFFFF"}
+                          </span>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
+
+            {/* Background Palette Selection */}
+            {settings.background.type === "palette" && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 gap-3">
+                  {Object.entries(colorPalettes).slice(0, 3).map(([id, palette]) => (
+                    <button
+                      key={id}
+                      className={cn(
+                        "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
+                        Array.isArray(settings.background.color) && 
+                        JSON.stringify(settings.background.color) === JSON.stringify(palette.colors)
+                          ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
+                          : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
+                      )}
+                      onClick={() => settings.background.enabled && handleBackgroundPaletteChange(id)}
+                      disabled={!settings.background.enabled}
+                    >
+                      <div className="flex h-full overflow-hidden rounded-md">
+                        {palette.colors.map((color, index) => (
+                          <div
+                            key={index}
+                            className="h-full flex-1"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-[2px] px-2 py-0.5 rounded text-[11px] font-medium text-slate-800 shadow-sm transition-all group-hover:scale-110 group-hover:bottom-2.5">
+                        {palette.name}
+                      </span>
+                    </button>
+                  ))}
+
+                  <Popover>
+                    <PopoverTrigger asChild disabled={!settings.background.enabled}>
+                      <button
+                        className={cn(
+                          "h-16 rounded-lg transition-all duration-200 relative group overflow-hidden",
+                          Array.isArray(settings.background.color) && 
+                          !Object.entries(colorPalettes).some(([, p]) => 
+                            JSON.stringify(p.colors) === JSON.stringify(settings.background.color))
+                            ? "ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md z-10"
+                            : "ring-1 ring-slate-200 hover:ring-blue-300 hover:scale-105 hover:shadow-sm"
+                        )}
+                        disabled={!settings.background.enabled}
+                      >
+                        <div className="flex h-full overflow-hidden rounded-md">
+                          {Array.isArray(settings.background.color) ? 
+                            settings.background.color.slice(0, 3).map((color, index) => (
+                              <div
+                                key={index}
+                                className="h-full flex-1"
+                                style={{ backgroundColor: color }}
+                              />
+                            )) : 
+                            <div className="h-full w-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500" />
+                          }
+                        </div>
+                        <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-[2px] px-2 py-0.5 rounded text-[11px] font-medium text-slate-800 shadow-sm transition-all group-hover:scale-110 group-hover:bottom-2.5">
+                          Custom
+                        </span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-4 bg-white rounded-lg border border-slate-200 shadow-lg">
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-medium text-slate-700">Edit Background Palette</h4>
+                        
+                        <div className="flex gap-2 justify-between">
+                          {Array.isArray(settings.background.color) ? 
+                            settings.background.color.map((color, index) => (
+                              <div key={index} className="flex-1">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <button
+                                      className="h-16 w-full rounded-md transition-all ring-1 ring-slate-200 hover:ring-blue-300 relative group overflow-hidden shadow-sm"
+                                      style={{ backgroundColor: color }}
+                                    >
+                                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="bg-white/70 backdrop-blur-[2px] rounded-full p-1.5 shadow-sm">
+                                          <Palette className="w-4 h-4 text-blue-700" />
+                                        </div>
+                                      </div>
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent side="top" className="w-auto p-3">
+                                    <div className="space-y-3">
+                                      <HexColorPicker
+                                        color={color}
+                                        onChange={(newColor) => updateCustomBackgroundColor(index, newColor)}
+                                        className="w-48 !h-48"
+                                      />
+                                      <div className="pt-2 border-t border-slate-100 text-center">
+                                        <span className="text-xs font-medium text-slate-600">{color.toUpperCase()}</span>
+                                      </div>
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                            )) : 
+                            <div className="text-sm text-slate-500">No colors defined</div>
+                          }
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
+            
+            <div className="text-xs text-slate-500">
+              {settings.background.enabled 
+                ? "Choose a background color or gradient for your logo"
+                : "Background is disabled (transparent)"}
+            </div>
+          </div>
+        </div>
+
+        {/* Design Controls */}
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
             <span className="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded">
               Design Controls
             </span>
             <div className="flex items-center gap-2">
-              {!enabledSections.controls && <AnythingBadge />}
               <Switch
-                checked={enabledSections.controls}
+                checked={settings.controls.enabled}
                 onCheckedChange={() => toggleSection('controls')}
                 className="data-[state=checked]:bg-blue-600"
               />
             </div>
           </div>
           
-          {/* Enhanced controls UI with stronger disabled state */}
           <div className={cn(
-            "transition-all duration-300 space-y-5", // More spacing
-            !enabledSections.controls && "opacity-40 saturate-[0.6] cursor-not-allowed" // More distinct disabled state
+            "transition-all duration-300 space-y-5",
+            !settings.controls.enabled && "opacity-40 saturate-[0.6] cursor-not-allowed"
           )}>
             <ToggleGroup
               type="single"
               value={activeControl}
               onValueChange={(value) => {
-                if (value && enabledSections.controls) setActiveControl(value as "creativity" | "detail");
+                if (value && settings.controls.enabled) setActiveControl(value as "creativity" | "detail");
               }}
-              className="flex bg-slate-50 p-1 rounded-lg border border-slate-200 mb-3" // Increased margin
+              className="flex bg-slate-50 p-1 rounded-lg border border-slate-200 mb-3"
             >
               <ToggleGroupItem
                 value="creativity"
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
-                  activeControl === "creativity" && enabledSections.controls 
+                  activeControl === "creativity" && settings.controls.enabled 
                     ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
@@ -1024,7 +1208,7 @@ const LogoSidebar = () => {
                 value="detail"
                 className={cn(
                   "flex-1 rounded-md py-2.5 text-sm font-medium transition-all",
-                  activeControl === "detail" && enabledSections.controls 
+                  activeControl === "detail" && settings.controls.enabled 
                     ? "!bg-blue-600 !text-white shadow-md" 
                     : "hover:bg-slate-100"
                 )}
@@ -1033,17 +1217,16 @@ const LogoSidebar = () => {
               </ToggleGroupItem>
             </ToggleGroup>
 
-            {/* Show both sliders at all times, but only active one based on state */}
             <div className={cn(
               activeControl === "creativity" ? "block" : "hidden",
-              "space-y-4 bg-gradient-to-br from-slate-50 to-white p-5 rounded-lg border border-slate-200 shadow-sm" // More padding
+              "space-y-4 bg-gradient-to-br from-slate-50 to-white p-5 rounded-lg border border-slate-200 shadow-sm"
             )}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-slate-600 font-medium">Conservative</span>
                 </div>
                 <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
-                  {typeof settings.controls.creativity === "number" ? `${settings.controls.creativity}%` : "Anything"}
+                  {settings.controls.creativity}%
                 </span>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-slate-600 font-medium">Creative</span>
@@ -1053,23 +1236,23 @@ const LogoSidebar = () => {
                 min={0}
                 max={100}
                 step={1}
-                value={[typeof settings.controls.creativity === "number" ? settings.controls.creativity : 100]}
+                value={[settings.controls.creativity]}
                 onValueChange={(values) => handleControlChange("creativity", values[0])}
-                disabled={settings.controls.creativity === "anything"}
+                disabled={!settings.controls.enabled}
                 className="mt-2"
               />
             </div>
             
             <div className={cn(
               activeControl === "detail" ? "block" : "hidden",
-              "space-y-4 bg-gradient-to-br from-slate-50 to-white p-5 rounded-lg border border-slate-200 shadow-sm" // More padding
+              "space-y-4 bg-gradient-to-br from-slate-50 to-white p-5 rounded-lg border border-slate-200 shadow-sm"
             )}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-slate-600 font-medium">Minimal</span>
                 </div>
                 <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
-                  {typeof settings.controls.detail === "number" ? `${settings.controls.detail}%` : "Anything"}
+                  {settings.controls.detail}%
                 </span>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-slate-600 font-medium">Detailed</span>
@@ -1079,9 +1262,9 @@ const LogoSidebar = () => {
                 min={0}
                 max={100}
                 step={1}
-                value={[typeof settings.controls.detail === "number" ? settings.controls.detail : 100]}
+                value={[settings.controls.detail]}
                 onValueChange={(values) => handleControlChange("detail", values[0])}
-                disabled={settings.controls.detail === "anything"}
+                disabled={!settings.controls.enabled}
                 className="mt-2"
               />
             </div>
@@ -1089,8 +1272,7 @@ const LogoSidebar = () => {
         </div>
       </div>
 
-      {/* Improved fixed button container at bottom */}
-      <div className="px-6 py-6 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white"> {/* Increased padding */}
+      <div className="px-6 py-6 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white">
         <Button
           variant="outline"
           className="w-full border-slate-300 bg-white rounded-lg flex items-center gap-2 justify-center hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 text-slate-700 h-12 font-medium transition-all shadow-sm"
