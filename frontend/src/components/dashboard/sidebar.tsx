@@ -122,8 +122,8 @@ const defaultSettings: LogoSettings = {
   },
   controls: {
     enabled: true,
-    creativity: 100,
-    detail: 100,
+    creativity: 10,
+    detail: 10,
   },
   text: {
     enabled: false,
@@ -1226,7 +1226,7 @@ const LogoSidebar = () => {
                   <span className="text-xs text-slate-600 font-medium">Conservative</span>
                 </div>
                 <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
-                  {settings.controls.creativity}%
+                  {settings.controls.creativity}
                 </span>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-slate-600 font-medium">Creative</span>
@@ -1234,7 +1234,7 @@ const LogoSidebar = () => {
               </div>
               <Slider
                 min={0}
-                max={100}
+                max={10}
                 step={1}
                 value={[settings.controls.creativity]}
                 onValueChange={(values) => handleControlChange("creativity", values[0])}
@@ -1252,7 +1252,7 @@ const LogoSidebar = () => {
                   <span className="text-xs text-slate-600 font-medium">Minimal</span>
                 </div>
                 <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
-                  {settings.controls.detail}%
+                  {settings.controls.detail}
                 </span>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-slate-600 font-medium">Detailed</span>
@@ -1260,7 +1260,7 @@ const LogoSidebar = () => {
               </div>
               <Slider
                 min={0}
-                max={100}
+                max={10}
                 step={1}
                 value={[settings.controls.detail]}
                 onValueChange={(values) => handleControlChange("detail", values[0])}

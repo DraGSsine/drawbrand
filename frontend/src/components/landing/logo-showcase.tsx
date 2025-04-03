@@ -8,8 +8,8 @@ const logoShowcaseItems = [
     id: 1,
     before: "before-compass-pop.png",
     after: "after-compass-pop.png",
-    title: "Dragon Logo Design",
-    description: "Line art to detailed illustration",
+    title: "Compass Logo Transformation",
+    description: "From a rough sketch to a polished compass design",
     styles: [
       { name: "Dynamic", color: "blue" as const },
       { name: "Detailed", color: "blue" as const }
@@ -18,10 +18,10 @@ const logoShowcaseItems = [
   },
   {
     id: 2,
-    before: "before-ship-comic.png",
-    after: "after-ship-comic.png",
-    title: "Castle Brand Evolution",
-    description: "Pixel art to modern vector design",
+    before: "before-manportal.png",
+    after: "after-manportal.png",
+    title: "Man Portal Logo Evolution",
+    description: "From a simple sketch to a modern portal design",
     styles: [
       { name: "Retro", color: "blue" as const },
       { name: "Modern", color: "blue" as const }
@@ -32,8 +32,8 @@ const logoShowcaseItems = [
     id: 3,
     before: "before-three-pictorial.png",
     after: "after-three-pictorial.png",
-    title: "Coffee Brand Evolution",
-    description: "Badge style to modern crest design",
+    title: "Coffee Logo Transformation",
+    description: "From badge style to a sleek modern crest",
     styles: [
       { name: "Classic", color: "blue" as const },
       { name: "Premium", color: "blue" as const }
@@ -44,8 +44,8 @@ const logoShowcaseItems = [
     id: 4,
     before: "before-tree-manga.png",
     after: "after-tree-manga.png",
-    title: "Tree Brand Transformation",
-    description: "Manga style to professional design",
+    title: "Tree Logo Evolution",
+    description: "From manga style to a professional tree design",
     styles: [
       { name: "Nature", color: "blue" as const },
       { name: "Modern", color: "blue" as const }
@@ -57,7 +57,7 @@ const logoShowcaseItems = [
     before: "before-ship-comic.png",
     after: "after-ship-comic.png",
     title: "Ship Logo Transformation",
-    description: "Comic style to professional design",
+    description: "From comic style to a refined ship design",
     styles: [
       { name: "Classic", color: "blue" as const },
       { name: "Modern", color: "blue" as const }
@@ -69,7 +69,7 @@ const logoShowcaseItems = [
     before: "before-mountain-mascot.png",
     after: "after-mountain-mascot.png",
     title: "Mountain Logo Evolution",
-    description: "Mascot style to modern design",
+    description: "From mascot style to a modern mountain design",
     styles: [
       { name: "Nature", color: "blue" as const },
       { name: "Modern", color: "blue" as const }
