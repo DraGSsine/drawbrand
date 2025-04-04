@@ -8,20 +8,32 @@ export interface IUser {
 
 export interface LogoSettings {
   styles: {
+    enabled: boolean;
     type: string;
     style: string;
   };
   colors: {
+    enabled: boolean;
     type: string;
-    color: string;
+    color: string | string[];
   };
   controls: {
+    enabled: boolean;
     creativity: number;
     detail: number;
   };
   text: {
-    enabled: string;
+    enabled: boolean;
     value: string;
+  };
+  tagline: {
+    enabled: boolean;
+    value: string;
+  };
+  background: {
+    enabled: boolean;
+    type: string;
+    color: string | string[];
   };
 }
 

@@ -16,8 +16,20 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function DashboardPage() {
   // Simplified sidebar visibility state
-  const [showLeftSidebar, setShowLeftSidebar] = useState(true);
-  const [showRightSidebar, setShowRightSidebar] = useState(true);
+  const [showLeftSidebar, setShowLeftSidebar] = useState(() => {
+    // Check if we're in the browser and not in SSR
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768; // Show by default only on non-mobile
+    }
+    return true; // Default for SSR
+  });;
+  const [showRightSidebar, setShowRightSidebar] = useState(() => {
+    // Check if we're in the browser and not in SSR
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768; // Show by default only on non-mobile
+    }
+    return true; // Default for SSR
+  });;
   // Track if component is mounted (client-side)
   const [isMounted, setIsMounted] = useState(false);
   // Store viewport information

@@ -81,8 +81,10 @@ export class AuthController {
   async googleAuthRedirect(@Req() req, @Res() res) {
     const { token } = await this.authService.signin(req.user);
     const redirectUrl = this.configService.get<string>('FRONTEND_URL');
+    console.log('Redirect URL:', redirectUrl);
+    console.log('Token:', token);
     res.cookie('token', token, this.resHeaders);
-    res.redirect(`${redirectUrl}/auth/signin?token=${token}`);
+    res.redirect(`${redirectUrl}/auth/signin`);
   }
 
   @Post('signout')
