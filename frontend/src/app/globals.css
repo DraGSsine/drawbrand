@@ -50,6 +50,8 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 199 89% 48%;
+    
+    --vh: 1vh;
   }
 
   .dark {
@@ -169,4 +171,11 @@ html {
 @keyframes slideRightToLeft {
   0% { transform: translateX(calc(-50% - 0.5rem)); }
   100% { transform: translateX(0); }
+}
+
+/* Custom viewport height variables */
+.h-screen {
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Dynamic viewport height for supporting browsers */
+  height: calc(var(--vh, 1vh) * 100); /* Custom calculation fallback */
 }

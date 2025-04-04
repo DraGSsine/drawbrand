@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
@@ -48,6 +48,26 @@ const RightSideBar = ({ onImageClick }: RightSideBarProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState<string | null>(null);
 
+  // Effect for setting full height on mobile devices
+  useEffect(() => {
+    // Function to update custom vh variable
+    const setVHVariable = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+
+    // Set the variable initially
+    setVHVariable();
+
+    // Update on resize and orientation change
+    window.addEventListener('resize', setVHVariable);
+    window.addEventListener('orientationchange', setVHVariable);
+
+    return () => {
+      window.removeEventListener('resize', setVHVariable);
+      window.removeEventListener('orientationchange', setVHVariable);
+    };
+  }, []);
 
   // TanStack Query mutation with real API call
   const logoMutation = useMutation({

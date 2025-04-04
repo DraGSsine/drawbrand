@@ -38,21 +38,30 @@ export default function DashboardPage() {
     isTablet: false, // 768px - 1279px
   });
 
-  // Set isMounted to true after component mounts
+  // Set isMounted to true after component mounts and set dynamic viewport height
   useEffect(() => {
     setIsMounted(true);
     
-    // Initialize viewport size
+    // Initialize viewport size and set dynamic vh variable
     const updateViewport = () => {
       setViewport({
         isMobile: window.innerWidth < 768,
         isTablet: window.innerWidth >= 768 && window.innerWidth < 1280,
       });
+      
+      // Set custom viewport height property
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
     
     updateViewport();
     window.addEventListener('resize', updateViewport);
-    return () => window.removeEventListener('resize', updateViewport);
+    window.addEventListener('orientationchange', updateViewport);
+    
+    return () => {
+      window.removeEventListener('resize', updateViewport);
+      window.removeEventListener('orientationchange', updateViewport);
+    };
   }, []);
 
   // Close sidebars on ESC key (for accessibility)
@@ -103,7 +112,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-blue-50">
+    <div className="h-[100dvh] h-[calc(var(--vh,1vh)*100)] w-screen overflow-hidden bg-blue-50">
       {/* Top navigation bar */}
       <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 shadow-sm z-40">
         <div className="flex items-center">
@@ -143,8 +152,8 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Main content area */}
-      <div className="h-[calc(100vh-56px)] w-full mx-auto relative p-4 mt-14">
+      {/* Main content area - Use dynamic height calculation */}
+      <div className="h-[calc(100dvh-56px)] h-[calc(calc(var(--vh,1vh)*100)-56px)] w-full mx-auto relative p-4 mt-14">
         {/* Mobile sidebar toggle buttons - only visible on mobile */}
         <div className="flex md:hidden w-full gap-2 mb-2 z-20">
           <Button
@@ -204,7 +213,7 @@ export default function DashboardPage() {
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
                   fixed md:relative left-0 top-[56px] md:top-0 z-30 
-                  h-[calc(100vh-56px)] 
+                  h-[calc(100dvh-56px)] h-[calc(calc(var(--vh,1vh)*100)-56px)] md:h-full
                   bg-white rounded-2xl overflow-hidden border border-blue-100
                   shadow-lg md:shadow-none
                 `}
@@ -232,7 +241,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Main drawing area */}
-          <main className="flex-1 h-[80vh] md:h-full overflow-hidden bg-white rounded-2xl shadow-sm border border-blue-100">
+          <main className="flex-1 h-full overflow-hidden bg-white rounded-2xl shadow-sm border border-blue-100">
             <Drawing />
           </main>
 
@@ -272,7 +281,7 @@ export default function DashboardPage() {
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 className={`
                   fixed md:relative right-0 top-[56px] md:top-0 z-30  
-                  h-[calc(100vh-56px)] 
+                  h-[calc(100dvh-56px)] h-[calc(calc(var(--vh,1vh)*100)-56px)] md:h-full
                   bg-white rounded-2xl overflow-hidden border border-blue-100
                   shadow-lg md:shadow-none
                 `}
